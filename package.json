@@ -1,0 +1,38 @@
+{
+  "dependencies": {
+    "axios": "^0.27.2",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.0",
+    "colors": "^1.4.0",
+    "connect-mongo": "^4.6.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-session": "^1.17.2",
+    "kafkajs": "^2.0.2",
+    "mongoose": "^6.3.4",
+    "morgan": "^1.10.0",
+    "mqtt": "^4.3.7",
+    "nano": "^10.0.0",
+    "nocache": "^3.0.4",
+    "nodemon": "^2.0.16",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
+    "pure-rand": "^5.0.1",
+    "rfs": "^9.0.6",
+    "rotating-file-stream": "^3.0.3",
+    "stompit": "^1.0.0",
+    "uuid": "^8.3.2"
+  },
+  "name": "Navid",
+  "version": "1.0.0",
+  "description": "Cyprus Internet Things",
+  "main": "server.js",
+  "repository": "https://gitlab.com/killercode/server-iot.git",
+  "author": "killercode <navidtaheri@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/server.js",
+    "eval": "nodemon src/server.js"
+  }
+}

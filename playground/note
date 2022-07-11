@@ -1,0 +1,13 @@
+  remove key form document ---> filterBoardDB.collection("userfilters").findOneAndUpdate({username:`${req.body.rule.email}`},{$unset:{"sensor_id":{feild:1}}})
+
+  import to key ---------> // filterBoardDB.collection("userfilters").findOneAndUpdate({username:`${req.body.rule.email}`},{$set:{"sensor":[{sensor_id:"sensor-001",view:true}]}})
+
+
+
+  filterBoardDB.collection("userfilters").findOneAndUpdate({username:`${req.body.rule.email}`},{$set:{"sensor":[{sensor_id:`${req.body.rule.sensor_id}`,view:req.body.rule.view}]}})
+
+
+
+  //Change view
+
+  filterBoardDB.collection("userfilters").findOneAndUpdate({username:`${req.body.rule.email}`,sensor:{$elemMatch:{sensor_id:`${req.body.rule.sensor_id}`}}},{$set:{"sensor.$.view":req.body.rule.view}})
