@@ -5,6 +5,8 @@ const mqtt = require('mqtt')
 
 async function activeMQPublisher(address,message){
 
+  console.log('user in activeMQPublisher' , req.user.username)
+
 const host = '194.5.195.11'
 const port = '1883'
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
@@ -41,16 +43,7 @@ client.on('connect', () => {
 
 
 })
-// client.on('message', (topic, payload) => {
-//   // console.log('Received Message:', topic, payload.toString())
-//   const receieved ={
-//     topic:topic,
-//     msg:payload.toString()
 
-//   }
-//   return receieved
-
-// })
 
 
 }

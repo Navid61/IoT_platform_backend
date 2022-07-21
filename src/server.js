@@ -20,11 +20,16 @@ const MongoStore = require('connect-mongo');
 // const stompit = require('stompit')
 
 const userAccount = require("./users/userAccount");
+const users = require('./users/users');
+const account = require('./account/account');
 const dashbaord = require("./dashboard/dashboard");
 const userFilter = require("./filter/userFilter");
 const {v4:uuidv4} = require("uuid");
 const receive = require('./transition/reciveData');
 
+const newService = require('./customer/service/newService');
+const newClient= require('./client/newClient');
+const setup = require('./customer/setup')
 
 //* Apache ActiveMQ Artemis */
 const subscriber = require('./broker/activemq/subscriber');
@@ -113,7 +118,7 @@ app.use(passport.session());
 
 app.use(function (req, res, next) {
 
-  const allowedOrigins = ['http://194.5.195.11:3088','http://194.5.195.11:5984','http://194.5.195.11:8082','http://194.5.195.11:8088'];
+  const allowedOrigins = ['http://194.5.195.11:3000','http://194.5.195.11:3088','http://194.5.195.11:5984','http://194.5.195.11:8082','http://194.5.195.11:8088'];
   const origin = req.headers.origin;
  
   if (allowedOrigins.includes(origin)) {
@@ -146,7 +151,7 @@ app.use(function (req, res, next) {
 
 
 
-var whitelist = ['http://194.5.195.11:3088','http://194.5.195.11:5984','http://localhost:3088','http://194.5.195.11:8082','http://194.5.195.11:8088'];
+var whitelist = ['http://194.5.195.11:3000','http://194.5.195.11:3088','http://194.5.195.11:5984','http://localhost:3088','http://194.5.195.11:8082','http://194.5.195.11:8088'];
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
@@ -166,7 +171,7 @@ app.use(cors(corsOptions))
 
 
 app.use('/broker',receive);
-app.use('/',userAccount,dashbaord,userFilter);
+app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,setup,account);
 
 
 

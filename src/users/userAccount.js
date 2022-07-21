@@ -70,7 +70,8 @@ router.post('/login',async function(req, res, next) {
   })(req, res, next);
 });
 
-router.get('/logout', function(req, res) {
+router.post('/logout', function(req, res) {
+
   req.logout(function(err) {
     if (err) { return next(err); }
     req.session.destroy()
@@ -81,11 +82,20 @@ router.get('/logout', function(req, res) {
   });
 
  
+ });
 
 
+router.get('/logout', function(req, res) {
+console.log('logout was successful')
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    req.session.destroy()
+    res.json({ 
+      status: "logout",
+      msg:"You did logout successfuly"
+    });
+  });
 
-
-  
  
  });
  

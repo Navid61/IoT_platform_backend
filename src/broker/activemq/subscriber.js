@@ -7,15 +7,10 @@ const colors = require('colors');
 const axios =require('axios');
 const mqtt = require('mqtt');
 
+const Service = require('../../db/models/service');
 
-// const prand = require('pure-rand');
-// const { mersenne } = require('pure-rand');
 
-// const seed = 42;
 
-// Instanciates a Mersenne Twister
-// random number generator with the seed=42
-// const gen1 = prand.mersenne(seed);
 ///////////
 
 function makeid(length) {
@@ -33,7 +28,10 @@ function makeid(length) {
 
 
 ////////
-let iotData;
+
+
+
+
 const host = '194.5.195.11'
 const port = '1883'
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
@@ -50,69 +48,144 @@ const client = mqtt.connect(connectUrl, {
 })
 
 
-const topic = '/babak/json'
-client.on('connect', () => {
-  console.log('Connected')
-  client.subscribe([topic], () => {
-    console.log(`Subscribe to topic '${topic}'`)
+
+
+
+
+let topic = '/babak/json'
+
+let topic2=[]
+client.on('connect', async() => {
+
+  // GET TOPIC
+
+await (async()=>{
+ return await Service.find({}, async(err,result)=>{
+    if(err){
+      throw new Error('Error i get topic in subscriber')
+    }
+  
+    if(result){
+    
+      return result
+
+      }
+      
+    
+
+   
+      // client.subscribe([topic2], () => {
+      //   console.log(`Subscribe to topic ${topic2}`)
+      // })
+   
+
+  
+
+   
+  }).clone().catch(function (err) {console.log(err)})
+
+  
+})().then(async(response)=>{
+  for await (const r of response){
+topic2.push(r.topic)
+  }
+
+
+  topic2.forEach(t=>{
+    client.subscribe([t], () => {
+      console.log(`Subscribe to topic ${t}`)
+    })
   })
  
+ 
 })
 
-client.on('message', async(topic, payload) => {
-//  console.log('Received Message:', topic, JSON.parse(payload.toString()))
-let json = JSON.parse(payload.toString());
-const data = json["office1"]
 
- 
-if(data){
-  const dashboard=[];
-  for(let i=1;i<data.length;i++){
-  data[i]["time"]=`${new Date().toISOString().replace(/.\d+Z$/g,"")}`
-  data[i]["created_at"]=`${new Date().toISOString()}`
-dashboard.push(data[i])
-dashboard.sort(function(a,b){return a.created_at>dashboard[dashboard.length -1].created_at,b})
-if(dashboard.length == data.length -1){
-    await axios({
-      method:"POST",
-      url:'http://localhost:5984/cyprus-dev',
-     withCredntials:true,
-    
-      headers:{
-        'content-type':'application/json',
-        'accept':'application/json'
-      },
-      auth:{
-        username:'admin',
-        password:'c0_OU7928CH'
-    
-      },
-      data:{"dashboard":dashboard}
-    }).then((response)=>{
-      // console.log('response ', response.data.id)
-
-    }).catch(error=>{
-      console.error('error in put doc to couchDB ', error)
-    })
-    
- 
-  
-}
-
-
-
-}
-
-  
-
-
-}
-
-
-    
-
-
+client.subscribe([topic], () => {
+  console.log(`Subscribe to topic ${topic}`)
 })
+
+
+
+
+ 
+ 
+})
+
+
+
+client.on('message', async(topic,payload)=>{
+  // console.log(`${topic}:`, payload.toString())
+})
+
+
+// client.on('message', async(topic2, payload) => {
+// console.log('Received Message:', topic2, payload.toString())
+// // console.log('recieve message ', JSON.parse(payload.toString()))
+
+// // if((payload.toString()).length > 0 && JSON.parse(payload.toString())){
+// // let json = JSON.parse(payload.toString());
+
+// // let data = json["office1"]
+// // let dashboard=[];
+
+// // if(data){
+// //   // console.log('data',data)
+  
+// //   for(let i=1;i<data.length;i++){
+// //   data[i]["time"]=`${new Date().toISOString().replace(/.\d+Z$/g,"")}`
+// //   data[i]["created_at"]=`${new Date().toISOString()}`
+// //   dashboard.push(data[i])
+// // }
+
+// // dashboard.sort(function(a,b){return a.created_at>dashboard[dashboard.length -1].created_at,b})
+
+
+
+// // if(dashboard.length == data.length -1){
+// //   // console.log('dashboard ', dashboard)
+// //   await axios({
+// //     method:"POST",
+// //     url:'http://localhost:5984/cyprus-dev',
+// //    withCredntials:true,
+  
+// //     headers:{
+// //       'content-type':'application/json',
+// //       'accept':'application/json'
+// //     },
+// //     auth:{
+// //       username:'admin',
+// //       password:'c0_OU7928CH'
+  
+// //     },
+// //     data:{"dashboard":dashboard}
+// //   }).then((response)=>{
+// //     // console.log('response ', response.data.id)
+
+// //   }).catch(error=>{
+// //     console.error('error in put doc to couchDB ', error)
+// //   })
+  
+
+
+// // }
+  
+
+
+// // }
+
+
+// // }
+
+
+
+
+
+
+    
+
+
+// })
 
 
 
@@ -126,7 +199,7 @@ if(dashboard.length == data.length -1){
 
 // }
 
-
+module.exports = router
 
 
 
