@@ -17,27 +17,37 @@ const checkAuthenticated = function (req, res, next) {
 
 router.post("/account", checkAuthenticated, async (req, res) => {
 
-    const checkUserName= req.body.username;
+   
 
-    await Account.find({username:checkUserName},async(err,result)=>{
-        if(err){
-            throw new Error(err)
-        }
+    if((req.body.username)!==''){
 
-
-        if(result.length!==0){
-            if(result[0].verification){
-                res.status(200).json({msg:"ok"})
+        await Account.find({username:req.body.username},async(err,result)=>{
+            if(err){
+                throw new Error(err)
             }
-           
-        }else if(result.length===0){
-            res.status(404).json({msg:404})
-        }
-    }).clone()
-    .catch(function (err) {
-      console.log(err)
-    })
+    
+    
+            if(result.length!==0){
+                if(result[0].verification){
+                    res.status(200).json({
+                        status:200,
+                        msg:"ok"})
+                }
+               
+            }else if(result.length===0){
+                res.status(404).json({
+                    status:404,
+                    msg:"non exist"})
+            }
+        }).clone()
+        .catch(function (err) {
+          console.log(err)
+        })
+    
 
+    }
+
+   
 
 
 })

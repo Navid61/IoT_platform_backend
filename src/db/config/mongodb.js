@@ -8,12 +8,13 @@ const url = 'mongodb://127.0.0.1:27017';
 // const url2 = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/?authSource=admin";
 const client = new MongoClient(url);
 // // Database Name
-const dbName = 'sigmaboard';
-const dbName2 = 'filterboard';
+const dbName ='sigmaboard';
+const dbName2 ='filterboard';
 const dbName3 ='service';
 const dbName4 ='agent';
 const dbName5 ='client';
 const dbName6='users';
+const dbName7='device';
 // // const dbName = 'admin';
 // // Use connect method to connect to the server
 
@@ -28,6 +29,7 @@ main()
  const agentDB = client.db(dbName4)
  const clientDB = client.db(dbName5)
  const usersDB = client.db(dbName6)
+ const deviceDB= client.db(dbName7)
 
 module.exports={
     sigmaBoardDB:sigmaBoardDB,
@@ -35,7 +37,8 @@ module.exports={
     serviceDB:serviceDB,
     agentDB:agentDB,
     clientDB:clientDB,
-    usersDB:usersDB
+    usersDB:usersDB,
+    deviceDB:deviceDB
 };
 
 

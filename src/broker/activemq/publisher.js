@@ -30,7 +30,7 @@ client.on('connect', () => {
   console.log('Connected')
   client.subscribe([topic], (err) => {
     if(!err){
-      client.publish(topic, `${message}`, { qos: 0, retain: false }, (error) => {
+      client.publish(topic, JSON.stringify(message), { qos: 0, retain: false }, (error) => {
         if (error) {
           console.error(error)
         }

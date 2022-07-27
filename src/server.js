@@ -21,9 +21,11 @@ const MongoStore = require('connect-mongo');
 
 const userAccount = require("./users/userAccount");
 const users = require('./users/users');
+const devices = require('./devices/devices');
 const account = require('./account/account');
 const dashbaord = require("./dashboard/dashboard");
 const userFilter = require("./filter/userFilter");
+const place = require("./place/place");
 const {v4:uuidv4} = require("uuid");
 const receive = require('./transition/reciveData');
 
@@ -171,7 +173,7 @@ app.use(cors(corsOptions))
 
 
 app.use('/broker',receive);
-app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,setup,account);
+app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,setup,account,place,devices);
 
 
 

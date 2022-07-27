@@ -11,3 +11,10 @@
   //Change view
 
   filterBoardDB.collection("userfilters").findOneAndUpdate({username:`${req.body.rule.email}`,sensor:{$elemMatch:{sensor_id:`${req.body.rule.sensor_id}`}}},{$set:{"sensor.$.view":req.body.rule.view}})
+
+
+
+
+  // servicedb.collection("services").find({},{$or:[{owner:req.user.username},{keeper:req.user.username}]}).toArray(function(err,result){
+//   console.log('result ', result)
+// })

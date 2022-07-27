@@ -11,7 +11,7 @@ const Service = require("../db/models/service")
 const Control = require("../db/models/control")
 
 const checkAuthenticated = function (req, res, next) {
-  console.log("req.isAuthenticated  in Dashbaord ", req.isAuthenticated())
+ 
 
   if (req.isAuthenticated()) {
     return next()
@@ -36,24 +36,35 @@ function makeid(length) {
 
 router.get("/setup/:id", checkAuthenticated, async (req, res) => {
 
-  const id=req.params.id
-  console.log('id', id)
+  const _id=req.params.id
+ 
+ console.log('id ', _id)
+if(_id!==undefined||_id!==''){
+  try{
+    await Service.find({owner:req.user.username,service_id:_id},async(err,result)=>{
+      if(err){
+        throw new Error('Error in get data for setup system')
+      }
   
-  await Service.find({service_id:id},async(err,result)=>{
-    if(err){
-      throw new Error('Error in get data fro setup system')
-    }
+      if(result.length!==0){
 
-    if(result){
-
-      res.status(200).json({place:result[0].place})
-    }
+       
+  
+        res.status(200).json({place:result[0].place})
+      }
+  
+    
+    }).clone()
+    .catch(function (err) {
+      console.log(err)
+    })
+  }catch(e){
+console.error('e', e.response)
+  }
+  
+}
 
   
-  }).clone()
-  .catch(function (err) {
-    console.log(err)
-  })
 
  
 })
@@ -65,9 +76,6 @@ router.get("/setup", checkAuthenticated, async (req, res) => {
 
 
   
-// servicedb.collection("services").find({},{$or:[{owner:req.user.username},{keeper:req.user.username}]}).toArray(function(err,result){
-//   console.log('result ', result)
-// })
 
 
 
@@ -77,7 +85,7 @@ router.get("/setup", checkAuthenticated, async (req, res) => {
     }
 
     if(result){
-     
+     console.log('result in ', result)
      for await(const r of result){
       const rObject = {
         place:r.place,
@@ -105,8 +113,6 @@ router.get("/setup", checkAuthenticated, async (req, res) => {
 
 
 
-router.post("/setup", checkAuthenticated, async (req, res) => {
- 
-})
+
 
 module.exports = router

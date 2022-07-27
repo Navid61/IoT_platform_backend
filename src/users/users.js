@@ -13,7 +13,7 @@ const usersDB = mongodb.usersDB
 
 
 const checkAuthenticated = function (req, res, next) {
-    console.log("req.isAuthenticated  in Dashbaord ", req.isAuthenticated())
+   
   
     if (req.isAuthenticated()) {
       return next()
@@ -37,7 +37,7 @@ router.post("/users", checkAuthenticated, async (req, res) => {
 
                     
 
-                    checkDuplicateServiceID()
+                    await checkDuplicateServiceID()
                     
                     
                 }
@@ -50,25 +50,25 @@ router.post("/users", checkAuthenticated, async (req, res) => {
 
 
         async function checkDuplicateServiceID(){
-            await Users.find({username:req.body.username},async(err,result)=>{
+            await Users.find({username:req.body.username,service_id:req.body.service_id},async(err,result)=>{
 
                 if(err){
                     throw new Error(err)
                 }
 
                 if(result.length!==0){
-                    if(result[0].service_id!==req.body.service_id){
-                     
-                        res.status(200).json({msg:"ok"})
+                   
+                        res.status(409).json({
+                            status:409,
+                            msg:`Conflict,${req.body.username} created in ${req.body.service_id} already`})
+                       
                     }else{
-                        res.status(409).json({msg:'Conflict'})
+                        res.status(200).json({
+                            status:200,
+                            msg:"ok"})
                     }
 
-                }else if(result.length===0){
-
-                    res.status(200).json({msg:"ok"})
-
-                }
+               
 
             }).clone()
             .catch(function (err) {
@@ -100,7 +100,7 @@ router.post("/users", checkAuthenticated, async (req, res) => {
                             }
 
                             if(result.length===0){
-                                if(req.body.role ==='admin'){
+                                if(req.body.role ==="admin"){
                                     const createNewUser = new Users({
                                         username:req.body.username,
                                         service_id:req.body.service_id,
@@ -117,7 +117,7 @@ router.post("/users", checkAuthenticated, async (req, res) => {
                                         res.status(200).json({msg:"ok"})
                                     })
                             
-                                }else if(req.body.role===''|| req.body.role!=='admin'){
+                                }else if(req.body.role===''|| req.body.role!=="admin"){
                             
                                     const createNewUser = new Users({
                                         username:req.body.username,
@@ -164,54 +164,90 @@ router.post("/users", checkAuthenticated, async (req, res) => {
 
 
     if(req.body.task==='remove'){
-const removeUsersList =req.body.users
+let removeUsersList =req.body.users
 
 const service_id = req.body.service_id
 
 
-let result =[]
 
-let newResultList =[]
 
 if(removeUsersList.length > 0){
-    for(let i=0;i<removeUsersList.length;i++){
 
-        (async(i)=>{
-       await Users.find({username:removeUsersList[i].user,service_id:req.body.service_id},async(err,result)=>{
+    (async()=>{
+        for await (const i of removeUsersList){
 
-                if(err){
-                    throw new Error('error in get remove users list')
-                }
-    
-                if(result.length!==0){
-                    for(let j =0 ; j<result.length;j++){
-
-                        // console.log('result[j]', result[j])
-    
+            (async(i)=>{
+                await Users.find({username:i.user,service_id:req.body.service_id},async(err,result)=>{
+         
+                         if(err){
+                             throw new Error('error in get remove users list')
+                         }
+             
+                         if(result.length!==0){
+                             for(let j =0 ; j<result.length;j++){
+                              
+                                   (async(j)=>{
+                                     await usersDB.collection("users").deleteOne({username:result[j].username,service_id:result[j].service_id})
+                                   })(j)
+                                 
+                                }
+             
+                         }
+             
+                   
+             
+                        
                      
-                          (async(j)=>{
-                            await usersDB.collection("users").deleteOne({username:result[j].username,service_id:result[j].service_id})
-                          })(j)
-                    
-                        
-                           
-                        
-                       }
+                     }).clone().catch(function (err) {console.log(err)})
+             
+                 })(i)
     
-                }
+        }
+        return true
+    })().then((response)=>{
+        if(response){
+            console.log('res in remove ', response)
+            res.status(200).json({
+                status:200,
+                removed:removeUsersList,
+                msg:'done'})
+        }
+        
+    })
+
+   
+    // for(let i=0;i<removeUsersList.length;i++){
+
+    //     (async(i)=>{
+    //    await Users.find({username:removeUsersList[i].user,service_id:req.body.service_id},async(err,result)=>{
+
+    //             if(err){
+    //                 throw new Error('error in get remove users list')
+    //             }
+    
+    //             if(result.length!==0){
+    //                 for(let j =0 ; j<result.length;j++){
+                     
+    //                       (async(j)=>{
+    //                         await usersDB.collection("users").deleteOne({username:result[j].username,service_id:result[j].service_id})
+    //                       })(j)
+                        
+    //                    }
+    
+    //             }
     
           
     
                
             
-            }).clone().catch(function (err) {console.log(err)})
+    //         }).clone().catch(function (err) {console.log(err)})
     
-        })(i)
+    //     })(i)
            
         
-    }
+    // }
 
-    res.status(200).json({msg:'done'})
+   
    
 }
 
@@ -253,11 +289,12 @@ router.get("/users/:id", checkAuthenticated, async (req, res) => {
         usersList.push({"user":result[i].username,"role":result[i].role})
 
        }
+       res.status(200).json({users:[...new Set(usersList)]})
     }
 
-    if(usersList.length!==0){
-        res.status(200).json({users:[...new Set(usersList)]})
-    }
+    // if(usersList.length!==0){
+    //     res.status(200).json({users:[...new Set(usersList)]})
+    // }
 
     }).clone()
         .catch(function (err) {
