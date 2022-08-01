@@ -31,7 +31,7 @@ const receive = require('./transition/reciveData');
 
 const newService = require('./customer/service/newService');
 const newClient= require('./client/newClient');
-const setup = require('./customer/setup')
+const setup = require("./customer/setup")
 
 //* Apache ActiveMQ Artemis */
 const subscriber = require('./broker/activemq/subscriber');
@@ -200,7 +200,7 @@ var accessLogStream = rfs.createStream('access.log', {
   
 
 var checkAuthenticated = function (req, res, next){
-    console.log('req.isAuthenticated is ', req.isAuthenticated())
+    // console.log('req.isAuthenticated in server is ', req.isAuthenticated())
       if (req.isAuthenticated())
        {
           return next()

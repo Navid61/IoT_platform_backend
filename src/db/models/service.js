@@ -46,14 +46,7 @@ const ServiceSchema = new Schema({
     required: true,
   },
 
-  keeper: {
-    type: String,
-    lowercase: true,
-    trim: true,
-    maxlength: 255,
-    minlength: 3,
-    required: true,
-  },
+
   place: {
     type: String,
     trim: true,
@@ -66,11 +59,7 @@ const ServiceSchema = new Schema({
     maxlength: 13,
   },
 
-  keepertel: {
-    type: Number,
-    trim: true,
-    maxlength: 13,
-  },
+ 
 
   idcard: {
     type: String,

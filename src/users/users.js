@@ -86,7 +86,7 @@ router.post("/users", checkAuthenticated, async (req, res) => {
 
     
 
-        await Service.find({owner:req.body.username},async(err,result)=>{
+        await Service.find({owner:req.body.username,service_id:req.body.service_id},async(err,result)=>{
             if(err){
                 throw new Error('error in check user exist as a owner before create new user')
             }
@@ -100,11 +100,11 @@ router.post("/users", checkAuthenticated, async (req, res) => {
                             }
 
                             if(result.length===0){
-                                if(req.body.role ==="admin"){
+                              
                                     const createNewUser = new Users({
                                         username:req.body.username,
                                         service_id:req.body.service_id,
-                                        role:"admin",
+                                        role:req.body.role,
                                         adddate:new Date().toISOString()
                             
                                     })
@@ -117,29 +117,9 @@ router.post("/users", checkAuthenticated, async (req, res) => {
                                         res.status(200).json({msg:"ok"})
                                     })
                             
-                                }else if(req.body.role===''|| req.body.role!=="admin"){
-                            
-                                    const createNewUser = new Users({
-                                        username:req.body.username,
-                                        service_id:req.body.service_id,
-                                        role:"user",
-                                        adddate:new Date().toISOString()
-                            
-                                    })
-                            
-                                    async function makenewuser(){
-                                        await createNewUser.save()
-                            
-                                       
-                                    }
-                            
-                                    makenewuser().then(()=>{
-                                        res.status(200).json({msg:"ok"})
-                                    })
-                                   
-                                }
+                                
 
-                            }else if(result.length!==0){
+                            }else{
                                 res.status(409).json({msg:"Confilict! user created already"})
                             }
 
@@ -263,6 +243,8 @@ if(removeUsersList.length > 0){
 
     }
 
+
+   
   
 
    

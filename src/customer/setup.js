@@ -37,8 +37,10 @@ function makeid(length) {
 router.get("/setup/:id", checkAuthenticated, async (req, res) => {
 
   const _id=req.params.id
+
+  // console.log('req.user-----> ', req.user.username)
  
- console.log('id ', _id)
+//  console.log('id ', _id)
 if(_id!==undefined||_id!==''){
   try{
     await Service.find({owner:req.user.username,service_id:_id},async(err,result)=>{
@@ -48,7 +50,7 @@ if(_id!==undefined||_id!==''){
   
       if(result.length!==0){
 
-       
+      //  console.log('result ', result)
   
         res.status(200).json({place:result[0].place})
       }
@@ -85,7 +87,7 @@ router.get("/setup", checkAuthenticated, async (req, res) => {
     }
 
     if(result){
-     console.log('result in ', result)
+    //  console.log('result in ', result)
      for await(const r of result){
       const rObject = {
         place:r.place,

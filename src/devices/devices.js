@@ -29,7 +29,6 @@ router.post("/devices", checkAuthenticated, async (req, res) => {
 
 
 
-
 await Service.find({owner:req.user.username,service_id:req.body.service_id},async(err,result)=>{
     if(err){
         throw new Error('err in get owner name in device')
@@ -44,6 +43,7 @@ await Service.find({owner:req.user.username,service_id:req.body.service_id},asyn
             }
 
             if(result.length===0){
+               console.log('result in devices for no device location', result)
                 const newDeviceList = new Device({
                     service_id:req.body.service_id,
                     device:req.body.values
@@ -51,13 +51,19 @@ await Service.find({owner:req.user.username,service_id:req.body.service_id},asyn
                 newDeviceList.save()
                  res.status(200).json({status:201,msg:"ok"})
             }else if(result.length!==0){
+
+                if(result[0].device.length !==0){
+                    console.log('result in devices ', result)
                
-                try{
-                    deviceDB.collection("devices").findOneAndUpdate({service_id:req.body.service_id},{$set:{device:req.body.values}})
-                    res.status(204).json({status:204,msg:"updated"})
-                }catch(e){
-                    res.status(400).json({status:400,msg:e})
+                    try{
+                        deviceDB.collection("devices").findOneAndUpdate({service_id:req.body.service_id},{$set:{device:req.body.values}})
+                        res.status(204).json({status:204,msg:"updated"})
+                    }catch(e){
+                        res.status(400).json({status:400,msg:e})
+                    }
                 }
+
+               
                
                 
             }

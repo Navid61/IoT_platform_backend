@@ -9,7 +9,7 @@ const axios =require('axios');
 
 const checkAuthenticated = function (req, res, next){
 
-   console.log('req.isAuthenticated  in Dashbaord ', req.isAuthenticated())
+//    console.log('req.isAuthenticated  in Dashbaord ', req.isAuthenticated())
    
       if (req.isAuthenticated())
        {
