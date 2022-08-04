@@ -49,7 +49,7 @@ await Service.find({owner:req.user.username,service_id:req.body.service_id},asyn
                     device:req.body.values
                 })
                 newDeviceList.save()
-                 res.status(200).json({status:201,msg:"ok"})
+                 res.status(201).json({status:201,msg:"ok"})
             }else if(result.length!==0){
 
                 if(result[0].device.length !==0){

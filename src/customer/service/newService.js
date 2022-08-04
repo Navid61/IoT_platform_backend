@@ -13,7 +13,7 @@ const Account = require("../../db/models/account")
 
 
 const checkAuthenticated = function (req, res, next) {
-  console.log("req.isAuthenticated  in Dashbaord ", req.isAuthenticated())
+  // console.log("req.isAuthenticated  in newService Router ", req.isAuthenticated())
 
   if (req.isAuthenticated()) {
     return next()
@@ -49,7 +49,7 @@ router.get("/service", checkAuthenticated, async (req, res) => {
     
        if(result.length !== 0){
        
-          if(result[0].username===req.user.username){
+          
             await Service.find({}, async (err, result) => {
               if (err) {
                 throw new Error("get customer list ans service failed")
@@ -67,7 +67,7 @@ router.get("/service", checkAuthenticated, async (req, res) => {
                 console.log(err)
               })
     
-          }
+          
         }
     
      
@@ -108,6 +108,9 @@ try{
     if(result.length!==0){
      if(result[0].role!=='owner'){
       sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{role:"owner"}})
+      if(result[0].verification!==true){
+        sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{verification:true}})
+      }
 
       // BELOW CODE RUN FOR FIRST TIME
       const checkExistService = await Service.find(

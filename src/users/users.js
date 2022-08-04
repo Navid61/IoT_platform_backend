@@ -142,6 +142,25 @@ router.post("/users", checkAuthenticated, async (req, res) => {
 
     }
 
+    if(req.body.task===204){
+        console.log('update',req.body.update)
+        const updateQue=req.body.update
+        console.log('req.body ', req.body.service_id)
+        if(updateQue.length>0){
+            try{
+                for(let u=0;u<updateQue.length;u++){
+                    usersDB.collection("users").findOneAndUpdate({username:updateQue[u].user,service_id:req.body.service_id},{$set:{"role":updateQue[u].role}})
+                }
+               
+
+            }catch(e){
+                console.error('error in update user access level')
+            }
+
+        }
+        res.status(204).json({msg:"Update Successfully"})
+    }
+
 
     if(req.body.task==='remove'){
 let removeUsersList =req.body.users

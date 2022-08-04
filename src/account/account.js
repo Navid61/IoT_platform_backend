@@ -6,7 +6,7 @@ const Account= require('../db/models/account');
 
 
 const checkAuthenticated = function (req, res, next) {
-    console.log("req.isAuthenticated  in Dashbaord ", req.isAuthenticated())
+    // console.log("req.isAuthenticated  in Account Router ", req.isAuthenticated())
   
     if (req.isAuthenticated()) {
       return next()
@@ -59,7 +59,7 @@ router.post("/account", checkAuthenticated, async (req, res) => {
 router.get("/account", checkAuthenticated, async (req, res) => {
 
    
-console.log('checkAuthenticated ',req.isAuthenticated() )
+
 
 
         await Account.find({username:req.user.username},async(err,result)=>{

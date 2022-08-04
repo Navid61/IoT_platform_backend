@@ -11,7 +11,7 @@ const Client = require("../db/models/client");
 
 
 const checkAuthenticated = function (req, res, next) {
-    console.log("req.isAuthenticated  in Dashbaord ", req.isAuthenticated())
+    // console.log("req.isAuthenticated  in New Client Router ", req.isAuthenticated())
   
     if (req.isAuthenticated()) {
       return next()
