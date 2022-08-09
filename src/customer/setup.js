@@ -9,6 +9,7 @@ const agentDB= mongodb.agentDB
 
 const Service = require("../db/models/service")
 const Control = require("../db/models/control")
+const Device = require("../db/models/device")
 
 const checkAuthenticated = function (req, res, next) {
  
@@ -50,9 +51,32 @@ if(_id!==undefined||_id!==''){
   
       if(result.length!==0){
 
-      //  console.log('result ', result)
+        await Device.find({service_id:_id},async(err,result)=>{
+          if(err){
+              throw new Error(err)
+          }
+
+          if(result.length!==0){
+
+            
+              const devicesList =result[0].device
+              if(result[0].length !==0){
+                  res.status(200).json({status:200,
+                      devices:devicesList,
+                      place:result[0].place
+                    })
+              }
+            
+          }
+
+      }).clone()
+.catch(function (err) {
+console.log(err)
+})
+
+     
   
-        res.status(200).json({place:result[0].place})
+        
       }
   
     

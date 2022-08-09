@@ -107,9 +107,9 @@ try{
   
     if(result.length!==0){
      if(result[0].role!=='owner'){
-      sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{role:"owner"}})
+     await sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{role:"owner"}})
       if(result[0].verification!==true){
-        sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{verification:true}})
+        await sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{verification:true}})
       }
 
       // BELOW CODE RUN FOR FIRST TIME

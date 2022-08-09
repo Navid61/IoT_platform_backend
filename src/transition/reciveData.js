@@ -43,6 +43,7 @@ await axios({
       'content-type':'application/json',
       'accept':'application/json'
     },
+    maxBodyLength:Infinity,
     auth:{
       username:'admin',
       password:'c0_OU7928CH'

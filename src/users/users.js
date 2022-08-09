@@ -149,7 +149,7 @@ router.post("/users", checkAuthenticated, async (req, res) => {
         if(updateQue.length>0){
             try{
                 for(let u=0;u<updateQue.length;u++){
-                    usersDB.collection("users").findOneAndUpdate({username:updateQue[u].user,service_id:req.body.service_id},{$set:{"role":updateQue[u].role}})
+                  await  usersDB.collection("users").findOneAndUpdate({username:updateQue[u].user,service_id:req.body.service_id},{$set:{"role":updateQue[u].role}})
                 }
                
 
@@ -175,6 +175,8 @@ if(removeUsersList.length > 0){
     (async()=>{
         for await (const i of removeUsersList){
 
+            // await usersDB.collection("usergroups").updateOne({service_id:service_id},{$pull:{group:{user:i.user}}})
+
             (async(i)=>{
                 await Users.find({username:i.user,service_id:req.body.service_id},async(err,result)=>{
          
@@ -183,10 +185,13 @@ if(removeUsersList.length > 0){
                          }
              
                          if(result.length!==0){
+                            console.log('result ', result)
                              for(let j =0 ; j<result.length;j++){
                               
                                    (async(j)=>{
                                      await usersDB.collection("users").deleteOne({username:result[j].username,service_id:result[j].service_id})
+                                     // REMOVER USER FROM ITS GROUP ALSO
+                                     await usersDB.collection("usergroups").updateOne({service_id:result[j].service_id},{$pull:{group:{user:result[j].username}}})
                                    })(j)
                                  
                                 }
@@ -206,6 +211,8 @@ if(removeUsersList.length > 0){
     })().then((response)=>{
         if(response){
             console.log('res in remove ', response)
+
+            
             res.status(200).json({
                 status:200,
                 removed:removeUsersList,
