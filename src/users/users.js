@@ -11,6 +11,8 @@ const Service= require('../db/models/service');
 const mongodb = require("../db/config/mongodb")
 const usersDB = mongodb.usersDB
 
+const sigmaBoardDB = mongodb.sigmaBoardDB
+
 
 const checkAuthenticated = function (req, res, next) {
    
@@ -23,6 +25,7 @@ const checkAuthenticated = function (req, res, next) {
 router.use(checkAuthenticated)
 
 router.post("/users", checkAuthenticated, async (req, res) => {
+
 
     if(req.body.task===205){
         await Account.find({username:req.body.username},async(err,result)=>{
@@ -113,7 +116,8 @@ router.post("/users", checkAuthenticated, async (req, res) => {
                                         await createNewUser.save()
                                     }
                             
-                                    makenewuser().then(()=>{
+                                    makenewuser().then(async()=>{
+                                       await sigmaBoardDB.collection("accounts").updateOne({username:req.body.username},{$set:{role:req.body.role}})
                                         res.status(200).json({msg:"ok"})
                                     })
                             
@@ -150,6 +154,7 @@ router.post("/users", checkAuthenticated, async (req, res) => {
             try{
                 for(let u=0;u<updateQue.length;u++){
                   await  usersDB.collection("users").findOneAndUpdate({username:updateQue[u].user,service_id:req.body.service_id},{$set:{"role":updateQue[u].role}})
+                  await sigmaBoardDB.collection("accounts").updateOne({username:updateQue[u].user},{$set:{role:updateQue[u].role}})
                 }
                
 

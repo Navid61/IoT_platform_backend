@@ -18,7 +18,7 @@ const filterBoardDB = mongodb.filterBoardDB;
 
 const usersDB = mongodb.usersDB;
 
-const UserFilter = require('../db/models/filter')
+const FilterRule = require('../db/models/filter')
 
 const Account = require("../db/models/account");
 
@@ -42,14 +42,14 @@ router.get('/filter/:id',checkAuthenticated,async(req,res)=>{
   let userNameList=[]
  const service_id = req.params.id
 
-if(service_id){
+
 
   await UserGroup.find({service_id:service_id}, async(err,result)=>{
     if(err){
       throw new Error(err)
     }
 
-    let userNameList=[]
+   
 
     if(result.length===0|| result[0].group.length ===0){
       // WHEN THERE IS NOT ANY USER GROUOP
@@ -62,8 +62,28 @@ if(service_id){
          for(let i=0;i<result.length;i++){
           userNameList.push({username:result[i].username})
          }
+
+     
+
+          await FilterRule.find({service_id:service_id},async(err, result)=>{
+            if(err){
+              throw new Error(err)
+            }
+
+            if(result){
+              if(result.length!==0){
+                res.status(200).json({username:userNameList,filters:result[0].rule})
+
+              }else{
+                res.status(200).json({username:userNameList})
+              }
+
+            }
+          }).clone().catch(function(err){ console.log(err)});
+
+      
         
-         res.status(200).json({username:userNameList})
+        
         }
       }).clone().catch(function(err){ console.log(err)});
     
@@ -72,7 +92,7 @@ if(service_id){
 
      
       const userNameGroup=result[0].group
-    // console.log('userNameGroup ', userNameGroup)
+   
       let userNameInGroup=[]
       let groupName=[]
  
@@ -98,7 +118,7 @@ if(service_id){
           userNameList.push({username:result[i].username})
          }
 
-
+        }
  
 
         const filteredUserNameList= userNameList.filter(item=>{
@@ -109,17 +129,38 @@ if(service_id){
           }
          })
 
+     
+
+          await FilterRule.find({service_id:service_id},async(err, result)=>{
+            if(err){
+              throw new Error(err)
+            }
+
+            if(result){
+              if(result.length!==0){
+                res.status(200).json({username:filteredUserNameList,group:groupNameList,usergroup:userNameGroup,filters:result[0].rule})
+               
+
+              }else{
+                res.status(200).json({username:filteredUserNameList,group:groupNameList,usergroup:userNameGroup})
+              }
+
+            }
+          }).clone().catch(function(err){ console.log(err)});
+
+      
+
         
 
 
          
 
-         res.status(200).json({username:filteredUserNameList,group:groupNameList,usergroup:userNameGroup})
+         
 
 
 
 
-        }
+       
       }).clone().catch(function(err){ console.log(err)});
 
     }
@@ -127,79 +168,11 @@ if(service_id){
    }).clone().catch(function(err){ console.log(err)});
 
 
-}
+
  
 
 
-//   await getInfo(zone,db).then(async(response)=>{
-//     if(response){
-//       // console.log('response ', response)
-//   await Account.find({username:req.user.username},async(err,role)=>{
-//     if(err){
-//       throw Error({err:err})
-//     }
 
-//     if(role){
-//       if(role.length >0){
-//         if(role[0].role==='admin'){
-//           filterBoardDB.collection("userfilters").findOneAndUpdate({username:`${req.user.username}`},{$set:{role:'admin'}});
-         
-     
-//              const sensorsList = response
-//          const filterationRuleTable=[]
-//            await  UserFilter.find({},async(err,result)=>{
-//               if(err){
-//                 throw Error(err)
-//               }
-
-//               if(result){
-//                 if(result.length >0){
-//                   // console.log('list of user filteration rule', result)
-//                   result.forEach(filter=>{
-
-//                     for(let i=0;i<filter.sensor.length;i++){
-//                       const filterTable={
-//                         username:filter.username,
-//                         role:filter.role,
-//                         sensor:filter.sensor[i]
-//                       }
-//                         if(filter.role !=='admin'){
-//               filterationRuleTable.push(filterTable)
-//                                       }
-
-//                     }
-                                      
-//                   })
-                  
-//                 }
-               
-//               }
-
-//               // console.log('filteration Table ',filterationRuleTable)
-//               // console.log('sensorsList ',sensorsList)
-//               res.status(200).json({sensor:sensorsList,
-//                filterTable:filterationRuleTable})
-
-//              }).clone().catch(function(err){ console.log(err)});
-
-             
-           
-          
-          
-//         }else if(role[0].role==='user'){
-//           res.json({status:403})
-//         }
-        
-//       }
-//     }
-
-
-//   }).clone().catch(function(err){ console.log(err)});
-
-  
-// }
-
-// })
 
 
 })
@@ -343,103 +316,165 @@ router.post('/filter/content',checkAuthenticated,async(req,res)=>{
 
 router.post('/filter/newfilter',checkAuthenticated,async(req,res)=>{
 
-
-  async function defineNewRule(){
-  let view =(req.body.rule.view ==="true")
-  let action=(req.body.rule.action==="true")
-
-  const sensor_rule ={
-    sensor_id:req.body.rule.sensor_id,
-    view:view,
-    action:action
-  }
-
-
-
-// console.log('sensor_rule ', sensor_rule)
-const sensorIDList=[];
-
- const sensorInfo = await UserFilter.find({username:`${req.body.rule.email}`},async function(err,result){
-    if(result.length > 0){
-      
-   return result[0]
-
-      
-      
-    }
-
-  }).clone().catch(function(err){ console.log(err)});
-
-  if(sensorInfo){
-    console.log('sensorInfo' ,sensorInfo)
-   if(sensorInfo[0].sensor){
-    for(let i=0;i<sensorInfo[0].sensor.length;i++){
-     
-      sensorIDList.push(sensorInfo[0].sensor[i].sensor_id)
-      
-        }
-
-   }
-  
-  }
-
- console.log('sensorIDList ', sensorIDList)
- 
- 
-
-  if(sensorIDList.includes(req.body.rule.sensor_id)){
-
-    filterBoardDB.collection("userfilters").findOneAndUpdate({username:`${req.body.rule.email}`,sensor:{$elemMatch:{sensor_id:`${req.body.rule.sensor_id}`}}},{$set:{"sensor.$.view":view}})
-    filterBoardDB.collection("userfilters").findOneAndUpdate({username:`${req.body.rule.email}`,sensor:{$elemMatch:{sensor_id:`${req.body.rule.sensor_id}`}}},{$set:{"sensor.$.action":action}})
-    }else{
-      console.log('new rule')
-     filterBoardDB.collection("userfilters").findOneAndUpdate({username:`${req.body.rule.email}`},{$push:{sensor:sensor_rule}})
-    }
-  
-}
+const service_id = req.body.service_id
+const rule=req.body.rule
 
 
 
 
-//// RETURN RESULT OF ADD NEW RULES
-//// FIRST OF ALL CHECK USERS IS ADMIN OR NOT
-
-await Account.find({username:req.user.username},async(err,role)=>{
+await FilterRule.find({service_id:service_id},async(err,result)=>{
   if(err){
-    throw Error({err:err})
+    throw new Error(err)
   }
 
-  if(role){
-    if(role.length >0){
-      if(role[0].role==='admin'){
 
-        await defineNewRule().then(()=>{
-          res.json({status:200})
-        }).catch(error=>{
-          console.log('error in new filter rule ', error)
-          res.json({status:401})
+  if(result){
+    if(result.length!==0){
+    
+
+      if(result[0].rule.length===0){
+        (async()=>{
+         return await filterBoardDB.collection("filterrules").updateOne({service_id:service_id},{$push:{rule:rule}})
+        })().then((response)=>{
+          if(response){
+            res.status(201).json({msg:"rule added successfully"})
+          }
         })
 
+      }else{
+
+        // CHECK RULE EXIST OR NOT
+        (async()=>{
+          await FilterRule.find({service_id:service_id,rule:{$elemMatch:{sensors:rule.sensors,users:rule.users}}},async(err,result)=>{
+            if(err){
+              throw new Error(err)
+            }
+            if(result){
+              if(result.length!==0){
+
+              // IF RULE WAS EXIST
+
+                res.status(409).json({msg:"Duplicate Rule!, this rule exist already,please UPDATE exist rule"})
+
+              }else{
+
+                // IF RULE IT WAS NOT EXIST
+
+                (async()=>{
+                  return await filterBoardDB.collection("filterrules").updateOne({service_id:service_id},{$push:{rule:rule}})
+                })().then((response)=>{
+                  if(response){
+                    res.status(201).json({msg:"this rule add successfully"})
+                  }
+                })
+
+              }
+            }
+          }).clone().catch(function(err){ console.log(err)});
+
+        })()
+        
+
       }
+
+    }else{
+
+      (async()=>{
+       return await filterBoardDB.collection("filterrules").insertOne({service_id:service_id,rule:[rule]})
+      })().then((response)=>{
+        if(response){
+          res.status(201).json({msg:"rule added successfully"})
+        }
+      })
+     
+     
+      
+
     }
+
   }
 
-    }).clone().catch(function(err){ console.log(err)});
 
 
-
+}).clone().catch(function(err){ console.log(err)});
 
   
-
-
-
-
-
- 
   
-  //  // filterBoardDB.collection("userfilters").updateMany({username:result[0].username},{$push:{sensor:sensor_rule}})
  
  
 })
+
+
+router.post('/filter/updaterule',checkAuthenticated,async(req,res)=>{
+
+  const service_id = req.body.service_id
+  const rule=req.body.update
+  
+  
+ 
+  
+  await FilterRule.find({service_id:service_id},async(err,result)=>{
+    if(err){
+      throw new Error(err)
+    }
+  
+  
+    if(result){
+      if(result.length!==0){
+
+
+        (async()=>{
+          return await filterBoardDB.collection("filterrules").updateOne({service_id:service_id},{$set:{rule:rule}})
+        })().then((response)=>{
+          if(response){
+            res.status(200).json({msg:"rule updated successfully"})
+          }
+        })
+  
+        
+  
+      }
+  
+    }
+  
+  
+  
+  }).clone().catch(function(err){ console.log(err)});
+  
+    
+    
+   
+   
+  })
+
+
+  router.delete('/filter/removerule',checkAuthenticated,async(req,res)=>{
+    const service_id=req.body.service_id
+    const removeList = req.body.remove
+   
+
+    await FilterRule.find({service_id:service_id}, async(err,result)=>{
+      if(err){
+        throw new Error(err)
+      }
+
+      if(result){
+        (async()=>{
+          for(let i=0;i<removeList.length;i++){
+           
+            await filterBoardDB.collection("filterrules").updateOne({service_id:service_id},{$pull:{rule:removeList[i]}})
+          }
+          
+
+        })().then(()=>{
+          res.status(200).json({msg:"Rules Remove Successfully"})
+        }).catch(e=>{
+          res.status(204).json({msg:"No Content"})
+        })
+       
+      }
+    }).clone().catch(function(err){ console.log(err)});
+  })
+  
 
 module.exports=router

@@ -21,7 +21,8 @@ const MongoStore = require('connect-mongo');
 
 const userAccount = require("./users/userAccount");
 const users = require('./users/users');
-const devices = require('./devices/devices');
+const device = require('./device/device');
+const sites=require('./sites/sites')
 const account = require('./account/account');
 const dashbaord = require("./dashboard/dashboard");
 const userFilter = require("./filter/userFilter");
@@ -34,7 +35,7 @@ const receive = require('./transition/reciveData');
 const newService = require('./customer/service/newService');
 const newClient= require('./client/newClient');
 const sensors= require('./sensors/sensors');
-const setup = require("./customer/setup")
+
 
 //* Apache ActiveMQ Artemis */
 const subscriber = require('./broker/activemq/subscriber');
@@ -176,7 +177,7 @@ app.use(cors(corsOptions))
 
 
 app.use('/broker',receive);
-app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,setup,account,place,devices,usergroup,sensors);
+app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,account,place,device,sites,usergroup,sensors);
 
 
 

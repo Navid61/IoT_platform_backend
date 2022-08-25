@@ -28,19 +28,28 @@ router.post("/account", checkAuthenticated, async (req, res) => {
     
     
             if(result.length!==0){
+
+              
                 if(result[0].verification){
                     res.status(200).json({
                         user:result[0].username,
                         role:result[0].role,
                         status:200,
                         msg:"ok"})
+                }else{
+
+                    res.status(404).json({
+                   
+                        status:404,
+                        msg:"user is not verified!"})
+
                 }
                
             }else if(result.length===0){
                 res.status(404).json({
                    
                     status:404,
-                    msg:"non exist"})
+                    msg:`${req.body.username} is not registered`})
             }
         }).clone()
         .catch(function (err) {
