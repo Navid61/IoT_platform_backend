@@ -25,8 +25,7 @@ router.get("/place", checkAuthenticated, async (req, res) => {
   let placeName = []
   let ownerPlaceList = []
 
-  let notOwnerServices = []
-  let notOwnerServicesList = []
+ 
 
   await Users.find({ username: req.user.username }, async (err, result) => {
     if (err) {

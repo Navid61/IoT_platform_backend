@@ -59,8 +59,9 @@ router.get('/filter/:id',checkAuthenticated,async(req,res)=>{
         }
     
         if(result.length > 0){
+          console.log('result ', result)
          for(let i=0;i<result.length;i++){
-          userNameList.push({username:result[i].username})
+          userNameList.push({username:result[i].username,role:result[i].role})
          }
 
      
