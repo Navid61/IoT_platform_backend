@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const Account= require('../db/models/account');
-
+const Service=require('../db/models/service')
 
 const checkAuthenticated = function (req, res, next) {
     // console.log("req.isAuthenticated  in Account Router ", req.isAuthenticated())
@@ -67,9 +67,7 @@ router.post("/account", checkAuthenticated, async (req, res) => {
 
 router.get("/account", checkAuthenticated, async (req, res) => {
 
-   
-
-
+  
 
         await Account.find({username:req.user.username},async(err,result)=>{
             if(err){
@@ -78,7 +76,11 @@ router.get("/account", checkAuthenticated, async (req, res) => {
     
     
             if(result.length!==0){
+               
                 if(result[0].verification){
+
+                    
+
                     res.status(200).json({
                         user:result[0].username,
                         role:result[0].role,

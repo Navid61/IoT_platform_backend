@@ -103,23 +103,18 @@ router.post("/users", checkAuthenticated, async (req, res) => {
                             }
 
                             if(result.length===0){
+
+                                await usersDB.collection("users").insertOne({
+                                    username:req.body.username,
+                                    service_id:req.body.service_id,
+                                    role:req.body.role,
+                                    adddate:new Date().toISOString()
+                        
+                                }).then(()=>{
+                                    res.status(200).json({msg:"ok"})
+                                })
                               
-                                    const createNewUser = new Users({
-                                        username:req.body.username,
-                                        service_id:req.body.service_id,
-                                        role:req.body.role,
-                                        adddate:new Date().toISOString()
-                            
-                                    })
-                            
-                                    async function makenewuser(){
-                                        await createNewUser.save()
-                                    }
-                            
-                                    makenewuser().then(async()=>{
-                                       await sigmaBoardDB.collection("accounts").updateOne({username:req.body.username},{$set:{role:req.body.role}})
-                                        res.status(200).json({msg:"ok"})
-                                    })
+                                    
                             
                                 
 
@@ -147,15 +142,16 @@ router.post("/users", checkAuthenticated, async (req, res) => {
     }
 
     if(req.body.task===204){
-        console.log('update',req.body.update)
+      
         const updateQue=req.body.update
-        console.log('req.body ', req.body.service_id)
-        if(updateQue.length>0){
+     
+        if(updateQue.length!==0){
             try{
                 for(let u=0;u<updateQue.length;u++){
                   await  usersDB.collection("users").findOneAndUpdate({username:updateQue[u].user,service_id:req.body.service_id},{$set:{"role":updateQue[u].role}})
-                  await sigmaBoardDB.collection("accounts").updateOne({username:updateQue[u].user},{$set:{role:updateQue[u].role}})
                 }
+
+                res.status(204).json({msg:"Update Successfully"})
                
 
             }catch(e){
@@ -163,7 +159,7 @@ router.post("/users", checkAuthenticated, async (req, res) => {
             }
 
         }
-        res.status(204).json({msg:"Update Successfully"})
+       
     }
 
 

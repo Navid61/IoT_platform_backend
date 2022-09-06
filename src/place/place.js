@@ -31,6 +31,8 @@ router.get("/place", checkAuthenticated, async (req, res) => {
 
     let ownerPlaceList =[]
 
+    let notOwnerServices =[]
+let notOwnerServicesList=[]
     await Account.find({username:req.user.username},async(err,result)=>{
         if(err){
             throw new Error(err)
@@ -47,7 +49,7 @@ router.get("/place", checkAuthenticated, async (req, res) => {
             
                     if(result.length!==0){
             
-                        console.log('ressult in place for users', result)
+                     
             
                         for (let i=0;i<result.length;i++){
             
@@ -68,16 +70,9 @@ router.get("/place", checkAuthenticated, async (req, res) => {
                                         placeName.push({name:result[k].place,service_id:serviceList[j]})
                                     }
 
-                                    console.log('placeName ', placeName)
-            
-                                    if(result.length===placeName.length){
-                                        res.status(200).json({
-                                            status:200,
-                                            place:placeName
-                            
-                                        })
-                                    }
-            
+                               
+                 
+                          
             
             
             
@@ -89,6 +84,17 @@ router.get("/place", checkAuthenticated, async (req, res) => {
                       console.log(err)
                     })
                         }
+
+                      
+
+                       
+                            res.status(200).json({
+                                status:200,
+                                place:placeName
+                
+                            })
+                        
+
             
                         
             
@@ -104,39 +110,148 @@ router.get("/place", checkAuthenticated, async (req, res) => {
 
             }else {
 
-                await Service.find({owner:req.user.username},async(err,result)=>{
+
+                await Users.find({username:req.user.username},async(err,result)=>{
+
                     if(err){
                         throw new Error(err)
                     }
-    
+            
                     if(result.length!==0){
 
-                        // console.log('result for owner account ', result)
-    
-                        for(let m=0;m<result.length;m++){
-                            ownerPlaceList.push({name:result[m].place,service_id:result[m].service_id})
-    
+                        console.log('result ', result)
+
+                        for(let i=0;i<result.length;i++){
+                            notOwnerServices.push(result[i].service_id)
                         }
-                        // console.log('ownerPlaceList ', ownerPlaceList)
+
+                        if(notOwnerServices){
+
+                            console.log(' notOwnerServices ',  notOwnerServices)
+                            for(let i=0;i<notOwnerServices.length;i++){
+                                await Service.find({service_id:notOwnerServices[i]},async(err,result)=>{
+                                    if(err){
+                                        throw new Error(err)
+                                    }
     
-                        if(result.length===ownerPlaceList.length){
-                            res.status(200).json({
-                                status:200,
-                                place:ownerPlaceList
+                                    if(result.length!==0){
+    
+                                        for(let i=0;i<result.length;i++){
+                                            notOwnerServicesList.push({name:result[i].place,service_id:result[i].service_id})
+                                        }
+    
+                                       
+    
+                                       
+    
+                                        
+    
+                                    }
+    
+                                }).clone()
+                    .catch(function (err) {
+                      console.log(err)
+                    })
+                            }
+
+                            console.log('notOwnerServicesList ', notOwnerServicesList)
+
+                            if(notOwnerServicesList){
+
+                               
+                                await Service.find({owner:req.user.username},async(err,result)=>{
+                                    if(err){
+                                        throw new Error(err)
+                                    }
+                    
+                                    if(result.length!==0){
                 
-                            })
+                                       
+                                     
+                    
+                                        for(let m=0;m<result.length;m++){
+                                            ownerPlaceList.push({name:result[m].place,service_id:result[m].service_id})
+                    
+                                        }
+                                        console.log('ownerPlaceList===> ', ownerPlaceList)
+                  
+                                        console.log('notOwnerServicesList ', notOwnerServicesList)
+
+                                        const entireServices = ownerPlaceList.concat(notOwnerServicesList)
+                                        
+                                            res.status(200).json({
+                                                status:200,
+                                                place:entireServices
+                                
+                                            })
+                             
+                    
+                    
+                    
+                    
+                    
+                                    }
+                    
+                                }).clone()
+                        .catch(function (err) {
+                          console.log(err)
+                        })
+                               
+                            }
                         }
-    
-    
-    
-    
-    
+
+                        
+                        
+                    }else{
+
+                        await Service.find({owner:req.user.username},async(err,result)=>{
+                            if(err){
+                                throw new Error(err)
+                            }
+            
+                            if(result.length!==0){
+        
+                               
+                             
+            
+                                for(let m=0;m<result.length;m++){
+                                    ownerPlaceList.push({name:result[m].place,service_id:result[m].service_id})
+            
+                                }
+                                console.log('ownerPlaceList ', ownerPlaceList)
+          
+            
+                                if(result.length===ownerPlaceList.length){
+                                    res.status(200).json({
+                                        status:200,
+                                        place:ownerPlaceList
+                        
+                                    })
+                                }
+            
+            
+            
+            
+            
+                            }
+            
+                        }).clone()
+                .catch(function (err) {
+                  console.log(err)
+                })
+
                     }
-    
+
+                 
+
+               
+
                 }).clone()
-        .catch(function (err) {
-          console.log(err)
-        })
+                .catch(function (err) {
+                  console.log(err)
+                })
+
+          
                
             }
         }
@@ -144,6 +259,80 @@ router.get("/place", checkAuthenticated, async (req, res) => {
     }).clone().catch(function (err) {console.log(err)})
     
 
+
+})
+
+router.get("/place/:id", checkAuthenticated, async (req, res) => {
+
+    const service_id = req.params.id
+
+  console.log('service_id place ', service_id)
+
+    await Users.find({username:req.user.username,service_id:service_id},async(err,result)=>{
+
+        if(err){
+            throw new Error(err)
+        }
+
+        if(result.length!==0){
+
+       
+const rIndex = result.findIndex(item=>item.service_id===service_id)
+
+console.log('rIndex ', rIndex)
+   if(rIndex!== -1){
+ 
+     res.status(200).json({
+                    status:200,
+                    role:result[rIndex].role
+    
+                })
+   
+   }
+
+          
+
+         
+
+         
+          
+
+           
+               
+
+
+            
+
+        }else if(result.length===0) {
+
+            await Service.find({owner:req.user.username,service_id:service_id}, async (err, result) => {
+                if (err) {
+                  throw new Error("get customer list and service failed")
+                }
+            
+                if (result.length !==0) {
+            
+                    res.status(200).json({
+                        status:200,
+                        role:result[0].role
+        
+                    })
+                }
+              })
+                .clone()
+                .catch(function (err) {
+                  console.log(err)
+                })
+
+        }
+
+
+    
+
+    }).clone()
+        .catch(function (err) {
+          console.log(err)
+        })
 
 })
 

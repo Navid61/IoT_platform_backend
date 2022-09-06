@@ -52,7 +52,7 @@ router.get("/service", checkAuthenticated, async (req, res) => {
           
             await Service.find({}, async (err, result) => {
               if (err) {
-                throw new Error("get customer list ans service failed")
+                throw new Error("get customer list and service failed")
               }
           
               if (result.length > 0) {

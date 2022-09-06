@@ -39,7 +39,7 @@ router.get("/device/:id", checkAuthenticated, async (req, res) => {
       
             if (result.length !== 0) {
       
-           
+           console.log('result ', result[0].device)
            
         
                 res
@@ -53,7 +53,7 @@ router.get("/device/:id", checkAuthenticated, async (req, res) => {
              
             }else{
               res.status(200).json({
-                setup:setup_data
+               setup:setup_data
               })
             }
           })
