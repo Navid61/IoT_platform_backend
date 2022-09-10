@@ -3,10 +3,10 @@ const Schema = mongoose.Schema
 
 const colors = require("colors")
 
-let filterBoardDB = "mongodb://127.0.0.1:27017/filterboard"
+let deviceDB= "mongodb://127.0.0.1:27017/device"
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
-  var conn10 = mongoose.createConnection(filterBoardDB)
+  var conn10 = mongoose.createConnection(deviceDB)
 } catch (error) {
   // handleError(error);
   console.error("mongoose error", error)

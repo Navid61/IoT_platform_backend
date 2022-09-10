@@ -48,7 +48,7 @@ router.get("/device/:id", checkAuthenticated, async (req, res) => {
                    
                     setup:setup_data,
                     devices: result[0].device,
-                    place: result[0].place,
+                    site: result[0].site,
                   })
              
             }else{

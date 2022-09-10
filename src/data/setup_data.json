@@ -1,24 +1,24 @@
 
  [
 
-        {"device":"00001","sensor":"sensor-001","name":"position","place":""},
-        {"device":"00001","sensor":"sensor-002","name":"pressure","place":""},
-        {"device":"00001","sensor":"sensor-003","name":"lux","place":""},
-        {"device":"00002","sensor":"sensor-004","name":"Piezo","place":""},
-        {"device":"00002","sensor":"sensor-005","name":"CO2","place":""},
-        {"device":"00003","sensor":"sensor-006","name":"force","place":""},
-        {"device":"00003","sensor":"sensor-007","name":"light","place":""},
-        {"device":"00004","sensor":"sensor-008","name":"smoke","place":""},
-        {"device":"00005","sensor":"sensor-009","name":"vibration","place":""},
-        {"device":"00006","sensor":"sensor-010","name":"humidity","place":""},
-        {"device":"00007","sensor":"sensor-010","name":"humidity","place":""},
-        {"device":"00008","sensor":"sensor-010","name":"humidity","place":""},
-        {"device":"00009","sensor":"sensor-010","name":"humidity","place":""},
-        {"device":"00010","sensor":"sensor-010","name":"humidity","place":""},
-        {"device":"00011","sensor":"sensor-010","name":"humidity","place":""},
-        {"device":"00012","sensor":"sensor-010","name":"humidity","place":""},
-        {"device":"00013","sensor":"sensor-010","name":"humidity","place":""},
-        {"device":"00014","sensor":"sensor-010","name":"humidity","place":""}
+        {"device":"00001","sensor":"00001","name":"position","site":""},
+        {"device":"00001","sensor":"00002","name":"pressure","site":""},
+        {"device":"00001","sensor":"00003","name":"lux","site":""},
+        {"device":"00002","sensor":"00004","name":"Piezo","site":""},
+        {"device":"00002","sensor":"00005","name":"CO2","site":""},
+        {"device":"00003","sensor":"00006","name":"force","site":""},
+        {"device":"00003","sensor":"00007","name":"light","site":""},
+        {"device":"00004","sensor":"00008","name":"smoke","site":""},
+        {"device":"00005","sensor":"00009","name":"vibration","site":""},
+        {"device":"00006","sensor":"00010","name":"humidity","site":""},
+        {"device":"00007","sensor":"00011","name":"humidity","site":""},
+        {"device":"00008","sensor":"00012","name":"humidity","site":""},
+        {"device":"00009","sensor":"00013","name":"humidity","site":""},
+        {"device":"00010","sensor":"00014","name":"humidity","site":""},
+        {"device":"00011","sensor":"00015","name":"humidity","site":""},
+        {"device":"00012","sensor":"00016","name":"humidity","site":""},
+        {"device":"00013","sensor":"00017","name":"humidity","site":""},
+        {"device":"00014","sensor":"00018","name":"humidity","site":""}
         
     
 
