@@ -51,8 +51,8 @@ router.get("/filter/:id", checkAuthenticated, async (req, res) => {
           throw new Error(err)
         }
 
-        if (result.length > 0) {
-          console.log("result ", result)
+        if (result.length !== 0) {
+        
           for (let i = 0; i < result.length; i++) {
             userNameList.push({
               username: result[i].username,
@@ -69,6 +69,8 @@ router.get("/filter/:id", checkAuthenticated, async (req, res) => {
 
               if (result) {
                 if (result.length !== 0) {
+
+                 
                   res
                     .status(200)
                     .json({ username: userNameList, filters: result[0].rule })
@@ -108,8 +110,16 @@ router.get("/filter/:id", checkAuthenticated, async (req, res) => {
         }
 
         if (result.length > 0) {
+
+      
+
+        
           for (let i = 0; i < result.length; i++) {
-            userNameList.push({ username: result[i].username })
+            if(result[i].role!=='admin' && result[i].role!=='owner'){
+             
+              userNameList.push({ username: result[i].username })
+            }
+           
           }
         }
 
@@ -129,7 +139,7 @@ router.get("/filter/:id", checkAuthenticated, async (req, res) => {
             }
 
             if (result.length !== 0) {
-                        
+                      console.log('result in filter rule',filteredUserNameList)
 
               res
                 .status(200)

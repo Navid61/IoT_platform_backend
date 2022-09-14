@@ -79,6 +79,8 @@ router.get("/account", checkAuthenticated, async (req, res) => {
                
                 if(result[0].verification){
 
+                    await Service.find({})
+
                     
 
                     res.status(200).json({

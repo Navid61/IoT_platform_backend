@@ -6,6 +6,8 @@ const Account= require('../db/models/account');
 
 const Users = require('../db/models/users');
 
+const UserGroup = require('../db/models/usergroup');
+
 const Service= require('../db/models/service');
 
 const mongodb = require("../db/config/mongodb")
@@ -148,7 +150,36 @@ router.post("/users", checkAuthenticated, async (req, res) => {
         if(updateQue.length!==0){
             try{
                 for(let u=0;u<updateQue.length;u++){
-                  await  usersDB.collection("users").findOneAndUpdate({username:updateQue[u].user,service_id:req.body.service_id},{$set:{"role":updateQue[u].role}})
+
+                    (async()=>{
+                        await  usersDB.collection("users").findOneAndUpdate({username:updateQue[u].user,service_id:req.body.service_id},{$set:{"role":updateQue[u].role}})
+
+                    })().then(()=>{
+                        (async()=>{
+                            await Users.find({service_id:req.body.service_id,username:updateQue[u].user},async(err,result)=>{
+                                if(err){
+                                    throw new Error(err)
+                                }
+            
+                                if(result.length!==0){
+                                    if(result[0].role==='admin' || result[0].role==='owner' ){
+            console.log('result ', result[0])
+                                        await usersDB.collection("usergroups").updateOne({service_id:req.body.service_id,group:{$elemMatch:{user:result[0].username}}},{$pull:{group:{user:result[0].username}}})
+            
+                                    }
+            
+                                }
+                              }).clone().catch(function (err) {console.log(err)})
+    
+                        })()
+
+                    })
+   
+
+                    
+                   
+                  
+ 
                 }
 
                 res.status(204).json({msg:"Update Successfully"})

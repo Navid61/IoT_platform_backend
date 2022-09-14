@@ -18,6 +18,7 @@ const FilterRule = require('../db/models/filter')
 
 
 const mongodb = require("../db/config/mongodb");
+const UserGroup = require("../db/models/usergroup");
 
 const filterBoardDB = mongodb.filterBoardDB
 
@@ -45,6 +46,10 @@ router.post("/sensors", checkAuthenticated, async (req, res) => {
     const service_id=req.body.service_id
     const groupName= req.body.name
 
+    const sensorGroup = req.body.group
+
+    console.log('sensorGroup ', sensorGroup)
+
 try{
   await SensorsGroup.find({service_id:service_id,group:groupName},async(err,result)=>{
     if(err){
@@ -59,7 +64,8 @@ try{
     }else{
 
       (async()=>{
-       return await deviceDB.collection("sensorsgroups").insertOne({service_id:service_id,group:req.body.name,sensor:req.body.group})
+  return await deviceDB.collection("sensorsgroups").insertOne({service_id:service_id,group:req.body.name,sensor:req.body.group})
+      
       })().then((response)=>{
 
         if(response){
@@ -88,12 +94,21 @@ try{
 router.post("/sensors/getgroup", checkAuthenticated, async (req, res) => {
   const service_id = req.body.service_id
 
-  await SensorsGroup.find({service_id:service_id},async(err,result)=>{
+
+
+  await SensorsGroup.find({service_id:service_id},{_id:0},async(err,result)=>{
     if(err){
       throw new Error(err)
     }
 
+
+
     if(result.length!==0){
+
+     
+
+  
+     
     
      res.status(200).json({group:result})
      
@@ -125,18 +140,14 @@ router.post("/sensors/removesensorgroup", checkAuthenticated, async (req, res) =
         if(result){
   
          if(result.length!==0){
-  
-    if(result[0]._id.toString()===s._id){
-  
-    
-  await deviceDB.collection("sensorsgroups").deleteOne({group:s.group})
-  
-  
-  
-    }
-     
-  
-  
+        //  for(let r=0;r<result.length;r++){
+        //   console.log('result[0] ', result[r]._id.toString())
+          
+        //  }
+
+
+         await deviceDB.collection("sensorsgroups").deleteOne({service_id:service_id,group:s.group})
+        
   
          }
   
@@ -174,8 +185,47 @@ router.post("/sensors/removesensorgroup", checkAuthenticated, async (req, res) =
 
   }
 
-  res.status(200).json({"msg":"Sensor(s) Group Removed Successfully"})
+   res.status(200).json({"msg":"Sensor(s) Group Removed Successfully"})
 
+})
+
+
+router.post("/sensors/updatesensorgroup", checkAuthenticated, async (req, res) => {
+  const service_id=req.body.service_id
+  const groupName = req.body.name
+  const updateInfo = req.body.group
+
+
+  console.log('updateInfo ', updateInfo)
+
+  await SensorsGroup.find({service_id:service_id,group:groupName},async(err,result)=>{
+
+    if(err){
+      throw new Error(err)
+    }
+
+    if(result.length!==0){
+
+      (async()=>{
+     await deviceDB.collection("sensorsgroups").updateOne({service_id:service_id,group:groupName},{$set:{sensor:updateInfo}})
+
+      })().then(()=>{
+      
+          res.status(200).json({"msg":"Sensor Group Updated Successfully"})
+       
+      })
+
+    }
+
+  }).clone().catch(function (err) {console.log(err)})
+
+
+
+
+
+  console.log('updateInfo ', updateInfo)
+
+ 
 })
    
 
