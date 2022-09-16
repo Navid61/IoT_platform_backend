@@ -57,7 +57,7 @@ router.get("/place", checkAuthenticated, async (req, res) => {
       )
         .clone()
         .catch(function (err) {
-          console.log(err)
+          console.error(err)
         })
     }
 
@@ -102,7 +102,7 @@ router.get("/place", checkAuthenticated, async (req, res) => {
       )
         .clone()
         .catch(function (err) {
-          console.log(err)
+          console.error(err)
         })
 
    
@@ -113,14 +113,14 @@ router.get("/place", checkAuthenticated, async (req, res) => {
   })
     .clone()
     .catch(function (err) {
-      console.log(err)
+      console.error(err)
     })
 })
 
 router.get("/place/:id", checkAuthenticated, async (req, res) => {
   const service_id = req.params.id
 
-  console.log("service_id place ", service_id)
+ 
 
   await Users.find(
     { username: req.user.username, service_id: service_id },
@@ -134,11 +134,12 @@ router.get("/place/:id", checkAuthenticated, async (req, res) => {
           (item) => item.service_id === service_id
         )
 
-        console.log("rIndex ", rIndex)
+      
         if (rIndex !== -1) {
           res.status(200).json({
             status: 200,
             role: result[rIndex].role,
+            place:result[0].place
           })
         }
       } else if (result.length === 0) {
@@ -150,9 +151,11 @@ router.get("/place/:id", checkAuthenticated, async (req, res) => {
             }
 
             if (result.length !== 0) {
+            
               res.status(200).json({
                 status: 200,
                 role: result[0].role,
+                place:result[0].place
               })
             }
           }

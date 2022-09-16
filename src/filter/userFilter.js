@@ -139,7 +139,7 @@ router.get("/filter/:id", checkAuthenticated, async (req, res) => {
             }
 
             if (result.length !== 0) {
-                      console.log('result in filter rule',filteredUserNameList)
+                      // console.log('result in filter rule',filteredUserNameList)
 
               res
                 .status(200)

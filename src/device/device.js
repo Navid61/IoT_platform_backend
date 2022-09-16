@@ -20,7 +20,7 @@ router.use(checkAuthenticated)
 
 router.get("/device/:id", checkAuthenticated, async (req, res) => {
   const service_id = req.params.id
-  console.log('service_id ', service_id)
+  // console.log('service_id ', service_id)
     await Service.find(
       { owner: req.user.username,service_id:service_id},
       async (err, result) => {
@@ -30,7 +30,7 @@ router.get("/device/:id", checkAuthenticated, async (req, res) => {
   
         if (result.length !== 0) {
 
-          console.log('result ', result)
+          // console.log('result ', result)
 
           await Device.find({service_id:service_id}, async (err, result) => {
             if (err) {
@@ -39,7 +39,7 @@ router.get("/device/:id", checkAuthenticated, async (req, res) => {
       
             if (result.length !== 0) {
       
-           console.log('result ', result[0].device)
+          //  console.log('result ', result[0].device)
            
         
                 res

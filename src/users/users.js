@@ -163,7 +163,7 @@ router.post("/users", checkAuthenticated, async (req, res) => {
             
                                 if(result.length!==0){
                                     if(result[0].role==='admin' || result[0].role==='owner' ){
-            console.log('result ', result[0])
+            // console.log('result ', result[0])
                                         await usersDB.collection("usergroups").updateOne({service_id:req.body.service_id,group:{$elemMatch:{user:result[0].username}}},{$pull:{group:{user:result[0].username}}})
             
                                     }
@@ -217,7 +217,7 @@ if(removeUsersList.length > 0){
                          }
              
                          if(result.length!==0){
-                            console.log('result ', result)
+                            // console.log('result ', result)
                              for(let j =0 ; j<result.length;j++){
                               
                                    (async(j)=>{

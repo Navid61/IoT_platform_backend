@@ -58,7 +58,7 @@ try{
 
     if(result.length!==0){
     
-      console.log('result ', result)
+      // console.log('result ', result)
       res.status(304).json({msg:"Duplicate"})
      
     }else{

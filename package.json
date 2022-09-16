@@ -20,7 +20,6 @@
     "nodemon": "^2.0.16",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
-    "pure-rand": "^5.0.1",
     "rfs": "^9.0.6",
     "rotating-file-stream": "^3.0.3",
     "stompit": "^1.0.0",
