@@ -35,6 +35,7 @@ const receive = require('./transition/reciveData');
 const newService = require('./customer/service/newService');
 const newClient= require('./client/newClient');
 const sensors= require('./sensors/sensors');
+const actuators = require('./actuator/actuator');
 
 
 //* Apache ActiveMQ Artemis */
@@ -177,7 +178,7 @@ app.use(cors(corsOptions))
 
 
 app.use('/broker',receive);
-app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,account,place,device,sites,usergroup,sensors);
+app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,account,place,device,sites,usergroup,sensors,actuators);
 
 
 

@@ -15,6 +15,8 @@ const dbName4 ='agent';
 const dbName5 ='client';
 const dbName6='users';
 const dbName7='device';
+const dbName8='scene';
+const dbName9='automation';
 // // const dbName = 'admin';
 // // Use connect method to connect to the server
 
@@ -30,6 +32,8 @@ main()
  const clientDB = client.db(dbName5)
  const usersDB = client.db(dbName6)
  const deviceDB= client.db(dbName7)
+ const sceneDB = client.db(dbName8)
+ const automationDB = client.db(dbName9)
 
 module.exports={
     sigmaBoardDB:sigmaBoardDB,
@@ -38,7 +42,9 @@ module.exports={
     agentDB:agentDB,
     clientDB:clientDB,
     usersDB:usersDB,
-    deviceDB:deviceDB
+    deviceDB:deviceDB,
+    sceneDB:sceneDB,
+    automationDB:automationDB
 };
 
 

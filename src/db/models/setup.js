@@ -16,7 +16,7 @@ const db8 = conn8
 db8.on("error", console.error.bind(console, "connection error: "))
 db8.once("open", function () {
   console.log(
-    colors.yellow(colors.bold("DeviceDB")) +
+    colors.yellow(colors.bold("deviceDB")) +
       " Connected to MongoDB through mongoose successfully"
   )
 })

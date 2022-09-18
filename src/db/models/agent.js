@@ -21,7 +21,7 @@ const db4 = conn4
 
 db4.on("error", console.error.bind(console, "connection error: "));
 db4.once("open", function () {
-  console.log(colors.cyan(colors.bold("AgentDB"))+" Connected to MongoDB through mongoose successfully");
+  console.log(colors.cyan(colors.bold("agentDB"))+" Connected to MongoDB through mongoose successfully");
 });
 
 

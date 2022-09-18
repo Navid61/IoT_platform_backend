@@ -18,7 +18,7 @@ const db7 = conn7
 
 db7.on("error", console.error.bind(console, "connection error: "));
 db7.once("open", function () {
-  console.log(colors.yellow(colors.bold("DeviceDB"))+" Connected to MongoDB through mongoose successfully");
+  console.log(colors.yellow(colors.bold("deviceDB"))+" Connected to MongoDB through mongoose successfully");
 });
 
 

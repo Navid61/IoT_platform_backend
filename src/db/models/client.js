@@ -21,7 +21,7 @@ const db5 = conn5
 
 db5.on("error", console.error.bind(console, "connection error: "));
 db5.once("open", function () {
-  console.log(colors.cyan(colors.bold("ClientDB"))+" Connected to MongoDB through mongoose successfully");
+  console.log(colors.cyan(colors.bold("clientDB"))+" Connected to MongoDB through mongoose successfully");
 });
 
 

@@ -6,23 +6,23 @@ const colors = require("colors")
 let deviceDB= "mongodb://127.0.0.1:27017/device"
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
-  var conn10 = mongoose.createConnection(deviceDB)
+  var conn12 = mongoose.createConnection(deviceDB)
 } catch (error) {
   // handleError(error);
   console.error("mongoose error", error)
 }
 
-const db10 = conn10
+const db12 = conn12
 
-db10.on("error", console.error.bind(console, "connection error: "))
-db10.once("open", function () {
+db12.on("error", console.error.bind(console, "connection error: "))
+db12.once("open", function () {
   console.log(
     colors.red(colors.bold("deviceDB")) +
       " Connected to MongoDB through mongoose successfully"
   )
 })
 
-const SensorsGroupSchema = new Schema({
+const ActuatorGroupSchema = new Schema({
   service_id: {
     type: String,
     required: true,
@@ -37,15 +37,9 @@ const SensorsGroupSchema = new Schema({
    maxlength:360,
     
   },
-  sensor: [{
-    name:String,
-    sensor:String,
-    sensor_id:String,
-    device:String
-
-  }],
+  actuator: [],
 })
 
-const SensorsGroup = db10.model("SensorsGroup", SensorsGroupSchema)
+const ActuatorGroup = db12.model("ActuatorGroup", ActuatorGroupSchema)
 
-module.exports = SensorsGroup
+module.exports = ActuatorGroup

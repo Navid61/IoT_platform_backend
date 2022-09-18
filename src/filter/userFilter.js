@@ -331,7 +331,7 @@ router.post("/filter/newfilter", checkAuthenticated, async (req, res) => {
   const service_id = req.body.service_id
   const rule = req.body.rule
 
-
+console.log('new rule ', rule)
 
   await FilterRule.find({ service_id: service_id }, async (err, result) => {
     if (err) {
@@ -410,7 +410,7 @@ router.post("/filter/newfilter", checkAuthenticated, async (req, res) => {
         ;(async () => {
           return await filterBoardDB
             .collection("filterrules")
-            .updateOne({ service_id: service_id}, {$push:{rule:rule}})
+            .insertOne({service_id:service_id,rule:[rule]})
         })().then((response) => {
           if (response) {
             res.status(201).json({ msg: "rule added successfully" })
