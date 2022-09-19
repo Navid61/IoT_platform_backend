@@ -361,7 +361,7 @@ console.log('new rule ', rule)
               {
                 service_id: service_id,
                 rule: {
-                  $elemMatch: { sensors: rule.sensors, users: rule.users },
+                  $elemMatch: {actuator:rule.actuator ,sensors: rule.sensors, users: rule.users },
                 },
               },
               async (err, result) => {
