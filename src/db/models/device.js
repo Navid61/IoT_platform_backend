@@ -31,7 +31,7 @@ const DeviceSchema = new Schema({
     trim:true,
     required:true,
     maxlength:360,
-    unique:true,
+   
   },
 
   device:{

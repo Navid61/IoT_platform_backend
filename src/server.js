@@ -36,6 +36,7 @@ const newService = require('./customer/service/newService');
 const newClient= require('./client/newClient');
 const sensors= require('./sensors/sensors');
 const actuators = require('./actuator/actuator');
+const scenes= require('./scene/scene');
 
 
 //* Apache ActiveMQ Artemis */
@@ -95,9 +96,9 @@ var app = express();
 // app.use(express.json())
 // app.use(express.urlencoded({extended:false}));
 //parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ limit:'50mb', extended: true }));
 // parse application/json
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit:'50mb'}));
 
 app.use(session({
   secret:'udhfuw&^ET*G*WYGD#W&EHG@&(Y(SGH@*^W(UDBHy6',
@@ -178,7 +179,7 @@ app.use(cors(corsOptions))
 
 
 app.use('/broker',receive);
-app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,account,place,device,sites,usergroup,sensors,actuators);
+app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,account,place,device,sites,usergroup,sensors,actuators,scenes);
 
 
 
