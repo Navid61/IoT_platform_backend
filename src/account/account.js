@@ -11,6 +11,8 @@ const checkAuthenticated = function (req, res, next) {
     if (req.isAuthenticated()) {
       return next()
     }
+
+   
   }
   
   router.use(checkAuthenticated)

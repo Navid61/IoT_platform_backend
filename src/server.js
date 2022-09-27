@@ -1,5 +1,5 @@
 
-const express = require('express')
+var express = require('express')
 const session = require('express-session');
 var router = express.Router();
 const bodyParser =require("body-parser");
@@ -126,6 +126,8 @@ app.use(passport.session());
 
 app.use(function (req, res, next) {
 
+ 
+
   const allowedOrigins = ['http://194.5.195.11:3000','http://194.5.195.11:3088','http://194.5.195.11:5984','http://194.5.195.11:8082','http://194.5.195.11:8088'];
   const origin = req.headers.origin;
  
@@ -206,6 +208,7 @@ var accessLogStream = rfs.createStream('access.log', {
   
 
 var checkAuthenticated = function (req, res, next){
+ 
     // console.log('req.isAuthenticated in server is ', req.isAuthenticated())
       if (req.isAuthenticated())
        {
@@ -220,15 +223,18 @@ app.use(checkAuthenticated);
 
 
 // Handle GET requests to /api route
-app.post("/", (req, res,) => {
-  res.json({ message: "Hello from server!" });
-  // console.log('req form front ',req)
+// app.post("/", (req, res,) => {
+//   res.json({ message: "Hello from server!" });
+//   // console.log('req form front ',req)
+ 
 
-});
+// });
 
 // app.get("/", (req, res) => {
 //   res.json({ message: "Hello from server!"});
-//   console.log('req form front ',req.isAuthenticated())
+  
+//   console.log("request arrived for URL", req.url);
+
 
 // });
 

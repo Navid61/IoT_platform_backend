@@ -12,14 +12,18 @@ const mongodb = require("../db/config/mongodb")
 const usersDB = mongodb.usersDB
 
 const checkAuthenticated = function (req, res, next) {
+  
   if (req.isAuthenticated()) {
+   
     return next()
   }
 }
 
-router.use(checkAuthenticated)
+ router.use(checkAuthenticated)
 
 router.get("/place", checkAuthenticated, async (req, res) => {
+
+  console.log('request from url ', req.url)
   let serviceList = []
 
   let placeName = []

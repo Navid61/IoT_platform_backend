@@ -71,7 +71,7 @@ router.post("/scenes/create", checkAuthenticated, async (req, res) => {
   const scenes = req.body.scenes
 
 
-  console.log('req.body ', req.body)
+  
 
  await Scene.find({service_id:service_id,name:name}, async(err,result)=>{
     if(err){
@@ -164,7 +164,7 @@ router.post("/scenes/update", checkAuthenticated, async (req, res) => {
   const service_id=req.body.service_id
   const name = req.body.name
   const updatedScenes = req.body.update
-console.log('updateScenes ', updatedScenes)
+
 
 
 
@@ -189,6 +189,91 @@ await sceneDB.collection("scenes").updateOne({service_id:service_id,name:name}, 
 
 
 })
+
+
+router.post("/scenes/removeitem", checkAuthenticated, async (req, res,next) => {
+
+  const service_id=req.body.service_id
+  const name = req.body.name
+  const removeItems = req.body.remove
+
+
+
+
+
+   Scene.find({service_id:service_id,name:name},{_id:0}, async(err,result)=>{
+    if(err){
+        throw new Error(err)
+    }
+
+    if(result.length!==0){
+      for await (const r of removeItems){
+      await sceneDB.collection("scenes").updateOne({service_id:service_id,name:name},{$pull:{scenes:{id:r.id}}})
+    }
+
+  
+
+    res.status(200).json({msg:"selected items removed successfully"})
+
+        
+       
+    }
+ }).clone().catch(function (err) {console.log(err)})
+
+
+
+
+
+
+  
+
+
+})
+
+
+
+router.post("/scenes/removeexistscene", checkAuthenticated, async (req, res,next) => {
+
+  const service_id=req.body.service_id
+  const removeItems = req.body.remove
+
+
+
+
+
+   Scene.find({service_id:service_id},{_id:0}, async(err,result)=>{
+    if(err){
+        throw new Error(err)
+    }
+
+    if(result.length!==0){
+      for await (const r of removeItems){
+        (async()=>{
+          await sceneDB.collection("scenes").deleteOne({service_id:service_id,name:r.name})
+        })()
+     
+    }
+
+  
+
+    res.status(200).json({msg:"selected items removed successfully"})
+
+        
+       
+    }
+ }).clone().catch(function (err) {console.log(err)})
+
+
+
+
+
+
+  
+
+
+})
+
+
 
 
 
