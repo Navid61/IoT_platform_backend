@@ -92,7 +92,8 @@ ajv.addFormat('data-time-format', function(dateTimeString){
 
 
 
-let topic = '/babak/json'
+// let topic = '/babak/json'
+let topic = 'topic1'
 
 let topics=[]
 client.on('connect', async() => {
@@ -155,7 +156,7 @@ client.subscribe([topic], () => {
 
 /** FOR ONE TOPIC */
 client.on('message', async(topic,payload)=>{
-  // console.log(colors.bgMagenta(topic), payload.toString())
+  //  console.log(colors.bgMagenta(topic), payload.toString())
 })
 
 /** FOR MULTIPLE TOPICS */

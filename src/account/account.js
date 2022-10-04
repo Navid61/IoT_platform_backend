@@ -93,12 +93,8 @@ router.get("/account", checkAuthenticated, async (req, res) => {
                         msg:"ok"})
                 }
                
-            }else if(result.length===0){
-                res.status(404).json({
-                   
-                    status:404,
-                    msg:"non exist"})
             }
+          
         }).clone()
         .catch(function (err) {
           console.log(err)

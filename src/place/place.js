@@ -23,7 +23,9 @@ const checkAuthenticated = function (req, res, next) {
 
 router.get("/place", checkAuthenticated, async (req, res) => {
 
-  console.log('request from url ', req.url)
+
+
+
   let serviceList = []
 
   let placeName = []
@@ -119,6 +121,8 @@ router.get("/place", checkAuthenticated, async (req, res) => {
     .catch(function (err) {
       console.error(err)
     })
+
+   
 })
 
 router.get("/place/:id", checkAuthenticated, async (req, res) => {

@@ -12,6 +12,18 @@ const Control = require("../../db/models/control")
 const Account = require("../../db/models/account")
 
 
+
+
+ const filterBoardDB = mongodb.filterBoardDB
+ const serviceDB = mongodb.serviceDB
+ const agentDB = mongodb.agentDB
+ const clientDB = mongodb.clientDB
+ const usersDB = mongodb.usersDB
+ const deviceDB= mongodb.deviceDB
+ const sceneDB = mongodb.sceneDB
+ const automationDB = mongodb.automationDB
+
+
 const checkAuthenticated = function (req, res, next) {
   // console.log("req.isAuthenticated  in newService Router ", req.isAuthenticated())
 
@@ -211,5 +223,41 @@ try{
    
   } 
 })
+
+
+router.post("/service/remove", checkAuthenticated, async (req, res) => {
+
+  const removeServiceList = req.body.remove
+
+
+
+
+
+ await (async(r)=>{
+    for await (const r of removeServiceList){
+await filterBoardDB.collection("filterrules").findOneAndDelete({service_id:r.service_id})
+await filterBoardDB.collection("sensorsgroups").findOneAndDelete({service_id:r.service_id})
+await filterBoardDB.collection("userfilters").findOneAndDelete({service_id:r.service_id})
+await deviceDB.collection("actuatorgroups").findOneAndDelete({service_id:r.service_id})
+await deviceDB.collection("devices").findOneAndDelete({service_id:r.service_id})
+await deviceDB.collection("sensorsgroups").findOneAndDelete({service_id:r.service_id})
+await sceneDB.collection("scenes").findOneAndDelete({service_id:r.service_id})
+await usersDB.collection("usergroups").findOneAndDelete({service_id:r.service_id})
+await usersDB.collection("users").findOneAndDelete({service_id:r.service_id})
+await agentDB.collection("usergroups").findOneAndDelete({service_id:r.service_id})
+await serviceDB.collection("services").findOneAndDelete({service_id:r.service_id})
+}
+
+  })().then(()=>{
+  res.status(200).json({msg:'selected service(s) deleted permanently'})
+}).catch((e)=>{
+  console.error('e ', e)
+})
+
+ 
+})
+
+
+
 
 module.exports = router
