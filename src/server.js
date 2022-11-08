@@ -94,9 +94,9 @@ db.once("open", function () {
 
 var app = express();
 // app.use(express.json())
-// app.use(express.urlencoded({extended:false}));
+// app.use(express.urlencoded({extended:true}));
 //parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ limit:'50mb', extended: true }));
+app.use(bodyParser.urlencoded({ limit:'50mb', extended: false }));
 // parse application/json
 app.use(bodyParser.json({limit:'50mb'}));
 
@@ -194,7 +194,7 @@ app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,account,
 
 // // create a rotating write stream
 var accessLogStream = rfs.createStream('access.log', {
-    interval: '1d', // rotate daily
+    interval: '7d', // rotate daily
     path: path.join(__dirname, '../logs')
   })
   

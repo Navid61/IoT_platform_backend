@@ -39,22 +39,18 @@ router.get("/device/:id", checkAuthenticated, async (req, res) => {
       
             if (result.length !== 0) {
       
-   
+
            
         
                 res
                   .status(200)
                   .json({
                    
-                    setup:setup_data,
+                  
                     devices: result[0].device,
-                    site: result[0].site,
+                    site: result[0].site
                   })
              
-            }else{
-              res.status(200).json({
-               setup:setup_data
-              })
             }
           })
             .clone()

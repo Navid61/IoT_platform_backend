@@ -17,6 +17,8 @@ const dbName6='users';
 const dbName7='device';
 const dbName8='scene';
 const dbName9='automation';
+const dbName10='sensor';
+const dbName11='actuator';
 // // const dbName = 'admin';
 // // Use connect method to connect to the server
 
@@ -26,14 +28,16 @@ async function main(){
 }
 main()
  const sigmaBoardDB = client.db(dbName);
- const filterBoardDB = client.db(dbName2)
- const serviceDB = client.db(dbName3)
- const agentDB = client.db(dbName4)
- const clientDB = client.db(dbName5)
- const usersDB = client.db(dbName6)
- const deviceDB= client.db(dbName7)
- const sceneDB = client.db(dbName8)
- const automationDB = client.db(dbName9)
+ const filterBoardDB = client.db(dbName2);
+ const serviceDB = client.db(dbName3);
+ const agentDB = client.db(dbName4);
+ const clientDB = client.db(dbName5);
+ const usersDB = client.db(dbName6);
+ const deviceDB= client.db(dbName7);
+ const sceneDB = client.db(dbName8);
+ const automationDB = client.db(dbName9);
+ const sensorSiteDB = client.db(dbName10);
+ const actuatorSiteDB =client.db(dbName11);
 
 module.exports={
     sigmaBoardDB:sigmaBoardDB,
@@ -44,7 +48,9 @@ module.exports={
     usersDB:usersDB,
     deviceDB:deviceDB,
     sceneDB:sceneDB,
-    automationDB:automationDB
+    automationDB:automationDB,
+    sensorSiteDB:sensorSiteDB,
+    actuatorSiteDB:actuatorSiteDB
 };
 
 

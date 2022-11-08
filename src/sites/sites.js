@@ -24,6 +24,8 @@ router.post("/sites/create", checkAuthenticated, async (req, res) => {
 
     const service_id = req.body.service_id
     const values = req.body.values
+
+ 
    
      await Service.find(
         { owner: req.user.username, service_id: service_id },
@@ -48,6 +50,15 @@ router.post("/sites/create", checkAuthenticated, async (req, res) => {
                     res.status(201).json({ status: 201, msg: "ok" })
                   }
                 })
+              }else {
+               (async()=>{
+                await deviceDB
+                    .collection("devices")
+                    .updateOne({ service_id: service_id}, {$set:{device:values}})
+
+               })().then(()=>{
+                res.status(201).json({ status: 201, msg: "ok" })
+               })
               }
             
             })
@@ -73,6 +84,8 @@ router.post("/sites/create", checkAuthenticated, async (req, res) => {
 router.post("/sites/update", checkAuthenticated, async (req, res) => {
     const service_id = req.body.service_id
     const values = req.body.values
+
+   
   
       await Service.find(
         { owner: req.user.username, service_id: service_id },

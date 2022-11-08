@@ -1,0 +1,24 @@
+ [
+
+        {"device":"00001","sensor":"937ur7384ru","name":"position","site":""},
+        {"device":"00001","sensor":"3r363535","name":"pressure","site":""},
+        {"device":"00001","sensor":"2rh3463","name":"lux","site":""},
+        {"device":"00002","sensor":"qd323e232","name":"Piezo","site":""},
+        {"device":"00002","sensor":"5t35t3t","name":"CO2","site":""},
+        {"device":"00003","sensor":"y53434r3","name":"force","site":""},
+        {"device":"00003","sensor":"h45hjt5j67","name":"light","site":""},
+        {"device":"00004","sensor":"34r32rf3r4r","name":"smoke","site":""},
+        {"device":"00005","sensor":"324t6hyu46","name":"vibration","site":""},
+        {"device":"00006","sensor":"3f3h464545","name":"humidity","site":""},
+        {"device":"00007","sensor":"we0oojjfwefwew","name":"humidity","site":""},
+        {"device":"00008","sensor":"wdvc4343545fwfwfw","name":"humidity","site":""},
+        {"device":"00009","sensor":"wefwe22fwefw","name":"humidity","site":""},
+        {"device":"00010","sensor":"wefw66efwf","name":"humidity","site":""},
+        {"device":"00011","sensor":"wed89wefwef","name":"humidity","site":""},
+        {"device":"00012","sensor":"wef53wefwef","name":"humidity","site":""},
+        {"device":"00013","sensor":"897ujyurr4","name":"humidity","site":""},
+        {"device":"00014","sensor":"12qergt57yujk","name":"humidity","site":""}
+        
+    
+
+    ]

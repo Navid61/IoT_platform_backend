@@ -27,10 +27,11 @@ router.use(checkAuthenticated)
 
 router.post("/usergroup", checkAuthenticated, async (req, res) => {
 
+
    
 
-   let newUserGroup=req.body.group
-    let service_id=req.body.service_id
+   const newUserGroup=req.body.group
+    const service_id=req.body.service_id
 
    
   

@@ -37,13 +37,7 @@ const SensorsGroupSchema = new Schema({
    maxlength:360,
     
   },
-  sensor: [{
-    name:String,
-    sensor:String,
-    sensor_id:String,
-    device:String
-
-  }],
+  sensor: [],
 })
 
 const SensorsGroup = db10.model("SensorsGroup", SensorsGroupSchema)

@@ -13,6 +13,9 @@ const SensorsGroup = require('../db/models/sensors')
 
 const FilterRule = require('../db/models/filter')
 
+const Device = require('../db/models/device')
+
+const sensorSite = require("../db/models/sensorSite")
 
 
 
@@ -40,37 +43,39 @@ router.use(checkAuthenticated)
 
 
 
-router.post("/sensors", checkAuthenticated, async (req, res) => {
+router.post("/sensors/createnewgroup", checkAuthenticated, async (req, res) => {
    
 
     const service_id=req.body.service_id
     const groupName= req.body.name
 
     const sensorGroup = req.body.group
+//  console.log('receieved data ', service_id, groupName,sensorGroup)
+   
 
-    console.log('sensorGroup ', sensorGroup)
-
-try{
   await SensorsGroup.find({service_id:service_id,group:groupName},async(err,result)=>{
     if(err){
       throw new Error(err)
     }
 
-    if(result.length!==0){
+
+   
+
+    if(result.length > 0){
     
-      // console.log('result ', result)
+    
       res.status(304).json({msg:"Duplicate"})
      
     }else{
 
       (async()=>{
-  return await deviceDB.collection("sensorsgroups").insertOne({service_id:service_id,group:req.body.name,sensor:req.body.group})
+await deviceDB.collection("sensorsgroups").insertOne({service_id:service_id,group:groupName,sensor:sensorGroup})
       
-      })().then((response)=>{
+      })().then(()=>{
 
-        if(response){
+      
           res.status(200).json({msg:"seonsors group created successfully"})
-        }
+       
       
          
        
@@ -82,11 +87,76 @@ try{
   }).clone().catch(function (err) {console.log(err)})
 
 
-}catch(e){
-  console.error('error in sensors ', e)
-}
-   
 
+
+
+})
+
+
+router.post("/sensors/getsensordata", checkAuthenticated, async (req, res) => {
+
+    const service_id = req.body.service_id
+
+  await sensorSite.find({service_id:service_id},async(err,result)=>{
+
+    if(err){
+      throw new Error(err)
+    }
+
+    if(result.length >0){
+
+  
+
+      await Device.find({service_id:service_id}, async(err,deviceResult)=>{
+        if(err){
+          throw new Error(err)
+        }
+
+        if(deviceResult.length > 0){
+
+       
+         
+          const devicesSites = deviceResult[0].device
+          const sensorData = result[0].data
+
+          let fillDevicesSites =[]
+
+          for await (const site of devicesSites){
+            for(let i=0;i<sensorData.length;i++){
+              if(sensorData[i].device === site.device){
+                fillDevicesSites.push({
+                  id:sensorData[i].id,
+                  site:site.site,
+                  device:sensorData[i].device,
+                  sensor:sensorData[i].sensor,
+                  name:sensorData[i].name
+                })
+
+              }
+            }
+          }
+
+          if(fillDevicesSites){
+
+          
+            res.status(200).json({
+              sensor:fillDevicesSites
+            })
+
+          }
+
+        }
+
+      }).clone().catch(function (err) {console.log(err)})
+
+
+      // console.log(`sensor data for ${service_id} is `, result[0].data)
+    }
+
+  }).clone()
+  .catch(function (err) {
+    console.log(err)
+  })
 
 })
 
@@ -223,7 +293,7 @@ router.post("/sensors/updatesensorgroup", checkAuthenticated, async (req, res) =
 
 
 
-  console.log('updateInfo ', updateInfo)
+ 
 
  
 })
