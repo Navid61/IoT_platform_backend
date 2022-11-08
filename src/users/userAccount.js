@@ -19,19 +19,19 @@ router.post(
  passport.authenticate('register', { session: false }),
   async(req, res) => {
     console.log('register ', req.user)
-try{
+// try{
 
-  const newUserFilter = new UserFilter({
-    username:req.user.username,
-    role:'user',
-    status:true,
-  })
+//   const newUserFilter = new UserFilter({
+//     username:req.user.username,
+//     role:'user',
+//     status:true,
+//   })
 
- await newUserFilter.save()
+//  await newUserFilter.save()
 
-}catch(e){
-  console.error('error in registeration form -new filter database')
-}
+// }catch(e){
+//   console.error('error in registeration form -new filter database')
+// }
 
   
       res.json({

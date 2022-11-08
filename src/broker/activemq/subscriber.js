@@ -35,7 +35,7 @@ function makeId(length) {
 
 ////////
 
-const host = "194.5.195.11"
+const host = "82.115.17.45"
 const port = "1883"
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
@@ -123,7 +123,7 @@ client.on("connect", async () => {
 
 /** FOR MULTIPLE TOPICS */
 client.on("message", async (topics, payload) => {
-    // console.log(colors.bgMagenta(`${topics}`),payload.toString())
+ console.log(colors.bgMagenta(`${topics}`),payload.toString())
 
   const sensorSchema = {
     type: "object",

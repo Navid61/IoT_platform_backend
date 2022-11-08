@@ -7,7 +7,7 @@ async function activeMQPublisher(address,message){
 
   console.log('user in activeMQPublisher' , req.user.username)
 
-const host = '194.5.195.11'
+const host = '82.115.17.45'
 const port = '1883'
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
