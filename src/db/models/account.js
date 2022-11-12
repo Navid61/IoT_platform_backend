@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const Schema = mongoose.Schema;
 
+const mongodb = require("../../db/config/mongodb")
+const sigmaBoardDB = mongodb.sigmaBoardDB
+
 
 
 
@@ -13,7 +16,7 @@ const UserAccountSchema = new Schema({
     type:String,
     trim:true,
     uppercase:true,
-    maxlength:500,
+    maxLength:500,
     default:'SIGMABOARD'
   },
 
@@ -22,12 +25,15 @@ const UserAccountSchema = new Schema({
     required: true,
     lowercase:true,
     trim:true,
-    unique:true
+    unique:true,
+    maxLength:300,
+   
       
   },
   password: {
     type: String,
     required: true,
+    maxLength:255
   },
  
 
@@ -48,8 +54,8 @@ const UserAccountSchema = new Schema({
     required:true,
     lowercase:true,
     trim:true,
-    maxlength:50,
-    minlength:3,
+    maxLength:50,
+    minLength:3,
   },
   site:[],
 
@@ -64,6 +70,8 @@ UserAccountSchema.pre(
       
       const hash = await bcrypt.hash(this.password, 10);
       this.password = hash;
+
+  
     
   
      next();
@@ -73,7 +81,6 @@ UserAccountSchema.pre(
 
  
 
-  
 
 
   UserAccountSchema.methods.isValidPassword = async function(password) {

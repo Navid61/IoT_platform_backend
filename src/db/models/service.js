@@ -25,14 +25,14 @@ db3.once("open", function () {
 const ServiceSchema = new Schema({
   service_id: {
     type: String,
-    maxlength: 90,
+    maxLength: 90,
     trim: true,
     required: true,
   },
 
   topic: {
     type: String,
-    maxlength: 255,
+    maxLength: 255,
     trim: true,
     unique: true,
     required: true,
@@ -41,8 +41,8 @@ const ServiceSchema = new Schema({
     type: String,
     lowercase: true,
     trim: true,
-    maxlength: 255,
-    minlength: 3,
+    maxLength: 255,
+    minLength: 3,
     required: true,
   },
 
@@ -50,13 +50,13 @@ const ServiceSchema = new Schema({
   place: {
     type: String,
     trim: true,
-    maxlength: 500,
+    maxLength: 500,
   },
 
   phone: {
     type: Number,
     trim: true,
-    maxlength: 13,
+    maxLength: 13,
   },
 
  
@@ -64,13 +64,13 @@ const ServiceSchema = new Schema({
   idcard: {
     type: String,
     trim: true,
-    maxlength: 50,
+    maxLength: 50,
   },
 
   postcode: {
     type: String,
     trim: true,
-    maxlength: 50,
+    maxLength: 50,
   },
 
   role: {

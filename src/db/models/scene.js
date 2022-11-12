@@ -33,7 +33,7 @@ const SceneInfoSchema = new Schema({
     trim:true,
     default:'99999',
     required:true,
-    maxlength:360,
+    maxLength:360,
    
   },
 
@@ -42,7 +42,7 @@ name:{
     default:'none',
     required:true,
     trim:true,
-    maxlength:300
+    maxLength:300
   },
 
   scenes:{

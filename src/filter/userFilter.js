@@ -117,6 +117,9 @@ router.get("/filter/:id", checkAuthenticated, async (req, res) => {
   let userNameList = []
   const service_id = req.params.id
   let fillDevicesSites =[]
+
+
+
   
   
 await (async()=>{
@@ -240,7 +243,7 @@ await (async()=>{
     
         
           const userNameGroup = result[0].group
-          console.log('userNameGroup ', userNameGroup)
+         
           let userNameInGroup = []
           let groupName = []
     

@@ -10,6 +10,8 @@ const UserGroup = require('../db/models/usergroup');
 
 const Service= require('../db/models/service');
 
+const FilterRule = require("../db/models/filter")
+
 const mongodb = require("../db/config/mongodb")
 const usersDB = mongodb.usersDB
 
@@ -309,6 +311,158 @@ if(removeUsersList.length > 0){
 
     
 
+
+})
+
+
+// get user name list data when user click on user group icon on filteration page
+router.post("/users/getusersdata", checkAuthenticated, async (req, res) => {
+    const service_id=req.body.service_id
+    let userNameList = []
+
+    await (async()=>{
+
+        await UserGroup.find({ service_id: service_id }, async (err, result) => {
+          if (err) {
+            throw new Error(err)
+          }
+      
+          if (result.length === 0 || result[0].group.length === 0) {
+            // WHEN THERE IS NOT ANY USER GROUOP
+            await Users.find({ service_id: service_id }, async (err, result) => {
+              if (err) {
+                throw new Error(err)
+              }
+      
+              if (result.length !== 0) {
+              
+                for (let i = 0; i < result.length; i++) {
+                  userNameList.push({
+                    username: result[i].username,
+                    role: result[i].role,
+                  })
+                }
+      
+                await FilterRule.find(
+                  { service_id: service_id },
+                  async (err, result) => {
+                    if (err) {
+                      throw new Error(err)
+                    }
+      
+                    if (result) {
+                      if (result.length !== 0) {
+      
+                       
+                        res
+                          .status(200)
+                          .json({ username: userNameList, filters: result[0].rule })
+                      } else {
+                        res.status(200).json({username: userNameList })
+                      }
+                    }
+                  }
+                )
+                  .clone()
+                  .catch(function (err) {
+                    console.log(err)
+                  })
+              }
+            })
+              .clone()
+              .catch(function (err) {
+                console.log(err)
+              })
+          } else {
+      
+          
+            const userNameGroup = result[0].group
+           
+            let userNameInGroup = []
+            let groupName = []
+      
+            for (let i = 0; i < userNameGroup.length; i++) {
+              userNameInGroup.push(userNameGroup[i].user)
+              groupName.push(userNameGroup[i].group)
+            }
+      
+            const usersList = [...new Set(userNameInGroup)]
+            const groupNameList = [...new Set(groupName)]
+      
+            await Users.find({ service_id: service_id }, async (err, result) => {
+              if (err) {
+                throw new Error(err)
+              }
+      
+              if (result.length > 0) {
+      
+            
+      
+              
+                for (let i = 0; i < result.length; i++) {
+                  if(result[i].role!=='admin' && result[i].role!=='owner'){
+                   
+                    userNameList.push({ username: result[i].username })
+                  }
+                 
+                }
+              }
+      
+              const filteredUserNameList = userNameList.filter((item) => {
+                if (usersList.includes(item.username)) {
+                  return ""
+                } else {
+                  return item
+                }
+              })
+      
+              await FilterRule.find(
+                { service_id: service_id },
+                async (err, result) => {
+                  if (err) {
+                    throw new Error(err)
+                  }
+      
+                  if (result.length !== 0) {
+                            // console.log('result in filter rule',filteredUserNameList)
+      
+                    res
+                      .status(200)
+                      .json({
+                        username: filteredUserNameList,
+                        group: groupNameList,
+                        usergroup: userNameGroup,
+                        filters: result[0].rule,
+                      })
+                  } else {
+                    res
+                      .status(200)
+                      .json({
+                        username: filteredUserNameList,
+                        group: groupNameList,
+                        usergroup: userNameGroup,
+                      })
+                  }
+                })
+                .clone()
+                .catch(function (err) {
+                  console.log(err)
+                })
+            })
+              .clone()
+              .catch(function (err) {
+                console.log(err)
+              })
+          }
+        })
+          .clone()
+          .catch(function (err) {
+            console.log(err)
+          })
+  
+      })()
+
+    
 
 })
 

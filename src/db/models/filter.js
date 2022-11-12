@@ -37,7 +37,7 @@ const UserFilterationSchema = new Schema({
         type: String,
         lowercase: true,
         trim: true,
-        maxlength: 255,
+        maxLength: 255,
         required: true,
       },
 
@@ -45,7 +45,7 @@ const UserFilterationSchema = new Schema({
         type: String,
         lowercase: true,
         trim: true,
-        maxlength: 255,
+        maxLength: 255,
         required: true,
       },
       view: {

@@ -6,19 +6,26 @@ const passport = require("passport")
 const Account = require('../db/models/account')
 
 
+
 // // User Filteration
 const UserFilter = require("../db/models/filter");
 // router.use(nocache)
 router.get('/register', async(req,res)=>{
+  
 
   res.status(200).json({msg:'Hello from post method'})
+
+ 
+  
 })
 
 router.post(
   '/register',
  passport.authenticate('register', { session: false }),
   async(req, res) => {
-    console.log('register ', req.user)
+   
+
+// Comment this part, because it seem is not neccessary
 // try{
 
 //   const newUserFilter = new UserFilter({
@@ -40,9 +47,7 @@ router.post(
         user:req.user
       })
       
-  }
- 
-);
+  })
 
 // router.get('/login',async function(req, res, next){
 

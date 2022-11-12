@@ -27,14 +27,14 @@ const ActuatorGroupSchema = new Schema({
     type: String,
     required: true,
     trim: true,
-    maxlength:360
+    maxLength:360
    
   },
   group:{
     type:String,
     trim:true,
     required:true,
-   maxlength:360,
+   maxLength:360,
     
   },
   actuator: [],

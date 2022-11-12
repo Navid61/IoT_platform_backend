@@ -31,22 +31,22 @@ username:{
         type:String,
         lowercase:true,
         trim:true,
-        maxlength:255,
-        minlength:3,
+        maxLength:255,
+        minLength:3,
         unique:true
        
 },
 phone:{
     type:String,
     trim:true,
-    maxlength:20,
+    maxLength:20,
 },
 role:{
         type:String,
         lowercase:true,
         trim:true,
         default:'sysman',
-        maxlength:75,
+        maxLength:75,
        
 },
 

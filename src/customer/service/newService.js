@@ -51,15 +51,20 @@ function makeid(length) {
 router.get("/service", checkAuthenticated, async (req, res) => {
 
 
+
+
   try{
 
-    await Control.find({username:req.user.username}, async(err,result)=>{
+    await Control.find({}, async(err,result)=>{
 
       if(err){
-        throw new Error('Error in detect system users')
+        throw new Error('Error in detect system users in newServices file')
       }
+
+    
     
        if(result.length !== 0){
+
        
           
             await Service.find({}, async (err, result) => {

@@ -29,8 +29,12 @@ passport.use(
       async (username, password, done) => {
         console.log('username in reg form ', username)
         console.log('password in reg form ', password)
+
+      
        await Account.init().then(async()=>{
           try {
+
+         
             const user = await Account.create({ username, password })
             log('user ', user)
               if(user){
@@ -65,6 +69,7 @@ passport.use(
            
           } catch (error){
            console.log('error in auth.js ', error)
+           
            done(error);
           }
 
@@ -74,7 +79,6 @@ passport.use(
       })
   
 );
-
 
 // ...
 

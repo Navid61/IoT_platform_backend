@@ -27,7 +27,7 @@ const sensorSiteSchema = new Schema({
     type: String,
     required: true,
     trim: true,
-    maxlength:360
+    maxLength:360
    
   },
   

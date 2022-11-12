@@ -25,7 +25,7 @@ db6.once("open", function () {
 const UsersSchema = new Schema({
   username: {
     type: String,
-    maxlength: 360,
+    maxLength: 360,
     trim: true,
     required: true,
   },

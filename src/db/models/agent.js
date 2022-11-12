@@ -31,8 +31,8 @@ username:{
         type:String,
         lowercase:true,
         trim:true,
-        maxlength:255,
-        minlength:3,
+        maxLength:255,
+        minLength:3,
         unique:true
        
 },
@@ -41,7 +41,7 @@ role:{
         lowercase:true,
         trim:true,
         default:'installer',
-        maxlength:75,
+        maxLength:75,
        
 },
 

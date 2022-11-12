@@ -30,7 +30,7 @@ const ClientSchema = new Schema({
 
 username:{
     type:String,
-    maxlength:90,
+    maxLength:90,
     trim:true,
     unique:true,
     required:true
@@ -40,19 +40,19 @@ username:{
 phone:{
   type:Number,
   trim:true,
-  maxlength:13
+  maxLength:13
 },
 
 idcard:{
   type:String,
   trim:true,
-  maxlength:50,
+  maxLength:50,
 },
 
 postcode:{
   type:String,
   trim:true,
-  maxlength:50
+  maxLength:50
 },
 
 
