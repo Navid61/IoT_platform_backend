@@ -28,71 +28,364 @@ const checkAuthenticated = function (req, res, next) {
   
 router.use(checkAuthenticated)
 
-router.post("/users", checkAuthenticated, async (req, res) => {
+// router.post("/users", checkAuthenticated, async (req, res) => {
 
 
-    if(req.body.task===205){
-        await Account.find({username:req.body.username},async(err,result)=>{
+//     // if(req.body.task===205){
+//     //     await Account.find({username:req.body.username},async(err,result)=>{
+//     //         if(err){
+//     //             throw new Error(err)
+//     //         }
+    
+    
+//     //         if(result.length!==0){
+          
+//     //             if(result[0].username===req.body.username && result[0].verification === true){
+
+                    
+
+//     //                 await checkDuplicateServiceID()
+                    
+                    
+//     //             }
+               
+//     //         }
+//     //     }).clone()
+//     //     .catch(function (err) {
+//     //       console.log(err)
+//     //     })
+
+
+//     //     async function checkDuplicateServiceID(){
+//     //         await Users.find({username:req.body.username,service_id:req.body.service_id},async(err,result)=>{
+
+//     //             if(err){
+//     //                 throw new Error(err)
+//     //             }
+
+//     //             if(result.length!==0){
+                   
+//     //                     res.status(409).json({
+//     //                         status:409,
+//     //                         msg:`Conflict,${req.body.username} created in ${req.body.service_id} already`})
+                       
+//     //                 }else{
+//     //                     res.status(200).json({
+//     //                         status:200,
+//     //                         msg:"ok"})
+//     //                 }
+
+               
+
+//     //         }).clone()
+//     //         .catch(function (err) {
+//     //           console.log(err)
+//     //         })
+
+//     //     }
+    
+
+//     // }
+
+//     // if(req.body.task===201){
+
+//     // // console.log('no new user create new user')
+
+    
+
+//     //     await Service.find({owner:req.body.username,service_id:req.body.service_id},async(err,result)=>{
+//     //         if(err){
+//     //             throw new Error('error in check user exist as a owner before create new user')
+//     //         }
+    
+   
+//     //             if(result.length ===0){
+             
+//     //                     await Users.find({username:req.body.username,service_id:req.body.service_id},async(err,result)=>{
+//     //                         if(err){
+//     //                             throw new Error('error in users find before create new user')
+//     //                         }
+
+//     //                         if(result.length===0){
+
+//     //                             await usersDB.collection("users").insertOne({
+//     //                                 username:req.body.username,
+//     //                                 service_id:req.body.service_id,
+//     //                                 role:req.body.role,
+//     //                                 adddate:new Date().toISOString()
+                        
+//     //                             }).then(()=>{
+//     //                                 res.status(200).json({msg:"ok"})
+//     //                             })
+                              
+                                    
+                            
+                                
+
+//     //                         }else{
+//     //                             res.status(409).json({msg:"Confilict! user created already"})
+//     //                         }
+
+//     //                     }).clone().catch(function (err) {console.log(err)})
+                
+  
+                   
+    
+//     //             }else{
+//     //                 res.status(403).json({msg:"Forbiden user"})
+//     //             }
+           
+//     //     }).clone().catch(function (err) {console.log(err)})
+    
+
+
+  
+
+      
+
+//     // }
+
+//     // if(req.body.task===204){
+      
+//     //     const updateQue=req.body.update
+     
+//     //     if(updateQue.length!==0){
+//     //         try{
+//     //             for(let u=0;u<updateQue.length;u++){
+
+//     //                 (async()=>{
+//     //                     await  usersDB.collection("users").findOneAndUpdate({username:updateQue[u].user,service_id:req.body.service_id},{$set:{"role":updateQue[u].role}})
+
+//     //                 })().then(()=>{
+//     //                     (async()=>{
+//     //                         await Users.find({service_id:req.body.service_id,username:updateQue[u].user},async(err,result)=>{
+//     //                             if(err){
+//     //                                 throw new Error(err)
+//     //                             }
+            
+//     //                             if(result.length!==0){
+//     //                                 if(result[0].role==='admin' || result[0].role==='owner' ){
+//     //         // console.log('result ', result[0])
+//     //                                     await usersDB.collection("usergroups").updateOne({service_id:req.body.service_id,group:{$elemMatch:{user:result[0].username}}},{$pull:{group:{user:result[0].username}}})
+            
+//     //                                 }
+            
+//     //                             }
+//     //                           }).clone().catch(function (err) {console.log(err)})
+    
+//     //                     })()
+
+//     //                 })
+   
+
+                    
+                   
+                  
+ 
+//     //             }
+
+//     //             res.status(204).json({msg:"Update Successfully"})
+               
+
+//     //         }catch(e){
+//     //             console.error('error in update user access level')
+//     //         }
+
+//     //     }
+       
+//     // }
+
+
+// //     if(req.body.task==='remove'){
+// // let removeUsersList =req.body.users
+
+// // const service_id = req.body.service_id
+
+
+
+
+// // if(removeUsersList.length > 0){
+
+// //     (async()=>{
+// //         for await (const i of removeUsersList){
+
+// //             // await usersDB.collection("usergroups").updateOne({service_id:service_id},{$pull:{group:{user:i.user}}})
+
+// //             (async(i)=>{
+// //                 await Users.find({username:i.user,service_id:req.body.service_id},async(err,result)=>{
+         
+// //                          if(err){
+// //                              throw new Error('error in get remove users list')
+// //                          }
+             
+// //                          if(result.length!==0){
+// //                             // console.log('result ', result)
+// //                              for(let j =0 ; j<result.length;j++){
+                              
+// //                                    (async(j)=>{
+// //                                      await usersDB.collection("users").deleteOne({username:result[j].username,service_id:result[j].service_id})
+// //                                      // REMOVER USER FROM ITS GROUP ALSO
+// //                                      await usersDB.collection("usergroups").updateOne({service_id:result[j].service_id},{$pull:{group:{user:result[j].username}}})
+// //                                    })(j)
+                                 
+// //                                 }
+             
+// //                          }
+             
+                   
+             
+                        
+                     
+// //                      }).clone().catch(function (err) {console.log(err)})
+             
+// //                  })(i)
+    
+// //         }
+// //         return true
+// //     })().then((response)=>{
+// //         if(response){
+// //             console.log('res in remove ', response)
+
+            
+// //             res.status(200).json({
+// //                 status:200,
+// //                 removed:removeUsersList,
+// //                 msg:'done'})
+// //         }
+        
+// //     })
+
+   
+// //     // for(let i=0;i<removeUsersList.length;i++){
+
+// //     //     (async(i)=>{
+// //     //    await Users.find({username:removeUsersList[i].user,service_id:req.body.service_id},async(err,result)=>{
+
+// //     //             if(err){
+// //     //                 throw new Error('error in get remove users list')
+// //     //             }
+    
+// //     //             if(result.length!==0){
+// //     //                 for(let j =0 ; j<result.length;j++){
+                     
+// //     //                       (async(j)=>{
+// //     //                         await usersDB.collection("users").deleteOne({username:result[j].username,service_id:result[j].service_id})
+// //     //                       })(j)
+                        
+// //     //                    }
+    
+// //     //             }
+    
+          
+    
+               
+            
+// //     //         }).clone().catch(function (err) {console.log(err)})
+    
+// //     //     })(i)
+           
+        
+// //     // }
+
+   
+   
+// // }
+
+
+
+
+
+
+
+
+
+  
+
+// //     }
+
+
+   
+  
+
+   
+
+    
+
+
+// })
+
+
+router.post("/users/dupuser", checkAuthenticated, async (req, res) => {
+
+  const service_id=req.body.service_id
+  const username = req.body.username
+  
+    await Account.find({username:req.body.username},async(err,result)=>{
+        if(err){
+            throw new Error(err)
+        }
+
+
+        if(result.length!==0){
+      
+            if(result[0].username===req.body.username && result[0].verification === true){
+
+                
+
+                await checkDuplicateServiceID()
+                
+                
+            }
+           
+        }
+    }).clone()
+    .catch(function (err) {
+      console.log(err)
+    })
+
+
+    async function checkDuplicateServiceID(){
+        await Users.find({username:req.body.username,service_id:req.body.service_id},async(err,result)=>{
+
             if(err){
                 throw new Error(err)
             }
-    
-    
+
             if(result.length!==0){
-          
-                if(result[0].username===req.body.username && result[0].verification === true){
-
-                    
-
-                    await checkDuplicateServiceID()
-                    
-                    
-                }
                
-            }
+                    res.status(409).json({
+                        status:409,
+                        msg:`Conflict,${req.body.username} created in ${req.body.service_id} already`})
+                   
+                }else{
+                    res.status(200).json({
+                        status:200,
+                        msg:"ok"})
+                }
+
+           
+
         }).clone()
         .catch(function (err) {
           console.log(err)
         })
 
-
-        async function checkDuplicateServiceID(){
-            await Users.find({username:req.body.username,service_id:req.body.service_id},async(err,result)=>{
-
-                if(err){
-                    throw new Error(err)
-                }
-
-                if(result.length!==0){
-                   
-                        res.status(409).json({
-                            status:409,
-                            msg:`Conflict,${req.body.username} created in ${req.body.service_id} already`})
-                       
-                    }else{
-                        res.status(200).json({
-                            status:200,
-                            msg:"ok"})
-                    }
-
-               
-
-            }).clone()
-            .catch(function (err) {
-              console.log(err)
-            })
-
-        }
-    
-
     }
 
-    if(req.body.task===201){
+
+
+
+})
+
+router.post("/users/adduser", checkAuthenticated, async (req, res) => {
+  const service_id=req.body.service_id
+  const username = req.body.username
+  const role=req.body.role
 
     // console.log('no new user create new user')
-
+  
     
-
+  
         await Service.find({owner:req.body.username,service_id:req.body.service_id},async(err,result)=>{
             if(err){
                 throw new Error('error in check user exist as a owner before create new user')
@@ -105,9 +398,9 @@ router.post("/users", checkAuthenticated, async (req, res) => {
                             if(err){
                                 throw new Error('error in users find before create new user')
                             }
-
+  
                             if(result.length===0){
-
+  
                                 await usersDB.collection("users").insertOne({
                                     username:req.body.username,
                                     service_id:req.body.service_id,
@@ -121,11 +414,11 @@ router.post("/users", checkAuthenticated, async (req, res) => {
                                     
                             
                                 
-
+  
                             }else{
                                 res.status(409).json({msg:"Confilict! user created already"})
                             }
-
+  
                         }).clone().catch(function (err) {console.log(err)})
                 
   
@@ -137,17 +430,23 @@ router.post("/users", checkAuthenticated, async (req, res) => {
            
         }).clone().catch(function (err) {console.log(err)})
     
-
-
   
+  
+  
+  
+      
+  
+    
+})
+
+router.post("/users/updateuser", checkAuthenticated, async (req, res) => {
+  const service_id=req.body.service_id
+  const updateQue=req.body.update
+
+
 
       
-
-    }
-
-    if(req.body.task===204){
-      
-        const updateQue=req.body.update
+   
      
         if(updateQue.length!==0){
             try{
@@ -193,16 +492,21 @@ router.post("/users", checkAuthenticated, async (req, res) => {
 
         }
        
-    }
+    
 
+  
+    
+  
+  
+  
+      
+  
+    
+})
 
-    if(req.body.task==='remove'){
-let removeUsersList =req.body.users
-
-const service_id = req.body.service_id
-
-
-
+router.post("/users/removeuser", checkAuthenticated, async (req, res) => {
+  const service_id=req.body.service_id
+  let removeUsersList =req.body.users
 
 if(removeUsersList.length > 0){
 
@@ -256,36 +560,6 @@ if(removeUsersList.length > 0){
     })
 
    
-    // for(let i=0;i<removeUsersList.length;i++){
-
-    //     (async(i)=>{
-    //    await Users.find({username:removeUsersList[i].user,service_id:req.body.service_id},async(err,result)=>{
-
-    //             if(err){
-    //                 throw new Error('error in get remove users list')
-    //             }
-    
-    //             if(result.length!==0){
-    //                 for(let j =0 ; j<result.length;j++){
-                     
-    //                       (async(j)=>{
-    //                         await usersDB.collection("users").deleteOne({username:result[j].username,service_id:result[j].service_id})
-    //                       })(j)
-                        
-    //                    }
-    
-    //             }
-    
-          
-    
-               
-            
-    //         }).clone().catch(function (err) {console.log(err)})
-    
-    //     })(i)
-           
-        
-    // }
 
    
    
@@ -301,18 +575,26 @@ if(removeUsersList.length > 0){
 
   
 
-    }
+
+ 
 
 
-   
-  
-
-   
 
     
 
-
+  
+    
+  
+  
+  
+      
+  
+    
 })
+
+
+
+
 
 
 // get user name list data when user click on user group icon on filteration page
