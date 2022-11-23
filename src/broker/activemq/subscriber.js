@@ -35,7 +35,7 @@ function makeId(length) {
 
 ////////
 
-const host = "194.5.195.11"
+const host = "82.115.17.45"
 const port = "1883"
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
@@ -49,7 +49,9 @@ const client = mqtt.connect(connectUrl, {
   reconnectPeriod: 1000,
   qos: 2,
   customHandleAcks: function (topic, message, packet, done) {
-    console.log("packet", topic)
+    console.log("packet", packet)
+    console.log("message", message)
+    console.log("topic", topic)
   },
 })
 
@@ -123,7 +125,7 @@ client.on("connect", async () => {
 
 /** FOR MULTIPLE TOPICS */
 client.on("message", async (topics, payload) => {
-//  console.log(colors.bgMagenta(`${topics}`),payload.toString())
+  console.log(colors.bgMagenta(`${topics}`),payload.toString())
 
   const sensorSchema = {
     type: "object",
