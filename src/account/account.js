@@ -19,11 +19,16 @@ const checkAuthenticated = function (req, res, next) {
 
 router.post("/account", checkAuthenticated, async (req, res) => {
 
+    
+const userName = req.body.username
+
+
+// TODO - check username is email
    
 
-    if((req.body.username)!==''){
+    if(userName.length > 0){
 
-        await Account.find({username:req.body.username},async(err,result)=>{
+        await Account.find({username:userName},async(err,result)=>{
             if(err){
                 throw new Error(err)
             }
@@ -51,7 +56,7 @@ router.post("/account", checkAuthenticated, async (req, res) => {
                 res.status(404).json({
                    
                     status:404,
-                    msg:`${req.body.username} is not registered`})
+                    msg:`${userName} is not registered`})
             }
         }).clone()
         .catch(function (err) {

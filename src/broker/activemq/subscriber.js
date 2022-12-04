@@ -79,6 +79,8 @@ ajv.addFormat("data-time-format", function (dateTimeString) {
 // let topic = '/babak/json'
 let topic = "topic1"
 
+// TODO - Get topics list form serviceDB
+
 let topics = ["topic1", "topic2"]
 client.on("connect", async () => {
   // GET TOPIC
@@ -179,8 +181,10 @@ client.on("message", async (topics, payload) => {
   let sensorDataModel = []
 
   if (sensorValid) {
+
     for (let i = 0; i < objData.data.length; i++) {
       const addId = uuidv4() + '-' + makeId(10)
+
       receivedSensorData.push({
         id:addId,
         site: "",
@@ -190,6 +194,9 @@ client.on("message", async (topics, payload) => {
         value: objData.data[i].value,
         time: objData.atr.timedate,
       })
+
+
+      // Create a template for system configuration -sensorDataModel
 
       sensorDataModel.push({
         id:addId,
@@ -202,7 +209,7 @@ client.on("message", async (topics, payload) => {
 
     // sensor sites -- for create sensor group
 
-    //  Get relate service_id to topic
+    //  Search in Service Database until find a topic is related to found service
 
     await Service.find({ topic: topics }, async (err, result) => {
       if (err) {
@@ -221,6 +228,8 @@ client.on("message", async (topics, payload) => {
               }
 
               // console.log("topic", `${topics}`, "service_id", `${service_id}`)
+
+              // If exist data for topic in sensorSite colletion inside MongoDB
 
               if (result.length > 0) {
                 const sensorData = result[0].data
@@ -241,12 +250,11 @@ client.on("message", async (topics, payload) => {
                           throw new Error(err)
                         }
 
-                        if (result.length > 0) {
-                          // console.log("result ", result[0].data)
-                          // if(result[0]){
-                          //   console.log('result==> ', result[0].data)
-                          // }
-                        } else {
+                        // Check Here
+
+                        if (result.length === 0) {
+                          // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
+                          // when do any changes in count of sensors inside device, it's data in database must be update
                           ;(async () => {
                             await sensorSiteDB
                               .collection("sensorsites")
@@ -255,6 +263,9 @@ client.on("message", async (topics, payload) => {
                                 { $push: { data: s } }
                               )
                           })()
+                        } else {
+                          // TODO - remove sensor data and devices after 24 without response from 
+                          // Update database and remove sensor
                         }
                       }
                     )
@@ -268,6 +279,7 @@ client.on("message", async (topics, payload) => {
                   // }
                 }
               } else {
+                // for firsttime when data array in sensorSites colleciton is empty.
                 ;(async () => {
                   await sensorSiteDB
                     .collection("sensorsites")
@@ -363,6 +375,11 @@ client.on("message", async (topics, payload) => {
       .catch(function (err) {
         console.log("error in get topic in subscriber section ", err)
       })
+
+
+  // TODO - Store sensor data in CouchDB
+  // Remember - Empty receivedSensorData array for each time data stored in couchdb
+  // Use nano npmjs for CouchDB connection
   } else {
     console.error(ajv.errorsText(sensorValidate.errors))
   }
