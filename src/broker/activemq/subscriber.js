@@ -443,6 +443,8 @@ client.on("message", async (topics, payload) => {
 
   // ]
 
+  // Check file schema
+
   const actuatorValidate = ajv.compile(actuatorSchema)
   const actuatorValid = actuatorValidate(objData)
 
