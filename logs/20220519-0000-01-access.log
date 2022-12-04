@@ -1,2 +1,0 @@
-::ffff:162.142.125.219 - - [18/May/2022:00:04:41 +0000] "GET / HTTP/1.1" 404 139 "-" "-"
-::ffff:162.142.125.219 - - [18/May/2022:00:04:41 +0000] "GET / HTTP/1.1" 404 139 "-" "Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)"

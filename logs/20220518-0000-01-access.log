@@ -1,2 +1,0 @@
-::ffff:164.92.99.191 - - [17/May/2022:12:42:09 +0000] "GET / HTTP/1.1" 404 139 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0"
-::ffff:167.248.133.60 - - [17/May/2022:18:21:33 +0000] "GET / HTTP/1.1" 404 139 "-" "Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)"
