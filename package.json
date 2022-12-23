@@ -29,7 +29,7 @@
   "version": "1.0.0",
   "description": "Cyprus Internet Things",
   "main": "server.js",
-  "repository": "https://gitlab.com/killercode/server-iot.git",
+  "repository": "https://github.com/Navid61/sigmaboard-core.git",
   "author": "killercode <navidtaheri@gmail.com>",
   "license": "MIT",
   "scripts": {
