@@ -110,13 +110,13 @@ client.on("connect", async () => {
 
     topics.forEach((t) => {
       client.subscribe([t], () => {
-        console.log(`Subscribe to topic ${t}`)
+        console.log(`Subscribe to ${t}`)
       })
     })
   })
 
   client.subscribe([topic], () => {
-    console.log(`Subscribe to topic ${topic}`)
+    console.log('Subscribed to ' + colors.bgYellow(` ${topic}`))
   })
 })
 
@@ -127,8 +127,10 @@ client.on("connect", async () => {
 
 /** FOR MULTIPLE TOPICS */
 client.on("message", async (topics, payload) => {
-  console.log(colors.bgMagenta(`${topics}`),payload.toString())
+  //  console.log(colors.bgMagenta(`${topics}`),payload.toString())
 
+
+  
   const sensorSchema = {
     type: "object",
     properties: {
@@ -158,8 +160,11 @@ client.on("message", async (topics, payload) => {
   const sensorValidate = ajv.compile(sensorSchema)
   const sensorValid = sensorValidate(objData)
 
+
+
   /* CHECK JSON SCHEMA */
 
+  
   /** For Tutorial
   items:{
       type:"object",
@@ -175,6 +180,8 @@ client.on("message", async (topics, payload) => {
       required:["device", "sensor","name"]
     }
 */
+
+
 
   let receivedSensorData = []
 
@@ -384,31 +391,8 @@ client.on("message", async (topics, payload) => {
     console.error(ajv.errorsText(sensorValidate.errors))
   }
 
-  const actuatorSchema = {
-    type: "object",
-    properties: {
-      atr: {
-        type: "object",
-        properties: {
-          device: { type: "string" },
-          timedate: { type: "string", format: "data-time-format" },
-        },
-      },
-      data: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            actuator: { type: "string" },
-            status: { type: "string" },
-            value: { anyOf: [{ type: "number" }, { type: "boolean" }] },
-            color: { anyOf: [{ type: "number" }, { type: "boolean" }] },
-            code: { anyOf: [{ type: "number" }, { type: "boolean" }] },
-          },
-        },
-      },
-    },
-  }
+ 
+  
 
   // const testNewData= [
 
@@ -443,7 +427,35 @@ client.on("message", async (topics, payload) => {
 
   // ]
 
-  // Check file schema
+  // Check file schema for actucators (WITHOUT GATEWAYS)
+
+ 
+      
+   const actuatorSchema = {
+    type: "object",
+    properties: {
+      atr: {
+        type: "object",
+        properties: {
+          device: { type: "string" },
+          timedate: { type: "string", format: "data-time-format" },
+        },
+      },
+      data: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            actuator: { type: "string" },
+            status: { type: "string" },
+            value: { anyOf: [{ type: "number" }, { type: "boolean" }] },
+            color: { anyOf: [{ type: "number" }, { type: "boolean" }] },
+            code: { anyOf: [{ type: "number" }, { type: "boolean" }] },
+          },
+        },
+      },
+    },
+  }
 
   const actuatorValidate = ajv.compile(actuatorSchema)
   const actuatorValid = actuatorValidate(objData)
@@ -454,6 +466,7 @@ client.on("message", async (topics, payload) => {
     console.error(ajv.errorsText(actuatorValid.errors))
   }
 
+  
   // END OF CHECK JSON SCHEMA
 
   //  console.log('Received Message:','topics is :', topics, payload.toString())
