@@ -127,7 +127,7 @@ client.on("connect", async () => {
 
 /** FOR MULTIPLE TOPICS */
 client.on("message", async (topics, payload) => {
-  //  console.log(colors.bgMagenta(`${topics}`),payload.toString())
+   console.log(colors.bgMagenta(`${topics}`),payload.toString())
 
 
   

@@ -38,7 +38,6 @@ const sensors= require('./sensors/sensors');
 const actuators = require('./actuator/actuator');
 const scenes= require('./scene/scene');
 
-
 //* Apache ActiveMQ Artemis */
 const subscriber = require('./broker/activemq/subscriber');
 //* Apache ActiveMQ Artemis */
