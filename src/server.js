@@ -129,7 +129,7 @@ app.use(function (req, res, next) {
 
  
 
-  const allowedOrigins = ['http://82.115.17.45:3000','http://82.115.17.45:3088','http://82.115.17.45:5984','http://82.115.17.45:8082','http://82.115.17.45:8088'];
+  const allowedOrigins = ['http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://49.12.212.20:8082','http://49.12.212.20:8088'];
   const origin = req.headers.origin;
  
   if (allowedOrigins.includes(origin)) {
@@ -137,7 +137,7 @@ app.use(function (req, res, next) {
   }
 
   // Website you wish to allow to connect
-  // res.setHeader("Access-Control-Allow-Origin", "http://82.115.17.45:3088");
+  // res.setHeader("Access-Control-Allow-Origin", "http://49.12.212.20:3088");
 
   // Request methods you wish to allow
   res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
@@ -162,7 +162,7 @@ app.use(function (req, res, next) {
 
 
 
-var whitelist = ['http://82.115.17.45:3000','http://82.115.17.45:3088','http://82.115.17.45:5984','http://localhost:3088','http://82.115.17.45:8082','http://82.115.17.45:8088'];
+var whitelist = ['http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://localhost:3088','http://49.12.212.20:8082','http://49.12.212.20:8088'];
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
