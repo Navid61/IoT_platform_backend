@@ -35,7 +35,7 @@ function makeId(length) {
 
 ////////
 
-const host = "82.115.17.45"
+const host = "49.12.212.20"
 const port = "1883"
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 
