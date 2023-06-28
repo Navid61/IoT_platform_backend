@@ -17,7 +17,7 @@
     "mqtt": "^4.3.7",
     "nano": "^10.0.0",
     "nocache": "^3.0.4",
-    "nodemon": "^2.0.16",
+    "nodemon": "^2.0.22",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "rfs": "^9.0.6",

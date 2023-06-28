@@ -103,7 +103,11 @@ router.post("/sensors/getsensordata", checkAuthenticated, async (req, res) => {
       throw new Error(err)
     }
 
+    // console.log('result sensorSite ', result)
+
     if(result.length >0){
+
+     
 
   
 
@@ -138,7 +142,7 @@ router.post("/sensors/getsensordata", checkAuthenticated, async (req, res) => {
 
           if(fillDevicesSites){
 
-          
+          console.log('fillDevices ', fillDevicesSites)
             res.status(200).json({
               sensor:fillDevicesSites
             })

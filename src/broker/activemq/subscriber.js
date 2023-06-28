@@ -82,6 +82,7 @@ let topic = "topic1"
 // TODO - Get topics list form serviceDB
 
 let topics = ["topic1", "topic2"]
+
 client.on("connect", async () => {
   // GET TOPIC
 
@@ -413,6 +414,14 @@ client.on("message", async (topics, payload) => {
   // TODO - Store sensor data in CouchDB
   // Remember - Empty receivedSensorData array for each time data stored in couchdb
   // Use nano npmjs for CouchDB connection
+
+  // Store fake data in CouchDB
+
+  // console.log('recievedSensoprdata ', receivedSensorData)
+
+
+
+
   } else {
     console.error(ajv.errorsText(sensorValidate.errors))
   }
@@ -556,29 +565,7 @@ client.on("message", async (topics, payload) => {
 
 /////// FAKE PART
 
-const sensorSchema = {
-  type: "object",
-  properties: {
-    atr: {
-      type: "object",
-      properties: {
-        device: { type: "string" },
-        timedate: { type: "string", format: "data-time-format" },
-      },
-    },
-    data: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          sensor: { type: "string" },
-          name: { type: "string" },
-          value: { type: "number" },
-        },
-      },
-    },
-  },
-}
+
 
 const sampleData = {
   atr: {
@@ -602,7 +589,7 @@ function getRandomNumber(min, max) {
 }
 
 // Function to update the device name and randomize sensor values
-function updateData() {
+async function updateData() {
   // Update the device name
   const currentDeviceNumber = parseInt(sampleData.atr.device.slice(-5));
   let nextDeviceNumber;
@@ -633,15 +620,286 @@ function updateData() {
   }
 
   // Print the updated data
-  console.log(sampleData);
+
+  const sensorSchema = {
+    type: "object",
+    properties: {
+      atr: {
+        type: "object",
+        properties: {
+          device: { type: "string" },
+          timedate: { type: "string" },
+        },
+      },
+      data: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            sensor: { type: "string" },
+            name: { type: "string" },
+            value: { type: "number" },
+          },
+        },
+      },
+    },
+  }
+ console.log(sampleData);
   
   
   const sensorValidate = ajv.compile(sensorSchema)
   const sensorValid = sensorValidate(sampleData)
+
+ 
+
+  let receivedSensorData = []
+
+  let sensorDataModel = []
+
+  if (sensorValid) {
+
+    for (let i = 0; i < sampleData.data.length; i++) {
+      const addId = uuidv4() + '-' + makeId(10)
+
+      receivedSensorData.push({
+        id:addId,
+        site: "",
+        device: sampleData.atr.device,
+        sensor: sampleData.data[i].sensor,
+        name: sampleData.data[i].name,
+        value: sampleData.data[i].value,
+        time: sampleData.atr.timedate,
+      })
+
+
+      // Create a template for system configuration -sensorDataModel
+
+      sensorDataModel.push({
+        id:addId,
+        site: "",
+        device: sampleData.atr.device,
+        sensor: sampleData.data[i].sensor,
+        name: sampleData.data[i].name,
+      })
+    }
+
+
+    // console.log('sensorDataModel ', sensorDataModel)
+
+
+   
+
+    // sensor sites -- for create sensor group
+
+    //  Search in Service Database until find a topic is related to found service
+
+    await Service.find({ topic: topics }, async (err, result) => {
+      if (err) {
+        throw new Error("erorr in topic")
+      }
+      // console.log('result service ', result)
+      if (result.length > 0) {
+       
+        const service_id = result[0].service_id
+        const topic = result[0].topic
+
+        if (sensorDataModel) {
+          await sensorSite
+            .find({ service_id: service_id }, async (err, result) => {
+              if (err) {
+                throw new Error(err)
+              }
+
+              //  console.log("topic", `${topics}`, "service_id", `${service_id}`)
+
+              // If exist data for topic in sensorSite colletion inside MongoDB
+
+              if (result.length > 0) {
+                const sensorData = result[0].data
+
+                for await (const s of sensorDataModel) {
+                  //  console.log('sensor device ', s.device, 'sensor Id ', s.sensor)
+
+                  await sensorSite
+                    .find(
+                      {
+                        service_id: service_id,
+                        data: {
+                          $elemMatch: { device: s.device, sensor: s.sensor },
+                        },
+                      },
+                      async (err, result) => {
+                        if (err) {
+                          throw new Error(err)
+                        }
+
+                        // Check Here
+
+                        if (result.length === 0) {
+                          // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
+                          // when do any changes in count of sensors inside device, it's data in database must be update
+                          ;(async () => {
+                            await sensorSiteDB
+                              .collection("sensorsites")
+                              .updateOne(
+                                { service_id: service_id },
+                                { $push: { data: s } }
+                              )
+                          })()
+                        } else {
+                          // TODO - remove sensor data and devices after 24 without response from 
+                          // Update database and remove sensor
+                        }
+                      }
+                    )
+                    .clone()
+                    .catch(function (err) {
+                      console.log(err)
+                    })
+
+                  // if(sensorData.find((item)=>item.device!==s.device)){
+                  //   await sensorSiteDB.collection('sensorsites').updateOne({service_id:service_id},{$push:{data:s}})
+                  // }
+                }
+              } else {
+                // for firsttime when data array in sensorSites colleciton is empty.
+                ;(async () => {
+                  await sensorSiteDB
+                    .collection("sensorsites")
+                    .insertOne({
+                      service_id: service_id,
+                      data: sensorDataModel,
+                    })
+                })()
+              }
+            })
+            .clone()
+            .catch(function (err) {
+              console.log(err)
+            })
+        }
+
+        //  console.log('receivedSensorData ', receivedSensorData)
+
+        // check device array in document of topic
+        await Device.find(
+          { service_id: service_id },
+          async (err, deviceResult) => {
+            if (err) {
+              throw new Error(err)
+            }
+
+            // If it can find device array is not empty
+            if (deviceResult.length !== 0) {
+              // console.log('objData.atr.device ', objData.atr.device)
+
+              await Device.find(
+                {
+                  service_id: service_id,
+                  device: { $elemMatch: { device: sampleData.atr.device } },
+                },
+                async (err, result) => {
+                  if (err) {
+                    throw new Error(err)
+                  }
+                  if (result) {
+                    if (result.length !== 0) {
+                      // if find device in device array
+                        console.log('service_id: ', service_id, 'result ', result[0].device)
+                    } else {
+                      // if can not find device in device array
+                      // add missing device or new device
+
+                      ;(async () => {
+                        await deviceDB
+                          .collection("devices")
+                          .updateOne(
+                            { service_id: service_id },
+                            {
+                              $push: {
+                                device: {
+                                  device: sampleData.atr.device,
+                                  site: "",
+                                },
+                              },
+                            }
+                          )
+                      })()
+                    }
+                  }
+                }
+              )
+                .clone()
+                .catch(function (err) {
+                  console.log(err)
+                })
+            } else {
+              ;(async () => {
+                await deviceDB
+                  .collection("devices")
+                  .insertOne({
+                    service_id: service_id,
+                    device: [{ device: sampleData.atr.device, site: "" }],
+                  })
+              })()
+            }
+          }
+        )
+          .clone()
+          .catch(function (err) {
+            console.log(
+              "error in get device database info in subscriber section ",
+              err
+            )
+          })
+      }
+    })
+      .clone()
+      .catch(function (err) {
+        console.log("error in get topic in subscriber section ", err)
+      })
+
+
+  // TODO - Store sensor data in CouchDB
+  // Remember - Empty receivedSensorData array for each time data stored in couchdb
+  // Use nano npmjs for CouchDB connection
+  if(receivedSensorData.length > 0){
+
+   
+
+    await axios({
+      method:"POST",
+      url:'http://127.0.0.1:5984/cyprus-dev',
+     withCredntials:true,
+  
+      headers:{
+        'content-type':'application/json',
+        
+      },
+      auth:{
+        username:'admin',
+        password:'c0_OU7928CH'
+  
+      },
+      data:{docs:receivedSensorData}
+    }).then((response)=>{
+      // console.log('response ', response)
+  
+    }).catch(error=>{
+      console.error('error in put doc to couchDB ', error)
+    })
+  
+    } else {
+      console.error(ajv.errorsText(sensorValidate.errors))
+    }
+
+  }
+ 
+
 }
 
 // Update the data every 40 seconds (40000 milliseconds)
-setInterval(updateData, 5000);
+setInterval(updateData, 20000);
 
 
 

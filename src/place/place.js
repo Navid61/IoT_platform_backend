@@ -181,4 +181,60 @@ router.get("/place/:id", checkAuthenticated, async (req, res) => {
     })
 })
 
+router.post("/place/location", checkAuthenticated, async (req, res) => {
+  const service_id = req.body.id
+
+ 
+
+  await Users.find(
+    { username: req.user.username, service_id: service_id },
+    async (err, result) => {
+      if (err) {
+        throw new Error(err)
+      }
+
+      if (result.length !== 0) {
+        const rIndex = result.findIndex(
+          (item) => item.service_id === service_id
+        )
+
+      
+        if (rIndex !== -1) {
+          res.status(200).json({
+            status: 200,
+            role: result[rIndex].role,
+            place:result[0].place
+          })
+        }
+      } else if (result.length === 0) {
+        await Service.find(
+          { owner: req.user.username, service_id: service_id },
+          async (err, result) => {
+            if (err) {
+              throw new Error("get customer list and service failed")
+            }
+
+            if (result.length !== 0) {
+            
+              res.status(200).json({
+                status: 200,
+                role: result[0].role,
+                place:result[0].place
+              })
+            }
+          }
+        )
+          .clone()
+          .catch(function (err) {
+            console.log(err)
+          })
+      }
+    }
+  )
+    .clone()
+    .catch(function (err) {
+      console.log(err)
+    })
+})
+
 module.exports = router

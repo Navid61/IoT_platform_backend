@@ -4,6 +4,8 @@ const axios = require("axios");
 
 async function getData(zone,db){
 
+  console.log('db ', db)
+
 
     async function getLatestDocValue(docid){
 
@@ -24,7 +26,7 @@ async function getData(zone,db){
             },
         
           }).then((response)=>{
-     
+     console.log('response ', response)
       const sensorsList = response.data.dashboard
       
     

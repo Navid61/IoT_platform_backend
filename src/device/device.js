@@ -18,12 +18,14 @@ const checkAuthenticated = function (req, res, next) {
 
 router.use(checkAuthenticated)
 
-router.get("/device/:id", checkAuthenticated, async (req, res) => {
+router.post("/device/:id", checkAuthenticated, async (req, res) => {
   const service_id = req.params.id
   
     await Service.find(
-      { owner: req.user.username,service_id:service_id},
+      { owner: req.user.username,service_id:`${service_id}`},
       async (err, result) => {
+
+      
         if (err) {
           throw new Error("Error in get data for setup system")
         }
@@ -36,10 +38,11 @@ router.get("/device/:id", checkAuthenticated, async (req, res) => {
             if (err) {
               throw new Error(err)
             }
+
       
             if (result.length !== 0) {
       
-
+// console.log('result ', result[0].device)
            
         
                 res
