@@ -73,6 +73,8 @@ router.get("/service", checkAuthenticated, async (req, res) => {
               }
           
               if (result.length > 0) {
+
+                console.log('result in service ', result)
               
                 res.status(200).json({
                   cid: result,
@@ -113,6 +115,8 @@ router.post("/service", checkAuthenticated, async (req, res) => {
 
 
   const owner = req.body.owner
+
+  console.log('service ', req.body.topic)
 
   if (req.body.task === "create" && owner.length > 0) {
 // CHECK USER ACCOUNT IS EXIST OR NOT

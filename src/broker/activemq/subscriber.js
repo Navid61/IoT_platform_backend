@@ -644,7 +644,9 @@ async function updateData() {
       },
     },
   }
- console.log(sampleData);
+
+  
+//  console.log(sampleData);
   
   
   const sensorValidate = ajv.compile(sensorSchema)
@@ -805,7 +807,8 @@ async function updateData() {
                   if (result) {
                     if (result.length !== 0) {
                       // if find device in device array
-                        console.log('service_id: ', service_id, 'result ', result[0].device)
+
+                      // console.log('service_id: ', service_id, 'result ', result[0].device)
                     } else {
                       // if can not find device in device array
                       // add missing device or new device

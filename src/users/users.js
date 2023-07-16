@@ -781,6 +781,41 @@ router.get("/users/:id", checkAuthenticated, async (req, res) => {
 
  })
 
+// This part mus be fix
+ router.post("/users/getid", checkAuthenticated, async (req, res) => {
+  const _id=req.body.id_
+
+
+  
+  let usersList =[]
+
+ await Users.find({service_id:_id},async(err,result)=>{
+
+  if(err){
+      throw new Error(err)
+  }
+
+  if(result.length!==0){
+     for(let i=0;i<result.length;i++){
+      usersList.push({"user":result[i].username,"role":result[i].role})
+
+     }
+     console.log('usersList ', usersList)
+      res.status(200).json({users:[...new Set(usersList)]})
+   
+  }
+
+  // if(usersList.length!==0){
+  //     res.status(200).json({users:[...new Set(usersList)]})
+  // }
+
+  }).clone()
+      .catch(function (err) {
+        console.log(err)
+      })
+
+})
+
 router.post("/users/list", checkAuthenticated, async (req, res) => {
   const _id=req.body.id
 
