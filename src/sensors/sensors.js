@@ -69,7 +69,7 @@ router.post("/sensors/createnewgroup", checkAuthenticated, async (req, res) => {
     }else{
 
       (async()=>{
-await deviceDB.collection("sensorsgroups").insertOne({service_id:service_id,group:groupName,sensor:sensorGroup})
+await SensorsGroup.collection("sensorsgroups").insertOne({service_id:service_id,group:groupName,sensor:sensorGroup})
       
       })().then(()=>{
 
@@ -220,7 +220,7 @@ router.post("/sensors/removesensorgroup", checkAuthenticated, async (req, res) =
         //  }
 
 
-         await deviceDB.collection("sensorsgroups").deleteOne({service_id:service_id,group:s.group})
+         await SensorsGroup.collection("sensorsgroups").deleteOne({service_id:service_id,group:s.group})
         
   
          }
@@ -281,7 +281,7 @@ router.post("/sensors/updatesensorgroup", checkAuthenticated, async (req, res) =
     if(result.length!==0){
 
       (async()=>{
-     await deviceDB.collection("sensorsgroups").updateOne({service_id:service_id,group:groupName},{$set:{sensor:updateInfo}})
+     await SensorsGroup.collection("sensorsgroups").updateOne({service_id:service_id,group:groupName},{$set:{sensor:updateInfo}})
 
       })().then(()=>{
       

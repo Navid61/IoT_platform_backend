@@ -3,10 +3,10 @@ const Schema = mongoose.Schema
 
 const colors = require("colors")
 
-let deviceDB= "mongodb://127.0.0.1:27017/device"
+let sensorGroupDB= "mongodb://127.0.0.1:27017/sensorgroup"
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
-  var conn10 = mongoose.createConnection(deviceDB)
+  var conn10 = mongoose.createConnection(sensorGroupDB)
 } catch (error) {
   // handleError(error);
   console.error("mongoose error", error)
@@ -17,7 +17,7 @@ const db10 = conn10
 db10.on("error", console.error.bind(console, "connection error: "))
 db10.once("open", function () {
   console.log(
-    colors.red(colors.bold("deviceDB")) +
+    colors.green(colors.bold("sensorGroupDB")) +
       " Connected to MongoDB through mongoose successfully"
   )
 })
