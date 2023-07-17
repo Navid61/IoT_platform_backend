@@ -109,7 +109,7 @@ router.get("/service", checkAuthenticated, async (req, res) => {
 })
 
 router.post("/service", checkAuthenticated, async (req, res) => {
-  // let topic = "topic-" + makeid(16)
+  
   let topic = req.body.topic
   let service_id= 'id-'+makeid(25)
 

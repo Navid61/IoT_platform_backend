@@ -18,8 +18,10 @@ const checkAuthenticated = function (req, res, next) {
 
 router.use(checkAuthenticated)
 
-router.post("/device/:id", checkAuthenticated, async (req, res) => {
-  const service_id = req.params.id
+router.post("/device/id", checkAuthenticated, async (req, res) => {
+  const service_id = req.body._id
+
+  console.log('service_id ', service_id)
   
     await Service.find(
       { owner: req.user.username,service_id:`${service_id}`},
