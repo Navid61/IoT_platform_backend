@@ -3,21 +3,23 @@ const Schema = mongoose.Schema
 
 const colors = require("colors")
 
-let deviceDB= "mongodb://127.0.0.1:27017/device"
+
+// it must change to actuactorsGroup not remain device
+let actuatorsGroupDB= "mongodb://127.0.0.1:27017/actuatorsgroup"
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
-  var conn12 = mongoose.createConnection(deviceDB)
+  var conn16 = mongoose.createConnection(actuatorsGroupDB)
 } catch (error) {
   // handleError(error);
   console.error("mongoose error", error)
 }
 
-const db12 = conn12
+const db16 = conn16
 
-db12.on("error", console.error.bind(console, "connection error: "))
-db12.once("open", function () {
+db16.on("error", console.error.bind(console, "connection error: "))
+db16.once("open", function () {
   console.log(
-    colors.red(colors.bold("deviceDB")) +
+    colors.red(colors.bold("actuatorsGroupDB")) +
       " Connected to MongoDB through mongoose successfully"
   )
 })
@@ -40,6 +42,6 @@ const ActuatorGroupSchema = new Schema({
   actuator: [],
 })
 
-const ActuatorGroup = db12.model("ActuatorGroup", ActuatorGroupSchema)
+const ActuatorsGroup = db16.model("ActuatorsGroup", ActuatorGroupSchema)
 
-module.exports = ActuatorGroup
+module.exports = ActuatorsGroup

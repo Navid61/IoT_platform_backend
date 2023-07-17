@@ -26,7 +26,9 @@ const UserGroup = require("../db/models/usergroup");
 const filterBoardDB = mongodb.filterBoardDB
 
 
-const deviceDB = mongodb.deviceDB
+// const deviceDB = mongodb.deviceDB
+
+const sensorsGroupDB = mongodb.sensorsGroupDB
 
 
 
@@ -49,8 +51,8 @@ router.post("/sensors/createnewgroup", checkAuthenticated, async (req, res) => {
     const service_id=req.body.service_id
     const groupName= req.body.name
 
-    const sensorGroup = req.body.group
-//  console.log('receieved data ', service_id, groupName,sensorGroup)
+    const sensorsGroup = req.body.group
+console.log('receieved data ', service_id, groupName,sensorsGroup)
    
 
   await SensorsGroup.find({service_id:service_id,group:groupName},async(err,result)=>{
@@ -68,8 +70,11 @@ router.post("/sensors/createnewgroup", checkAuthenticated, async (req, res) => {
      
     }else{
 
+   
+     
+
       (async()=>{
-await SensorsGroup.collection("sensorsgroups").insertOne({service_id:service_id,group:groupName,sensor:sensorGroup})
+await sensorsGroupDB.collection("sensorsgroups").insertOne({service_id:service_id,group:groupName,sensor:sensorsGroup})
       
       })().then(()=>{
 

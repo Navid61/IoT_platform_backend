@@ -11,7 +11,7 @@ const Service= require('../db/models/service');
 
 const SensorsGroup = require('../db/models/sensors')
 
-const ActuatorGroup = require('../db/models/actuator')
+const ActuatorsGroup = require('../db/models/actuator')
 
 const FilterRule = require('../db/models/filter')
 

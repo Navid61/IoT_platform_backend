@@ -6,7 +6,7 @@ let  sceneDB='mongodb://127.0.0.1:27017/scene';
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
    
-  var conn12=  mongoose.createConnection(sceneDB)
+  var conn14=  mongoose.createConnection(sceneDB)
    
 } catch (error) {
   // handleError(error);
@@ -14,10 +14,10 @@ try {
 }
 
 
-const db12 = conn12
+const db14 = conn14
 
-db12.on("error", console.error.bind(console, "connection error: "));
-db12.once("open", function () {
+db14.on("error", console.error.bind(console, "connection error: "));
+db14.once("open", function () {
   console.log(colors.white(colors.bold("sceneDB"))+" Connected to MongoDB through mongoose successfully");
 });
 
@@ -67,6 +67,6 @@ status:{
 
 
 
-const Scene = db12.model('Scene', SceneInfoSchema);
+const Scene = db14.model('Scene', SceneInfoSchema);
 
 module.exports= Scene;
