@@ -32,7 +32,7 @@ const usergroup=require("./users/usergroup");
 const {v4:uuidv4} = require("uuid");
 const receive = require('./transition/reciveData');
 
-const newService = require('./customer/service/newService');
+const newService = require('./customer/newService');
 const newClient= require('./client/newClient');
 const sensors= require('./sensors/sensors');
 const actuators = require('./actuator/actuator');

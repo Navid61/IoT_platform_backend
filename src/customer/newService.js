@@ -3,13 +3,13 @@ const router = express.Router()
 const colors = require("colors")
 const axios = require("axios")
 
-const mongodb = require("../../db/config/mongodb")
-// const serviceDB = mongodb.serviceDB
-const sigmaBoardDB= mongodb.sigmaBoardDB
+const mongodb = require("../db/config/mongodb")
 
-const Service = require("../../db/models/service")
-const Control = require("../../db/models/control")
-const Account = require("../../db/models/account")
+
+
+const Service = require("../db/models/service")
+const Control = require("../db/models/control")
+const Account = require("../db/models/account")
 
 
 
@@ -22,6 +22,7 @@ const Account = require("../../db/models/account")
  const deviceDB= mongodb.deviceDB
  const sceneDB = mongodb.sceneDB
  const automationDB = mongodb.automationDB
+ const sigmaBoardDB= mongodb.sigmaBoardDB
 
 
 const checkAuthenticated = function (req, res, next) {
@@ -55,7 +56,7 @@ router.get("/service", checkAuthenticated, async (req, res) => {
 
   try{
 
-    await Control.find({}, async(err,result)=>{
+    await Service.find({}, async(err,result)=>{
 
       if(err){
         throw new Error('Error in detect system users in newServices file')
@@ -65,7 +66,66 @@ router.get("/service", checkAuthenticated, async (req, res) => {
     
        if(result.length !== 0){
 
-       
+
+          
+            await Service.find({}, async (err, result) => {
+              if (err) {
+                throw new Error("get customer list and service failed")
+              }
+          
+              if (result.length > 0) {
+
+                console.log('result in service ', result)
+              
+                res.status(200).json({
+                  cid: result,
+                })
+              }
+            })
+              .clone()
+              .catch(function (err) {
+                console.log(err)
+              })
+    
+          
+        }
+    
+     
+    }).clone().catch(function (err) {
+                console.log(err)
+              })
+
+  }catch(e){
+
+    console.error('error ', e)
+
+  }
+
+
+
+   
+
+
+ 
+})
+
+router.post("/service/status", checkAuthenticated, async (req, res) => {
+
+
+
+  try{
+
+    await Service.find({}, async(err,result)=>{
+
+      if(err){
+        throw new Error('Error in detect system users in newServices file')
+      }
+
+    
+    
+       if(result.length !== 0){
+
+
           
             await Service.find({}, async (err, result) => {
               if (err) {
@@ -116,7 +176,7 @@ router.post("/service", checkAuthenticated, async (req, res) => {
 
   const owner = req.body.owner
 
-  console.log('service ', req.body.topic)
+  console.log('service ', req.body)
 
   if (req.body.task === "create" && owner.length > 0) {
 // CHECK USER ACCOUNT IS EXIST OR NOT
@@ -125,7 +185,7 @@ try{
     if(err){
       throw new Error(err)
     }
-  
+ 
     if(result.length!==0){
      if(result[0].role!=='owner'){
      await sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{role:"owner"}})
