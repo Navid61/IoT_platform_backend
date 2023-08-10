@@ -23,7 +23,8 @@ const UserGroup = require("../db/models/usergroup");
 const filterBoardDB = mongodb.filterBoardDB
 
 
-const deviceDB = mongodb.deviceDB
+// const deviceDB = mongodb.deviceDB
+const actuactorsGroupDB = mongodb.actuatorsGroupDB
 
 
 const checkAuthenticated = function (req, res, next) {
@@ -42,7 +43,7 @@ router.post("/actuators/create", checkAuthenticated, async (req, res) => {
 
   const service_id = req.body.service_id
 const groupName= req.body.name
-  await ActuatorGroup.find({service_id,service_id,group:groupName},async(err,result)=>{
+  await ActuatorsGroup.find({service_id,service_id,group:groupName},async(err,result)=>{
     if(err){
       throw new Error(err)
     }
@@ -55,7 +56,7 @@ const groupName= req.body.name
 
     }else{
       (async()=>{
-        return await deviceDB.collection("actuatorgroups").insertOne({service_id:service_id,group:req.body.name,actuator:req.body.group})
+        return await DBDB.collection("actuatorgroups").insertOne({service_id:service_id,group:req.body.name,actuator:req.body.group})
             
             })().then((response)=>{
       
@@ -77,7 +78,7 @@ router.post("/actuators/getgroup", checkAuthenticated, async (req, res) => {
 
   const service_id=req.body.service_id
 
-  await ActuatorGroup.find({service_id:service_id},{_id:0},async(err,result)=>{
+  await ActuatorsGroup.find({service_id:service_id},{_id:0},async(err,result)=>{
     if(err){
       throw new Error(err)
     }
@@ -107,7 +108,7 @@ router.post("/actuators/removeactuatorgroup", checkAuthenticated, async (req, re
   for await(const s of actuatorRemoveList){
 
     (async()=>{
-      await ActuatorGroup.find({service_id:service_id,group:s.group},async(err, result)=>{
+      await ActuatorsGroup.find({service_id:service_id,group:s.group},async(err, result)=>{
         if(err){
           throw new Error(err)
         }
@@ -117,7 +118,7 @@ router.post("/actuators/removeactuatorgroup", checkAuthenticated, async (req, re
          if(result.length!==0){
     
 
-         await deviceDB.collection("actuatorgroups").deleteOne({service_id:service_id,group:s.group})
+         await actuactorsGroupDB.collection("actuatorgroups").deleteOne({service_id:service_id,group:s.group})
         
   
          }
@@ -169,7 +170,7 @@ router.post("/actuators/updateactuatorgroup", checkAuthenticated, async (req, re
 
  
 
-  await ActuatorGroup.find({service_id:service_id,group:groupName},async(err,result)=>{
+  await ActuatorsGroup.find({service_id:service_id,group:groupName},async(err,result)=>{
 
     if(err){
       throw new Error(err)
@@ -178,7 +179,7 @@ router.post("/actuators/updateactuatorgroup", checkAuthenticated, async (req, re
     if(result.length!==0){
 
       (async()=>{
-     await deviceDB.collection("actuatorgroups").updateOne({service_id:service_id,group:groupName},{$set:{actuator:updateInfo}})
+     await DB.collection("actuatorgroups").updateOne({service_id:service_id,group:groupName},{$set:{actuator:updateInfo}})
 
       })().then(()=>{
       

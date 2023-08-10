@@ -44,7 +44,7 @@ router.post("/device/id", checkAuthenticated, async (req, res) => {
       
             if (result.length !== 0) {
       
-// console.log('result ', result[0].device)
+console.log('result ', result[0].device)
            
         
                 res

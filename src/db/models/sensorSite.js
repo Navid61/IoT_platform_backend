@@ -6,16 +6,16 @@ const colors = require("colors")
 let sensorSiteDB= "mongodb://127.0.0.1:27017/sensor"
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
-  var conn10 = mongoose.createConnection(sensorSiteDB)
+  var conn21 = mongoose.createConnection(sensorSiteDB)
 } catch (error) {
   // handleError(error);
   console.error("mongoose error", error)
 }
 
-const db10 = conn10
+const db21 = conn21
 
-db10.on("error", console.error.bind(console, "connection error: "))
-db10.once("open", function () {
+db21.on("error", console.error.bind(console, "connection error: "))
+db21.once("open", function () {
   console.log(
     colors.red(colors.bgBlue("sensorSiteDB")) +
       " Connected to MongoDB through mongoose successfully"
@@ -34,6 +34,6 @@ const sensorSiteSchema = new Schema({
   data: [],
 })
 
-const sensorSite = db10.model("sensorSite", sensorSiteSchema)
+const sensorSite = db21.model("sensorSite", sensorSiteSchema)
 
 module.exports = sensorSite

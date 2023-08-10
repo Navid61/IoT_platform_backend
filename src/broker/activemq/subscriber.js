@@ -699,7 +699,7 @@ async function updateData() {
       if (err) {
         throw new Error("erorr in topic")
       }
-      // console.log('result service ', result)
+      //  console.log('result service ', result)
       if (result.length > 0) {
        
         const service_id = result[0].service_id
@@ -806,6 +806,8 @@ async function updateData() {
                   }
                   if (result) {
                     if (result.length !== 0) {
+
+                      // console.log('device list ', result)
                       // if find device in device array
 
                       // console.log('service_id: ', service_id, 'result ', result[0].device)

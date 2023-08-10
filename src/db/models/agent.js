@@ -9,7 +9,7 @@ let agentDB='mongodb://127.0.0.1:27017/agent';
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
    
-  var conn4=  mongoose.createConnection(agentDB)
+  var conn54=  mongoose.createConnection(agentDB)
    
 } catch (error) {
   // handleError(error);
@@ -17,10 +17,10 @@ try {
 }
 
 
-const db4 = conn4
+const db54 = conn54
 
-db4.on("error", console.error.bind(console, "connection error: "));
-db4.once("open", function () {
+db54.on("error", console.error.bind(console, "connection error: "));
+db54.once("open", function () {
   console.log(colors.cyan(colors.bold("agentDB"))+" Connected to MongoDB through mongoose successfully");
 });
 
@@ -56,6 +56,6 @@ status:{
 
 
 
-const Agent = db4.model('Agent', AgentSchema);
+const Agent = db54.model('Agent', AgentSchema);
 
 module.exports= Agent;
