@@ -169,9 +169,9 @@ router.post("/service/status", checkAuthenticated, async (req, res) => {
 })
 
 router.post("/service", checkAuthenticated, async (req, res) => {
-  
-  let topic = req.body.topic
-  let service_id= 'id-'+makeid(25)
+  try{
+  const topic = req.body.topic
+  const service_id= 'id-'+makeid(25)
 
 
   const owner = req.body.owner
@@ -180,7 +180,7 @@ router.post("/service", checkAuthenticated, async (req, res) => {
 
   if (req.body.task === "create" && owner.length > 0) {
 // CHECK USER ACCOUNT IS EXIST OR NOT
-try{
+
   await Account.find({username:req.body.owner},async(err,result)=>{
     if(err){
       throw new Error(err)
@@ -284,13 +284,13 @@ try{
           console.log(err)
         })
 
-}catch(e){
-  console.error('erro in newService page ',e)
 }
 
 
    
-  } 
+  } catch(e){
+    console.error('erro in newService page ',e)
+  }
 })
 
 
