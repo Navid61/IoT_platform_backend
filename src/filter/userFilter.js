@@ -487,14 +487,14 @@ router.post("/filter/service", checkAuthenticated, async (req, res) => {
 
 
   let userNameList = []
-  const service_id = req.params.id
+  const service_id = req.body.id
   let fillDevicesSites =[]
 
 
 
-  
-  
-await (async()=>{
+
+
+  await (async()=>{
 
   
 
@@ -706,7 +706,13 @@ await (async()=>{
 
     
 })
- 
+
+
+  
+  
+
+
+
 
   
 
