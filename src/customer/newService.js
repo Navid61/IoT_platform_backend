@@ -23,7 +23,7 @@ const Account = require("../db/models/account")
  const sceneDB = mongodb.sceneDB
 //  const automationDB = mongodb.automationDB
  const sigmaBoardDB= mongodb.sigmaBoardDB
- const sensorsGroupDB = mongodb.sensorsGroupDB
+
 
 
 const checkAuthenticated = function (req, res, next) {
@@ -306,17 +306,10 @@ router.post("/service/remove", checkAuthenticated, async (req, res) => {
  await (async(r)=>{
     for await (const r of removeServiceList){
 await filterBoardDB.collection("filterrules").findOneAndDelete({service_id:r.service_id})
-// await sensorsGroupDB.collection("sensorsgroups").findOneAndDelete({service_id:r.service_id})
-// sensorsgroups moved from filterGroupDB to sensorsGroupDB
-await sensorsGroupDB.collection("sensorsgroups").findOneAndDelete({service_id:r.service_id})
 await filterBoardDB.collection("userfilters").findOneAndDelete({service_id:r.service_id})
-// await deviceDB.collection("actuatorgroups").findOneAndDelete({service_id:r.service_id})
-await actuatorsGroupDB.collection("actuatorgroups").findOneAndDelete({service_id:r.service_id})
+await deviceDB.collection("actuatorgroups").findOneAndDelete({service_id:r.service_id})
 await deviceDB.collection("devices").findOneAndDelete({service_id:r.service_id})
-// await deviceDB.collection("sensorsgroups").findOneAndDelete({service_id:r.service_id})
-/** sensorsgroups moved to sensorsGroupDB in mongidb */
-// await sensorsGroupDB.collection("sensorsgroups").findOneAndDelete({service_id:r.service_id})
-
+await deviceDB.collection("sensorsgroups").findOneAndDelete({service_id:r.service_id})
 await sceneDB.collection("scenes").findOneAndDelete({service_id:r.service_id})
 await usersDB.collection("usergroups").findOneAndDelete({service_id:r.service_id})
 await usersDB.collection("users").findOneAndDelete({service_id:r.service_id})

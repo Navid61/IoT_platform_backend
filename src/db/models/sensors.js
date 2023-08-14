@@ -2,11 +2,11 @@ const mongoose = require("mongoose")
 const Schema = mongoose.Schema
 
 const colors = require("colors")
-
-let sensorsGroupDB= "mongodb://127.0.0.1:27017/sensorsgroup"
+//sensors group data store in device database
+let deviceDB= "mongodb://127.0.0.1:27017/sensorsgroup"
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
-  var conn10 = mongoose.createConnection(sensorsGroupDB)
+  var conn10 = mongoose.createConnection(deviceDB)
 } catch (error) {
   // handleError(error);
   console.error("mongoose error", error)

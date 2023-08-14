@@ -5,10 +5,11 @@ const colors = require("colors")
 
 
 // it must change to actuactorsGroup not remain device
-let actuatorsGroupDB= "mongodb://127.0.0.1:27017/actuatorsgroup"
+// actuator collection store in device database
+let deviceDB= "mongodb://127.0.0.1:27017/actuatorsgroup"
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
-  var conn16 = mongoose.createConnection(actuatorsGroupDB)
+  var conn16 = mongoose.createConnection(deviceDB)
 } catch (error) {
   // handleError(error);
   console.error("mongoose error", error)

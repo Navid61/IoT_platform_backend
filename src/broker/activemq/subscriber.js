@@ -133,7 +133,8 @@ client.on("connect", async () => {
  *  const fake_data={
     atr:{
       device: '00001',
-      timedate: Date.now()
+      timedate: Date.now(),
+      name:'master'
     },
     data:[
         {sensor:'00001',name:'temp', value:20},
@@ -163,6 +164,7 @@ client.on("message", async (topics, payload) => {
         properties: {
           device: { type: "string" },
           timedate: { type: "string", format: "data-time-format" },
+          name: { type: "string" }
         },
       },
       data: {
@@ -179,10 +181,10 @@ client.on("message", async (topics, payload) => {
     },
   }
 
-  let objData = JSON.parse(payload.toString())
+  let objData = await JSON.parse(payload.toString())
 
-  const sensorValidate = ajv.compile(sensorSchema)
-  const sensorValid = sensorValidate(objData)
+  const sensorValidate = await  ajv.compile(sensorSchema)
+  const sensorValid = await sensorValidate(objData)
 
 
   
@@ -216,10 +218,10 @@ client.on("message", async (topics, payload) => {
 
   if (sensorValid) {
 
-    for (let i = 0; i < objData.data.length; i++) {
+    for  (let i = 0; i < objData.data.length; i++) {
       const addId = uuidv4() + '-' + makeId(10)
 
-      receivedSensorData.push({
+    receivedSensorData.push({
         id:addId,
         site: "",
         device: objData.atr.device,
@@ -492,8 +494,8 @@ client.on("message", async (topics, payload) => {
     },
   }
 
-  const actuatorValidate = ajv.compile(actuatorSchema)
-  const actuatorValid = actuatorValidate(objData)
+  const actuatorValidate =await  ajv.compile(actuatorSchema)
+  const actuatorValid = await actuatorValidate(objData)
 
   if (actuatorValid) {
     let receivedActuatorData = []
@@ -570,7 +572,8 @@ client.on("message", async (topics, payload) => {
 const sampleData = {
   atr: {
     device: '00001',
-    timedate: new Date().toISOString()
+    timedate: new Date().toISOString(),
+    name:'master'
   },
   data: [
     { sensor: '00001', name: 'temp', value: 20 },
@@ -629,6 +632,7 @@ async function updateData() {
         properties: {
           device: { type: "string" },
           timedate: { type: "string" },
+          timedate: { type: "string" }
         },
       },
       data: {
@@ -638,7 +642,7 @@ async function updateData() {
           properties: {
             sensor: { type: "string" },
             name: { type: "string" },
-            value: { type: "number" },
+            value: { type: "number" }
           },
         },
       },
@@ -649,8 +653,8 @@ async function updateData() {
 //  console.log(sampleData);
   
   
-  const sensorValidate = ajv.compile(sensorSchema)
-  const sensorValid = sensorValidate(sampleData)
+  const sensorValidate =await ajv.compile(sensorSchema)
+  const sensorValid = await sensorValidate(sampleData)
 
  
 
@@ -870,8 +874,7 @@ async function updateData() {
   // Use nano npmjs for CouchDB connection
   if(receivedSensorData.length > 0){
 
-   
-
+   (async()=>{
     await axios({
       method:"POST",
       url:'http://127.0.0.1:5984/cyprus-dev',
@@ -893,6 +896,10 @@ async function updateData() {
     }).catch(error=>{
       console.error('error in put doc to couchDB ', error)
     })
+
+   })
+
+    
   
     } else {
       console.error(ajv.errorsText(sensorValidate.errors))
