@@ -481,6 +481,378 @@ await (async()=>{
 })
 
 
+// Add filter post method!
+
+router.post("/filter/service", checkAuthenticated, async (req, res) => {
+
+
+  let userNameList = []
+  const service_id = req.params.id
+  let fillDevicesSites =[]
+
+
+
+  
+  
+await (async()=>{
+
+  
+
+
+  return await sensorSite.find({service_id:service_id},async(err,result)=>{
+
+    if(err){
+      throw new Error(err)
+    }
+
+    if(result.length >0){
+
+  
+
+     return await Device.find({service_id:service_id}, async(err,deviceResult)=>{
+        if(err){
+          throw new Error(err)
+        }
+
+        if(deviceResult.length > 0){
+
+       
+         
+          const devicesSites = deviceResult[0].device
+          const sensorData = result[0].data
+
+         
+        
+          for await (const site of devicesSites){
+            for(let i=0;i<sensorData.length;i++){
+              if(sensorData[i].device === site.device){
+                fillDevicesSites.push({
+                  id:sensorData[i].id,
+                  site:site.site,
+                  device:sensorData[i].device,
+                  sensor:sensorData[i].sensor,
+                  name:sensorData[i].name
+                })
+
+              }
+            }
+          }
+
+ return fillDevicesSites
+
+         
+
+        }
+
+      }).clone().catch(function (err) {console.log(err)})
+
+
+      
+    }
+
+  }).clone()
+  .catch(function (err) {
+    console.log(err)
+  })
+
+})().then((response)=>{
+
+  if(response.length > 0){
+    (async()=>{
+
+      await UserGroup.find({ service_id: service_id }, async (err, result) => {
+        if (err) {
+          throw new Error(err)
+        }
+    
+        if (result.length === 0 || result[0].group.length === 0) {
+          // WHEN THERE IS NOT ANY USER GROUOP
+          await Users.find({ service_id: service_id }, async (err, result) => {
+            if (err) {
+              throw new Error(err)
+            }
+    
+            if (result.length !== 0) {
+            
+              for (let i = 0; i < result.length; i++) {
+                userNameList.push({
+                  username: result[i].username,
+                  role: result[i].role,
+                })
+              }
+    
+              await FilterRule.find(
+                { service_id: service_id },
+                async (err, result) => {
+                  if (err) {
+                    throw new Error(err)
+                  }
+    
+                  if (result) {
+                    if (result.length !== 0) {
+    
+                     
+                      res
+                        .status(200)
+                        .json({ sensor:fillDevicesSites, username: userNameList, filters: result[0].rule })
+                    } else {
+                      res.status(200).json({sensor:fillDevicesSites, username: userNameList })
+                    }
+                  }
+                }
+              )
+                .clone()
+                .catch(function (err) {
+                  console.log(err)
+                })
+            }
+          })
+            .clone()
+            .catch(function (err) {
+              console.log(err)
+            })
+        } else {
+    
+        
+          const userNameGroup = result[0].group
+         
+          let userNameInGroup = []
+          let groupName = []
+    
+          for (let i = 0; i < userNameGroup.length; i++) {
+            userNameInGroup.push(userNameGroup[i].user)
+            groupName.push(userNameGroup[i].group)
+          }
+    
+          const usersList = [...new Set(userNameInGroup)]
+          const groupNameList = [...new Set(groupName)]
+    
+          await Users.find({ service_id: service_id }, async (err, result) => {
+            if (err) {
+              throw new Error(err)
+            }
+    
+            if (result.length > 0) {
+    
+          
+    
+            
+              for (let i = 0; i < result.length; i++) {
+                if(result[i].role!=='admin' && result[i].role!=='owner'){
+                 
+                  userNameList.push({ username: result[i].username })
+                }
+               
+              }
+            }
+    
+            const filteredUserNameList = userNameList.filter((item) => {
+              if (usersList.includes(item.username)) {
+                return ""
+              } else {
+                return item
+              }
+            })
+    
+            await FilterRule.find(
+              { service_id: service_id },
+              async (err, result) => {
+                if (err) {
+                  throw new Error(err)
+                }
+    
+                if (result.length !== 0) {
+                          // console.log('result in filter rule',filteredUserNameList)
+    
+                  res
+                    .status(200)
+                    .json({
+                      username: filteredUserNameList,
+                      group: groupNameList,
+                      usergroup: userNameGroup,
+                      filters: result[0].rule,
+                    })
+                } else {
+                  res
+                    .status(200)
+                    .json({
+                      username: filteredUserNameList,
+                      group: groupNameList,
+                      usergroup: userNameGroup,
+                    })
+                }
+              })
+              .clone()
+              .catch(function (err) {
+                console.log(err)
+              })
+          })
+            .clone()
+            .catch(function (err) {
+              console.log(err)
+            })
+        }
+      })
+        .clone()
+        .catch(function (err) {
+          console.log(err)
+        })
+
+    })()
+   
+  
+  }
+
+
+    
+})
+ 
+
+  
+
+  // await UserGroup.find({ service_id: service_id }, async (err, result) => {
+  //   if (err) {
+  //     throw new Error(err)
+  //   }
+
+  //   if (result.length === 0 || result[0].group.length === 0) {
+  //     // WHEN THERE IS NOT ANY USER GROUOP
+  //     await Users.find({ service_id: service_id }, async (err, result) => {
+  //       if (err) {
+  //         throw new Error(err)
+  //       }
+
+  //       if (result.length !== 0) {
+        
+  //         for (let i = 0; i < result.length; i++) {
+  //           userNameList.push({
+  //             username: result[i].username,
+  //             role: result[i].role,
+  //           })
+  //         }
+
+  //         await FilterRule.find(
+  //           { service_id: service_id },
+  //           async (err, result) => {
+  //             if (err) {
+  //               throw new Error(err)
+  //             }
+
+  //             if (result) {
+  //               if (result.length !== 0) {
+
+                 
+  //                 res
+  //                   .status(200)
+  //                   .json({ sensor:fillDevicesSites, username: userNameList, filters: result[0].rule })
+  //               } else {
+  //                 res.status(200).json({sensor:fillDevicesSites, username: userNameList })
+  //               }
+  //             }
+  //           }
+  //         )
+  //           .clone()
+  //           .catch(function (err) {
+  //             console.log(err)
+  //           })
+  //       }
+  //     })
+  //       .clone()
+  //       .catch(function (err) {
+  //         console.log(err)
+  //       })
+  //   } else {
+
+    
+  //     const userNameGroup = result[0].group
+  //     console.log('userNameGroup ', userNameGroup)
+  //     let userNameInGroup = []
+  //     let groupName = []
+
+  //     for (let i = 0; i < userNameGroup.length; i++) {
+  //       userNameInGroup.push(userNameGroup[i].user)
+  //       groupName.push(userNameGroup[i].group)
+  //     }
+
+  //     const usersList = [...new Set(userNameInGroup)]
+  //     const groupNameList = [...new Set(groupName)]
+
+  //     await Users.find({ service_id: service_id }, async (err, result) => {
+  //       if (err) {
+  //         throw new Error(err)
+  //       }
+
+  //       if (result.length > 0) {
+
+      
+
+        
+  //         for (let i = 0; i < result.length; i++) {
+  //           if(result[i].role!=='admin' && result[i].role!=='owner'){
+             
+  //             userNameList.push({ username: result[i].username })
+  //           }
+           
+  //         }
+  //       }
+
+  //       const filteredUserNameList = userNameList.filter((item) => {
+  //         if (usersList.includes(item.username)) {
+  //           return ""
+  //         } else {
+  //           return item
+  //         }
+  //       })
+
+  //       await FilterRule.find(
+  //         { service_id: service_id },
+  //         async (err, result) => {
+  //           if (err) {
+  //             throw new Error(err)
+  //           }
+
+  //           if (result.length !== 0) {
+  //                     // console.log('result in filter rule',filteredUserNameList)
+
+  //             res
+  //               .status(200)
+  //               .json({
+  //                 username: filteredUserNameList,
+  //                 group: groupNameList,
+  //                 usergroup: userNameGroup,
+  //                 filters: result[0].rule,
+  //               })
+  //           } else {
+  //             res
+  //               .status(200)
+  //               .json({
+  //                 username: filteredUserNameList,
+  //                 group: groupNameList,
+  //                 usergroup: userNameGroup,
+  //               })
+  //           }
+  //         })
+  //         .clone()
+  //         .catch(function (err) {
+  //           console.log(err)
+  //         })
+  //     })
+  //       .clone()
+  //       .catch(function (err) {
+  //         console.log(err)
+  //       })
+  //   }
+  // })
+  //   .clone()
+  //   .catch(function (err) {
+  //     console.log(err)
+  //   })
+
+
+  
+})
+
+
 
 
 router.post("/filter/removeusergroup", checkAuthenticated, async (req, res) => {
