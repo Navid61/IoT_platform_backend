@@ -174,7 +174,7 @@ client.on("message", async (topics, payload) => {
           properties: {
             sensor: { type: "string" },
             name: { type: "string" },
-            value: { type: "number" },
+            value: { type: "number" }
           },
         },
       },
