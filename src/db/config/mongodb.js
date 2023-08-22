@@ -19,8 +19,7 @@ const dbName8='scene';
 const dbName9='automation';
 const dbName10='sensor';
 const dbName11='actuator';
-const dbName12='sensorsgroup';
-const dbName13='actuatorsgroup';
+
 // // const dbName = 'admin';
 // // Use connect method to connect to the server
 

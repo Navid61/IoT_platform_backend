@@ -9,7 +9,7 @@ const Users = require('../db/models/users');
 
 const Service= require('../db/models/service');
 
-const SensorsGroup = require('../db/models/sensors')
+const SensorsGroup = require('../db/models/sensors');
 
 const FilterRule = require('../db/models/filter')
 
@@ -26,9 +26,9 @@ const UserGroup = require("../db/models/usergroup");
 const filterBoardDB = mongodb.filterBoardDB
 
 
-// const deviceDB = mongodb.deviceDB
+const deviceDB = mongodb.deviceDB
 
-const sensorsGroupDB = mongodb.sensorsGroupDB
+
 
 
 
@@ -52,7 +52,7 @@ router.post("/sensors/createnewgroup", checkAuthenticated, async (req, res) => {
     const groupName= req.body.name
 
     const sensorsGroup = req.body.group
-console.log('receieved data ', service_id, groupName,sensorsGroup)
+// console.log('receieved data ', service_id, groupName,sensorsGroup)
    
 
   await SensorsGroup.find({service_id:service_id,group:groupName},async(err,result)=>{
@@ -65,8 +65,8 @@ console.log('receieved data ', service_id, groupName,sensorsGroup)
 
     if(result.length > 0){
     
-    
-      res.status(304).json({msg:"Duplicate"})
+    console.log('result in create sensorgroup',result)
+      // res.status(304).json({msg:"Duplicate"})
      
     }else{
 
@@ -74,11 +74,11 @@ console.log('receieved data ', service_id, groupName,sensorsGroup)
      
 
       (async()=>{
-await sensorsGroupDB.collection("sensorsgroups").insertOne({service_id:service_id,group:groupName,sensor:sensorsGroup})
+await deviceDB.collection("sensorsgroups").insertOne({service_id:service_id,group:groupName,sensor:sensorsGroup})
       
       })().then(()=>{
 
-      
+      // console.log('result ', res)
           res.status(200).json({msg:"seonsors group created successfully"})
        
       
@@ -147,7 +147,7 @@ router.post("/sensors/getsensordata", checkAuthenticated, async (req, res) => {
 
           if(fillDevicesSites){
 
-          console.log('fillDevices ', fillDevicesSites)
+          // console.log('fillDevices ', fillDevicesSites)
             res.status(200).json({
               sensor:fillDevicesSites
             })
@@ -173,18 +173,16 @@ router.post("/sensors/getsensordata", checkAuthenticated, async (req, res) => {
 router.post("/sensors/getgroup", checkAuthenticated, async (req, res) => {
   const service_id = req.body.service_id
 
-
-
   await SensorsGroup.find({service_id:service_id},{_id:0},async(err,result)=>{
     if(err){
       throw new Error(err)
     }
 
 
-
+   
     if(result.length!==0){
 
-     
+    
 
   
      
@@ -225,7 +223,7 @@ router.post("/sensors/removesensorgroup", checkAuthenticated, async (req, res) =
         //  }
 
 
-         await SensorsGroup.collection("sensorsgroups").deleteOne({service_id:service_id,group:s.group})
+         await deviceDB.collection("sensorsgroups").deleteOne({service_id:service_id,group:s.group})
         
   
          }
@@ -275,7 +273,7 @@ router.post("/sensors/updatesensorgroup", checkAuthenticated, async (req, res) =
   const updateInfo = req.body.group
 
 
-  console.log('updateInfo ', updateInfo)
+  // console.log('updateInfo ', updateInfo)
 
   await SensorsGroup.find({service_id:service_id,group:groupName},async(err,result)=>{
 
@@ -286,7 +284,7 @@ router.post("/sensors/updatesensorgroup", checkAuthenticated, async (req, res) =
     if(result.length!==0){
 
       (async()=>{
-     await SensorsGroup.collection("sensorsgroups").updateOne({service_id:service_id,group:groupName},{$set:{sensor:updateInfo}})
+     await deviceDB.collection("sensorsgroups").updateOne({service_id:service_id,group:groupName},{$set:{sensor:updateInfo}})
 
       })().then(()=>{
       

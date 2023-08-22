@@ -63,6 +63,30 @@ router.get("/scenes/:id", checkAuthenticated, async (req, res) => {
 
 })
 
+//It receive service_id value from client via post request method
+router.post("/scenes/sid", checkAuthenticated, async (req, res) => {
+  const service_id=req.body.id
+
+
+  await Scene.find({service_id:service_id},{_id:0}, async(err,result)=>{
+    if(err){
+        throw new Error(err)
+    }
+
+    if(result.length!==0){
+
+  
+           res.status(200).json({scenes:result})
+ 
+
+        
+       
+    }
+ }).clone().catch(function (err) {console.log(err)})
+
+
+})
+
 
 router.post("/scenes/create", checkAuthenticated, async (req, res) => {
 

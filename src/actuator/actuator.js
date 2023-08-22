@@ -22,9 +22,8 @@ const UserGroup = require("../db/models/usergroup");
 
 const filterBoardDB = mongodb.filterBoardDB
 
+const deviceDB = mongodb.deviceDB
 
-// const deviceDB = mongodb.deviceDB
-const actuactorsGroupDB = mongodb.actuatorsGroupDB
 
 
 const checkAuthenticated = function (req, res, next) {
@@ -118,7 +117,7 @@ router.post("/actuators/removeactuatorgroup", checkAuthenticated, async (req, re
          if(result.length!==0){
     
 
-         await actuactorsGroupDB.collection("actuatorgroups").deleteOne({service_id:service_id,group:s.group})
+         await deviceDB.collection("actuatorgroups").deleteOne({service_id:service_id,group:s.group})
         
   
          }

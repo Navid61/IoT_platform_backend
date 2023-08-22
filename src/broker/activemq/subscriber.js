@@ -22,7 +22,7 @@ const sensorSiteDB = mongodb.sensorSiteDB
 
 ///////////
 
-function makeId(length) {
+async function makeId(length) {
   var result = ""
   var characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -219,7 +219,7 @@ client.on("message", async (topics, payload) => {
   if (sensorValid) {
 
     for  (let i = 0; i < objData.data.length; i++) {
-      const addId = uuidv4() + '-' + makeId(10)
+      const addId = uuidv4() + '-' + await makeId(10)
 
     receivedSensorData.push({
         id:addId,
@@ -665,7 +665,7 @@ async function updateData() {
   if (sensorValid) {
 
     for (let i = 0; i < sampleData.data.length; i++) {
-      const addId = uuidv4() + '-' + makeId(10)
+      const addId = uuidv4() + '-' + await makeId(10)
 
       receivedSensorData.push({
         id:addId,
