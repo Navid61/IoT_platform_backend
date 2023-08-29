@@ -94,7 +94,7 @@ router.post("/scenes/create", checkAuthenticated, async (req, res) => {
   const name = req.body.name
   const scenes = req.body.scenes
 
-
+console.log('scences ', scenes );
   
 
  await Scene.find({service_id:service_id,name:name}, async(err,result)=>{

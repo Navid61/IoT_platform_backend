@@ -76,7 +76,7 @@ router.get("/service", checkAuthenticated, async (req, res) => {
           
               if (result.length > 0) {
 
-                console.log('result in service ', result)
+                // console.log('result in service ', result)
               
                 res.status(200).json({
                   cid: result,
@@ -135,7 +135,7 @@ router.post("/service/status", checkAuthenticated, async (req, res) => {
           
               if (result.length > 0) {
 
-                console.log('result in service ', result)
+                // console.log('result in service ', result)
               
                 res.status(200).json({
                   cid: result,

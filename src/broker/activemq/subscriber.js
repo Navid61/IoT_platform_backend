@@ -19,7 +19,9 @@ const mongodb = require("../../db/config/mongodb")
 
 const deviceDB = mongodb.deviceDB
 const sensorSiteDB = mongodb.sensorSiteDB
+const serviceDB =mongodb.serviceDB
 
+const r = require('rethinkdb');
 ///////////
 
 async function makeId(length) {
@@ -77,14 +79,35 @@ ajv.addFormat("data-time-format", function (dateTimeString) {
  */
 
 // let topic = '/babak/json'
-let topic = "topic1"
+// let topic = "topic1"
 
 // TODO - Get topics list form serviceDB
+// This topics iI think just used for fake data, and it not neccessay when we get currentTopic
 
-let topics = ["topic1", "topic2"]
+
+// r.connect({ host: 'localhost', port: 28015 }, function(err, conn) {
+//   if(err) throw err;
+//   r.db('test').tableCreate('tv_shows').run(conn, function(err, res) {
+//     if(err) throw err;
+//     console.log(res);
+//     r.table('tv_shows').insert({ name: 'Star Trek TNG' }).run(conn, function(err, res)
+//     {
+//       if(err) throw err;
+//       console.log(res);
+//     });
+//   });
+// });
+let topics = []
 
 client.on("connect", async () => {
   // GET TOPIC
+
+
+  
+
+
+ 
+
 
   await (async () => {
     return await Service.find({}, async (err, result) => {
@@ -92,9 +115,13 @@ client.on("connect", async () => {
         throw new Error("Error i get topic in subscriber")
       }
 
+    // console.log('result for finding all topics ', result);
+  
       if (result) {
         return result
       }
+
+    
 
       // client.subscribe([topic2], () => {
       //   console.log(`Subscribe to topic ${topic2}`)
@@ -105,20 +132,21 @@ client.on("connect", async () => {
         console.log(err)
       })
   })().then(async (response) => {
+
     for await (const r of response) {
       topics.push(r.topic)
     }
 
     topics.forEach((t) => {
-      client.subscribe([t], () => {
+     client.subscribe([t], () => {
         console.log(`Subscribe to ${t}`)
       })
     })
   })
 
-  client.subscribe([topic], () => {
-    console.log('Subscribed to ' + colors.bgYellow(` ${topic}`))
-  })
+  // client.subscribe([topic], () => {
+  //   console.log('Subscribed to ' + colors.bgYellow(` ${topic}`))
+  // })
 })
 
 /** FOR ONE TOPIC */
@@ -127,7 +155,8 @@ client.on("connect", async () => {
 // })
 
 /** FOR MULTIPLE TOPICS */
-
+// name in data should be device serial number or any code make it unique
+// if each sensor has its own id we can use that instead of create an id for each them manualy
 /**
  * 
  *  const fake_data={
@@ -149,8 +178,11 @@ client.on("connect", async () => {
     ]
   }
  */
-client.on("message", async (topics, payload) => {
-   console.log(colors.bgMagenta(`${topics}`),payload.toString())
+
+  // this part must be check if it gives me a unique topics, it no need use loop for service for check topics loop
+  //  instead of that I can remname toppics here to a different name like currentTopic
+client.on("message", async (currentTopic, payload) => {
+   console.log(colors.bgMagenta(`${currentTopic}`),payload.toString())
 
 
  
@@ -219,6 +251,7 @@ client.on("message", async (topics, payload) => {
   if (sensorValid) {
 
     for  (let i = 0; i < objData.data.length; i++) {
+      // attention: this code create different id for same device, we must investigate this is ok or not?
       const addId = uuidv4() + '-' + await makeId(10)
 
     receivedSensorData.push({
@@ -247,177 +280,188 @@ client.on("message", async (topics, payload) => {
 
     //  Search in Service Database until find a topic is related to found service
 
-    await Service.find({ topic: topics }, async (err, result) => {
-      if (err) {
-        throw new Error("erorr in topic")
-      }
 
-      if (result.length > 0) {
-        const service_id = result[0].service_id
-        const topic = result[0].topic
+    // check all topics array
+//  I use forEach loop to check all topics in topics array
+  
 
-        if (sensorDataModel) {
-          await sensorSite
-            .find({ service_id: service_id }, async (err, result) => {
-              if (err) {
-                throw new Error(err)
-              }
-
-              // console.log("topic", `${topics}`, "service_id", `${service_id}`)
-
-              // If exist data for topic in sensorSite colletion inside MongoDB
-
-              if (result.length > 0) {
-                const sensorData = result[0].data
-
-                for await (const s of sensorDataModel) {
-                  //  console.log('sensor device ', s.device, 'sensor Id ', s.sensor)
-
-                  await sensorSite
-                    .find(
-                      {
-                        service_id: service_id,
-                        data: {
-                          $elemMatch: { device: s.device, sensor: s.sensor },
-                        },
-                      },
-                      async (err, result) => {
-                        if (err) {
-                          throw new Error(err)
-                        }
-
-                        // Check Here
-
-                        if (result.length === 0) {
-                          // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
-                          // when do any changes in count of sensors inside device, it's data in database must be update
-                          ;(async () => {
-                            await sensorSiteDB
-                              .collection("sensorsites")
-                              .updateOne(
-                                { service_id: service_id },
-                                { $push: { data: s } }
-                              )
-                          })()
-                        } else {
-                          // TODO - remove sensor data and devices after 24 without response from 
-                          // Update database and remove sensor
-                        }
-                      }
-                    )
-                    .clone()
-                    .catch(function (err) {
-                      console.log(err)
-                    })
-
-                  // if(sensorData.find((item)=>item.device!==s.device)){
-                  //   await sensorSiteDB.collection('sensorsites').updateOne({service_id:service_id},{$push:{data:s}})
-                  // }
-                }
-              } else {
-                // for firsttime when data array in sensorSites colleciton is empty.
-                ;(async () => {
-                  await sensorSiteDB
-                    .collection("sensorsites")
-                    .insertOne({
-                      service_id: service_id,
-                      data: sensorDataModel,
-                    })
-                })()
-              }
-            })
-            .clone()
-            .catch(function (err) {
-              console.log(err)
-            })
-        }
-
-        //  console.log('receivedSensorData ', receivedSensorData)
-
-        // check device array in document of topic
-        await Device.find(
-          { service_id: service_id },
-          async (err, deviceResult) => {
-            if (err) {
-              throw new Error(err)
-            }
-
-            // If it can find device array is not empty
-            if (deviceResult.length !== 0) {
-              // console.log('objData.atr.device ', objData.atr.device)
-
-              await Device.find(
-                {
-                  service_id: service_id,
-                  device: { $elemMatch: { device: objData.atr.device } },
-                },
-                async (err, result) => {
+ 
+        await Service.find({ topic: currentTopic }, async (err, result) => {
+          if (err) {
+            throw new Error("erorr in topic")
+          }
+    
+          if (result.length > 0) {
+            const service_id = result[0].service_id
+            const topic = result[0].topic
+    
+            if (sensorDataModel) {
+              await sensorSite
+                .find({ service_id: service_id }, async (err, result) => {
                   if (err) {
                     throw new Error(err)
                   }
-                  if (result) {
-                    if (result.length !== 0) {
-                      // if find device in device array
-                      //  console.log('service_id: ', service_id, 'result ', result[0].device)
-                    } else {
-                      // if can not find device in device array
-                      // add missing device or new device
-
-                      ;(async () => {
-                        await deviceDB
-                          .collection("devices")
-                          .updateOne(
-                            { service_id: service_id },
-                            {
-                              $push: {
-                                device: {
-                                  device: objData.atr.device,
-                                  site: "",
-                                },
-                              },
+    
+                  //  console.log("topic", `${topics}`, "service_id", `${service_id}`)
+    
+                  // If exist data for topic in sensorSite colletion inside MongoDB
+    
+                  if (result.length > 0) {
+                    const sensorData = result[0].data
+    
+                    for await (const s of sensorDataModel) {
+                      //  console.log('sensor device ', s.device, 'sensor Id ', s.sensor)
+    
+                      await sensorSite
+                        .find(
+                          {
+                            service_id: service_id,
+                            data: {
+                              $elemMatch: { device: s.device, sensor: s.sensor },
+                            },
+                          },
+                          async (err, result) => {
+                            if (err) {
+                              throw new Error(err)
                             }
-                          )
-                      })()
+    
+                            // Check Here
+    
+                            if (result.length === 0) {
+                              // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
+                              // when do any changes in count of sensors inside device, it's data in database must be update
+                              ;(async () => {
+                                await sensorSiteDB
+                                  .collection("sensorsites")
+                                  .updateOne(
+                                    { service_id: service_id },
+                                    { $push: { data: s } }
+                                  )
+                              })()
+                            } else {
+                              // TODO - remove sensor data and devices after 24 without response from 
+                              // Update database and remove sensor
+                            }
+                          }
+                        )
+                        .clone()
+                        .catch(function (err) {
+                          console.log(err)
+                        })
+    
+                      // if(sensorData.find((item)=>item.device!==s.device)){
+                      //   await sensorSiteDB.collection('sensorsites').updateOne({service_id:service_id},{$push:{data:s}})
+                      // }
                     }
+                  } else {
+                    // for firsttime when data array in sensorSites colleciton is empty.
+                    ;(async () => {
+                      await sensorSiteDB
+                        .collection("sensorsites")
+                        .insertOne({
+                          service_id: service_id,
+                          data: sensorDataModel,
+                        })
+                    })()
                   }
-                }
-              )
+                })
                 .clone()
                 .catch(function (err) {
                   console.log(err)
                 })
-            } else {
-              ;(async () => {
-                await deviceDB
-                  .collection("devices")
-                  .insertOne({
-                    service_id: service_id,
-                    device: [{ device: objData.atr.device, site: "" }],
-                  })
-              })()
             }
+    
+            // console.log('receivedSensorData ', receivedSensorData)
+    
+            // check device array in document of topic
+            await Device.find(
+              { service_id: service_id },
+              async (err, deviceResult) => {
+                if (err) {
+                  throw new Error(err)
+                }
+    
+                // If it can find device array is not empty
+                if (deviceResult.length !== 0) {
+                  // console.log('objData.atr.device ', objData.atr.device)
+    
+                  await Device.find(
+                    {
+                      service_id: service_id,
+                      device: { $elemMatch: { device: objData.atr.device } },
+                    },
+                    async (err, result) => {
+                      if (err) {
+                        throw new Error(err)
+                      }
+                      if (result) {
+                        if (result.length !== 0) {
+                          // if find device in device array
+                          //  console.log('service_id: ', service_id, 'result ', result[0].device)
+                        } else {
+                          // if can not find device in device array
+                          // add missing device or new device
+    
+                          ;(async () => {
+                            await deviceDB
+                              .collection("devices")
+                              .updateOne(
+                                { service_id: service_id },
+                                {
+                                  $push: {
+                                    device: {
+                                      device: objData.atr.device,
+                                      site: "",
+                                    },
+                                  },
+                                }
+                              )
+                          })()
+                        }
+                      }
+                    }
+                  )
+                    .clone()
+                    .catch(function (err) {
+                      console.log(err)
+                    })
+                } else {
+                  ;(async () => {
+                    await deviceDB
+                      .collection("devices")
+                      .insertOne({
+                        service_id: service_id,
+                        device: [{ device: objData.atr.device, site: "" }],
+                      })
+                  })()
+                }
+              }
+            )
+              .clone()
+              .catch(function (err) {
+                console.log(
+                  "error in get device database info in subscriber section ",
+                  err
+                )
+              })
           }
-        )
+        })
           .clone()
           .catch(function (err) {
-            console.log(
-              "error in get device database info in subscriber section ",
-              err
-            )
+            console.log("error in get topic in subscriber section ", err)
           })
-      }
-    })
-      .clone()
-      .catch(function (err) {
-        console.log("error in get topic in subscriber section ", err)
-      })
+
+      
+   
+
+  
 
 
   // TODO - Store sensor data in CouchDB
   // Remember - Empty receivedSensorData array for each time data stored in couchdb
   // Use nano npmjs for CouchDB connection
 
-  // Store fake data in CouchDB
+  // Store fake data in CouchDB or rethinkDB
 
   // console.log('recievedSensoprdata ', receivedSensorData)
 
@@ -699,11 +743,32 @@ async function updateData() {
 
     //  Search in Service Database until find a topic is related to found service
 
-    await Service.find({ topic: topics }, async (err, result) => {
+   
+
+
+if(topics.length > 0){
+
+  // const collection = serviceDB.collection('services');
+  // const changeStream = collection.watch();
+  // changeStream.on('error', (error) => {
+  //   console.error('Error in ChangeStream:', error);
+  //   // Handle the error appropriately, perhaps by closing and reopening the ChangeStream.
+  // });
+  // changeStream.on('change', (change) => {
+  //   console.log(colors.bgCyan('Change detected:'), change);
+  //   // Additional logic here if needed
+  // });
+
+
+
+
+
+  topics.forEach(async(t)=>{
+    await Service.find({ topic: t }, async (err, result) => {
       if (err) {
         throw new Error("erorr in topic")
       }
-      //  console.log('result service ', result)
+    //  console.log('result service ', result)
       if (result.length > 0) {
        
         const service_id = result[0].service_id
@@ -811,7 +876,7 @@ async function updateData() {
                   if (result) {
                     if (result.length !== 0) {
 
-                      // console.log('device list ', result)
+                      //  console.log('device list ', result)
                       // if find device in device array
 
                       // console.log('service_id: ', service_id, 'result ', result[0].device)
@@ -868,11 +933,49 @@ async function updateData() {
         console.log("error in get topic in subscriber section ", err)
       })
 
+  })
+}
+  
+
 
   // TODO - Store sensor data in CouchDB
   // Remember - Empty receivedSensorData array for each time data stored in couchdb
   // Use nano npmjs for CouchDB connection
   if(receivedSensorData.length > 0){
+
+
+    (async () => {
+      try {
+        // Connect to the database
+        const connection = await r.connect({ host: 'localhost', port: 28015 });
+    
+        // Create a database named 'myDatabase' if it doesn't exist
+        const dbList = await r.dbList().run(connection);
+        if (dbList.indexOf('myDatabase') === -1) {
+          await r.dbCreate('myDatabase').run(connection);
+        }
+    
+        // Use the 'myDatabase' database
+        connection.use('myDatabase');
+    
+        // Create a table named 'sensorData' if it doesn't exist
+        const tableList = await r.tableList().run(connection);
+        if (tableList.indexOf('sensorData') === -1) {
+          await r.tableCreate('sensorData').run(connection);
+        }
+    
+        // Insert the sample data into the 'sensorData' table
+        const result = await r.table('sensorData').insert(receivedSensorData).run(connection);
+    
+        // console.log('Insert result:', result);
+    
+        // Close the connection
+        connection.close();
+      } catch (error) {
+        console.error('Error occurred:', error);
+      }
+    })();
+  
 
    (async()=>{
     await axios({
@@ -899,6 +1002,10 @@ async function updateData() {
 
    })
 
+
+   // For each topic create different database and table
+
+ 
     
   
     } else {

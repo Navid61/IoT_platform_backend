@@ -4,9 +4,11 @@ const {MongoClient} =require("mongodb");
 const colors = require("colors");
 
 // //Connect to MongoDB
-const url = 'mongodb://127.0.0.1:27017';
+ const url = 'mongodb://127.0.0.1:27017';
+// const url = 'mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019';
 // const url2 = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/?authSource=admin";
 const client = new MongoClient(url);
+
 // // Database Name
 const dbName ='sigmaboard';
 const dbName2 ='filterboard';
@@ -16,7 +18,7 @@ const dbName5 ='client';
 const dbName6='users';
 const dbName7='device';
 const dbName8='scene';
-const dbName9='automation';
+const dbName9='stream';
 const dbName10='sensor';
 const dbName11='actuator';
 
@@ -36,7 +38,7 @@ main()
  const usersDB = client.db(dbName6);
  const deviceDB= client.db(dbName7);
  const sceneDB = client.db(dbName8);
- const automationDB = client.db(dbName9);
+ const streamDB = client.db(dbName9);
  const sensorSiteDB = client.db(dbName10);
  const actuatorSiteDB =client.db(dbName11);
 
@@ -50,7 +52,7 @@ module.exports={
     usersDB:usersDB,
     deviceDB:deviceDB,
     sceneDB:sceneDB,
-    automationDB:automationDB,
+    streamDB:streamDB,
     sensorSiteDB:sensorSiteDB,
     actuatorSiteDB:actuatorSiteDB
    

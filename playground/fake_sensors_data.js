@@ -1,7 +1,7 @@
 const sampleData = {
     atr: {
       device: '00001',
-      timedate: new Date().toISOString()
+      timedate: new Date().toISOString().replace(/.\d+Z$/g,"")
     },
     data: [
       { sensor: '00001', name: 'temp', value: 20 },

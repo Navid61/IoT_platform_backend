@@ -22,6 +22,11 @@ db3.once("open", function () {
   )
 })
 
+db3.on('disconnected', function() {
+  console.log("Disconnected from DB!");
+  // You might decide to try and reconnect here
+});
+
 const ServiceSchema = new Schema({
   service_id: {
     type: String,
@@ -83,11 +88,24 @@ const ServiceSchema = new Schema({
 
   location: [],
 
+  // subscribe:{
+  //   type:Number,
+  //   default:30,
+  //   required:true,
+  //   maxLength: 3
+  // },
+
   start: {
     type: Date,
     default: new Date().toISOString(),
     required: true,
   },
+  // expire:{
+  //   type: Date,
+  //   default: new Date().toISOString(),
+  //   required: true,
+  // },
+  
   status: {
     type: Boolean,
     default: true,

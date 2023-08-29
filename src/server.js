@@ -27,6 +27,7 @@ const account = require('./account/account');
 const dashbaord = require("./dashboard/dashboard");
 const userFilter = require("./filter/userFilter");
 const place = require("./place/place");
+const stream= require('./stream/stream');
 
 const usergroup=require("./users/usergroup");
 const {v4:uuidv4} = require("uuid");
@@ -182,7 +183,7 @@ app.use(cors(corsOptions))
 
 
 app.use('/broker',receive);
-app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,account,place,device,sites,usergroup,sensors,actuators,scenes);
+app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,account,place,device,sites,usergroup,sensors,actuators,scenes,stream);
 
 
 
