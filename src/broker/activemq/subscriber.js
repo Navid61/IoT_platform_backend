@@ -729,7 +729,8 @@ async function updateData() {
         site: "",
         device: sampleData.atr.device,
         sensor: sampleData.data[i].sensor,
-        name: sampleData.data[i].name,
+        name: sampleData.data[i].name
+       
       })
     }
 

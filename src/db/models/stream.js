@@ -36,7 +36,7 @@ const StreamSchema = new Schema({
     type: String,
     maxLength: 255,
     trim: true,
-    required: true,
+   
   },
 
   name:{
@@ -46,13 +46,28 @@ const StreamSchema = new Schema({
     required: true,
   },
 
-  command: {
-    type: String,
-    maxLength: 150,
-    trim: true,
-    required: true,
+
+  query:{
+    type:String,
+    default:'{"action":"get_status"}'
   },
 
+  
+  math:{
+    type:Boolean,
+  },
+
+  formula:{
+    type:Array,
+  },
+
+  conditions:{
+
+    type:String,
+    trim:true
+  },
+
+    
   status: {
     type: Boolean,
     deafult: true,

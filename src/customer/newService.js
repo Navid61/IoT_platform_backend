@@ -21,6 +21,7 @@ const Account = require("../db/models/account")
  const usersDB = mongodb.usersDB
  const deviceDB= mongodb.deviceDB
  const sceneDB = mongodb.sceneDB
+ const sensorSiteDB= mongodb.sensorSiteDB
 //  const automationDB = mongodb.automationDB
  const sigmaBoardDB= mongodb.sigmaBoardDB
 
@@ -313,6 +314,7 @@ await deviceDB.collection("sensorsgroups").findOneAndDelete({service_id:r.servic
 await sceneDB.collection("scenes").findOneAndDelete({service_id:r.service_id})
 await usersDB.collection("usergroups").findOneAndDelete({service_id:r.service_id})
 await usersDB.collection("users").findOneAndDelete({service_id:r.service_id})
+await sensorSiteDB.collection('sensorsites').findOneAndDelete({service_id:r.service_id})
 // await agentDB.collection("usergroups").findOneAndDelete({service_id:r.service_id})
 await serviceDB.collection("services").findOneAndDelete({service_id:r.service_id})
 }
