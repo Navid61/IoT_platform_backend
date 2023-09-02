@@ -23,7 +23,7 @@ db3.once("open", function () {
 })
 
 db3.on('disconnected', function() {
-  console.log("Disconnected from DB!");
+  console.log("Disconnected from DB!" ,'serviceDB');
   // You might decide to try and reconnect here
 });
 

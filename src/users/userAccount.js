@@ -19,35 +19,82 @@ router.get('/register', async(req,res)=>{
   
 })
 
-router.post(
-  '/register',
- passport.authenticate('register', { session: false }),
-  async(req, res) => {
-   
 
-// Comment this part, because it seem is not neccessary
-// try{
 
-//   const newUserFilter = new UserFilter({
-//     username:req.user.username,
-//     role:'user',
-//     status:true,
-//   })
 
-//  await newUserFilter.save()
+router.post('/register', (req, res, next) => {
+  passport.authenticate('register', { session: false }, (err, user, info) => {
+      if (err) {
+          return res.status(500).json({
+              status: 500,
+              message: 'Internal Server Error',
+              error: err.message
+          });
+      }
+      if (!user) {
+          return res.status(400).json({
+              status: 400,
+              message: info ? info.message : 'Registration failed',
+          });
+      }
 
-// }catch(e){
-//   console.error('error in registeration form -new filter database')
+      req.login(user, { session: false }, (err) => {
+          if (err) {
+              res.status(400).send(err);
+          }
+
+          // Commented out since it's not necessary
+          // const newUserFilter = new UserFilter({
+          //     username: req.user.username,
+          //     role: 'user',
+          //     status: true,
+          // });
+          // await newUserFilter.save()
+
+          res.json({
+              status: 200,
+              message: 'Register was successful',
+              user: user
+          });
+      });
+  })(req, res, next);
+});
+
+// router.post(
+//   '/register',
+//  passport.authenticate('register',(err=>{
+// // console.log('err ', err);
+// if(err){
+//   return err
 // }
+//  }), { session: false }),
+//   async(req, res) => {
+
+
+// console.log('err ', err)
+// // Comment this part, because it seem is not neccessary
+// // try{
+
+// //   const newUserFilter = new UserFilter({
+// //     username:req.user.username,
+// //     role:'user',
+// //     status:true,
+// //   })
+
+// //  await newUserFilter.save()
+
+// // }catch(e){
+// //   console.error('error in registeration form -new filter database')
+// // }
 
   
-      res.json({
-        status:200,
-        message: 'Register was successful',
-        user:req.user
-      })
+//       res.json({
+//         status:200,
+//         message: 'Register was successful',
+//         user:req.user
+//       })
       
-  })
+//   })
 
 // router.get('/login',async function(req, res, next){
 

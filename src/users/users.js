@@ -340,7 +340,7 @@ router.post("/users/dupuser", checkAuthenticated, async (req, res) => {
         }
     }).clone()
     .catch(function (err) {
-      console.log(err)
+      console.log('Duplicate service ID error ', err)
     })
 
 

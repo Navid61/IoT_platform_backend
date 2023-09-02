@@ -16,6 +16,8 @@ const FilterRule = require('../db/models/filter')
 
 const Scene = require('../db/models/scene');
 
+const Device = require("../db/models/device")
+
 
 const mongodb = require("../db/config/mongodb");
 const UserGroup = require("../db/models/usergroup");
@@ -50,7 +52,7 @@ console.log('service_id in stream part ', service_id);
 
     if(result.length!==0){
 
-      console.log('result ', result)
+      // console.log('result ', result)
 
   
            res.status(200).json({scenes:result})
@@ -63,6 +65,49 @@ console.log('service_id in stream part ', service_id);
 
 
 })
+
+
+
+router.post("/stream/getdevicesite", checkAuthenticated, async (req, res) => {
+  const service_id=req.body.id
+
+// console.log('service_id in stream part ', service_id);
+
+
+await Device.find({service_id:service_id},{_id:0}, async(err,result)=>{
+  if(err){
+      throw new Error(err)
+  }
+
+  if(result.length!==0){
+
+  // console.log('result ', result[0].device)
+
+  
+// Attention Data must be store an array even for one device site
+  if (Array.isArray(result[0].device) && result[0].device.length > 0) {
+   const deviceSitesNameList = result[0].device.every(element => element.site && element.site !== '');
+
+    if (deviceSitesNameList) {
+      res.status(200).json({ devices: result[0].device });
+    } else {
+      res.status(404).json({ message: "No device sites found" });
+    }
+   
+ } else {
+  res.status(404).json({ message: "No zites found for the given service ID and devices" });
+}
+
+
+
+     
+     
+  }
+}).clone().catch(function (err) {console.log(err)})
+
+
+})
+
 
 
 module.exports = router;

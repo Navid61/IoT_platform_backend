@@ -16,69 +16,108 @@ const log =console.log;
 // ...
 module.exports = (passport)=>{
 
- 
 
-passport.use(
-    'register',
-    new LocalStrategy(
-      {
-        usernameField: 'username',
-        passwordField: 'password',
-      },
+  const secret = 'Yhgd^&%Hbgvd*GBJv#TCHV0poB';
+
+  function encryptEmail(email) {
+      return crypto.createHmac('sha256', secret)
+          .update(email)
+          .digest('hex');
+  }
+
+  passport.use('register', new LocalStrategy({
+    usernameField: 'username',
+    passwordField: 'password',
+},
+async (username, password, done) => {
+    try {
+        await Account.init();
+
+        const user = await Account.create({ username, password });
+        log('user ', user);
+
+        if (user) {
+            const hashmail = encryptEmail(username);
+            const saveEmailHash = new emailVerification({
+                username: username,
+                hashmail: hashmail
+            });
+
+            await saveEmailHash.save();
+
+            return done(null, user);
+        } else {
+            return done(new Error('User creation failed'));
+        }
+    } catch (error) {
+        return done(error);
+    }
+}
+));
+
+
+// passport.use(
+//     'register',
+//     new LocalStrategy(
+//       {
+//         usernameField: 'username',
+//         passwordField: 'password',
+//       },
    
-      async (username, password, done) => {
-        console.log('username in reg form ', username)
-        console.log('password in reg form ', password)
+//       async (username, password, done) => {
+//         console.log('username in reg form ', username)
+//         console.log('password in reg form ', password)
 
       
-       await Account.init().then(async()=>{
-          try {
+//        await Account.init().then(async()=>{
+//           try {
 
          
-            const user = await Account.create({ username, password })
-            log('user ', user)
-              if(user){
-                async function encryptMethod(){
-                  const { createHmac } = await import('crypto');
-                  const secret = 'Yhgd^&%Hbgvd*GBJv#TCHV0poB';
-                  const hashmail = createHmac('sha256', secret)
-                         .update(`${username}`)
-                         .digest('hex');
-                         return hashmail
-                }
-                encryptMethod().then(async(hashmail)=>{
-                  console.log('hashmail ', hashmail)
-                  console.log('username ', username)
-                  const saveEmailHash =  new emailVerification({ 
-                    username:username,
-                    hashmail:hashmail 
-                  });
-                  async function createValidation(){
-                    await saveEmailHash.save()
-                  }
-                  createValidation().then(()=>{
-                    return done(null, user);
-                  })
+//             const user = await Account.create({ username, password })
+//             log('user ', user)
+//               if(user){
+//                 async function encryptMethod(){
+//                   const { createHmac } = await import('crypto');
+//                   const secret = 'Yhgd^&%Hbgvd*GBJv#TCHV0poB';
+//                   const hashmail = createHmac('sha256', secret)
+//                          .update(`${username}`)
+//                          .digest('hex');
+//                          return hashmail
+//                 }
+//                 encryptMethod().then(async(hashmail)=>{
+//                   console.log('hashmail ', hashmail)
+//                   console.log('username ', username)
+//                   const saveEmailHash =  new emailVerification({ 
+//                     username:username,
+//                     hashmail:hashmail 
+//                   });
+//                   async function createValidation(){
+//                     await saveEmailHash.save()
+//                   }
+//                   createValidation().then(()=>{
+//                     return done(null, user);
+//                   })
                    
-                })
+//                 })
             
                 
-              }
-          // return done(null, user);
+//               }
+//           // return done(null, user);
          
            
-          } catch (error){
-           console.log('error in auth.js ', error)
+//           } catch (error){
+//           //  console.log('error in auth.js ', error.message)
            
-           done(error);
-          }
+           
+//            return done(error);
+//           }
 
-        })
+//         })
        
                
-      })
+//       })
   
-);
+// );
 
 // ...
 

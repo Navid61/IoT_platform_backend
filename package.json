@@ -24,6 +24,8 @@
     "rfs": "^9.0.6",
     "rotating-file-stream": "^3.0.3",
     "stompit": "^1.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.0"
   },
   "name": "Navid",
