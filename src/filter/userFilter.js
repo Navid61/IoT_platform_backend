@@ -144,7 +144,7 @@ await (async()=>{
 
         if(deviceResult.length > 0){
 
-       
+      //  console.log('result in filter get data ', result[0])
          
           const devicesSites = deviceResult[0].device
           const sensorData = result[0].data
@@ -154,14 +154,36 @@ await (async()=>{
           for await (const site of devicesSites){
             for(let i=0;i<sensorData.length;i++){
               if(sensorData[i].device === site.device){
-                fillDevicesSites.push({
-                  id:sensorData[i].id,
-                  site:site.site,
-                  device:sensorData[i].device,
-                  sensor:sensorData[i].sensor,
-                  name:sensorData[i].name
-                })
 
+                if(sensorData[i].sensor){
+                  fillDevicesSites.push({
+                    id:sensorData[i].id,
+                    site:site.site,
+                    device:sensorData[i].device,
+                    sensor:sensorData[i].sensor,
+                    name:sensorData[i].name
+                  })
+  
+                }else if(sensorData[i].actuator){
+                  fillDevicesSites.push({
+                    id:sensorData[i].id,
+                    site:site.site,
+                    device:sensorData[i].device,
+                    actuator:sensorData[i].actuator,
+                    name:sensorData[i].name
+                  })
+                }else if(sensorData[i].actuator && sensorData[i].sensor){
+
+                  fillDevicesSites.push({
+                    id:sensorData[i].id,
+                    site:site.site,
+                    device:sensorData[i].device,
+                    sensor:sensorData[i].sensor,
+                    actuator:sensorData[i].actuator,
+                    name:sensorData[i].name
+                  })
+                }
+           
               }
             }
           }

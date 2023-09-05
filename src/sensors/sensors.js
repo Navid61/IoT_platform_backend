@@ -52,7 +52,7 @@ router.post("/sensors/createnewgroup", checkAuthenticated, async (req, res) => {
     const groupName= req.body.name
 
     const sensorsGroup = req.body.group
-// console.log('receieved data ', service_id, groupName,sensorsGroup)
+ console.log('receieved data ', service_id, groupName,sensorsGroup)
    
 
   await SensorsGroup.find({service_id:service_id,group:groupName},async(err,result)=>{
@@ -147,9 +147,15 @@ router.post("/sensors/getsensordata", checkAuthenticated, async (req, res) => {
 
           if(fillDevicesSites){
 
-          // console.log('fillDevices ', fillDevicesSites)
+            const removedNullSensorsValue =  fillDevicesSites.filter((item)=>{
+              return item.sensor !== undefined
+             })
+
+          //  console.log('fillDevices ', fillDevicesSites)
+// console.log('removedNullSensorsValue ', removedNullSensorsValue)
+
             res.status(200).json({
-              sensor:fillDevicesSites
+              sensor:removedNullSensorsValue
             })
 
           }

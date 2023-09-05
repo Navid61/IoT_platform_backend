@@ -188,7 +188,32 @@ client.on("message", async (currentTopic, payload) => {
  
 
 
-  const sensorSchema = {
+  // const sensorSchema = {
+  //   type: "object",
+  //   properties: {
+  //     atr: {
+  //       type: "object",
+  //       properties: {
+  //         device: { type: "string" },
+  //         timedate: { type: "string", format: "data-time-format" },
+  //         name: { type: "string" }
+  //       },
+  //     },
+  //     data: {
+  //       type: "array",
+  //       items: {
+  //         type: "object",
+  //         properties: {
+  //           sensor: { type: "string" },
+  //           name: { type: "string" },
+  //           value: { type: "number" }
+  //         },
+  //       },
+  //     },
+  //   },
+  // }
+
+  const sensorActuatorSchema = {
     type: "object",
     properties: {
       atr: {
@@ -204,18 +229,25 @@ client.on("message", async (currentTopic, payload) => {
         items: {
           type: "object",
           properties: {
-            sensor: { type: "string" },
+            component: {
+              type: "string",
+              enum: ["sensor", "actuator"]
+            },
             name: { type: "string" },
             value: { type: "number" }
           },
+          required: ["component", "name", "value"]
         },
       },
     },
-  }
+    required: ["atr", "data"]
+}
+
+
 
   let objData = await JSON.parse(payload.toString())
 
-  const sensorValidate = await  ajv.compile(sensorSchema)
+  const sensorValidate = await  ajv.compile(sensorActuatorSchema)
   const sensorValid = await sensorValidate(objData)
 
 
@@ -267,6 +299,8 @@ client.on("message", async (currentTopic, payload) => {
 
       // Create a template for system configuration -sensorDataModel
 
+
+     
       sensorDataModel.push({
         id:addId,
         site: "",
@@ -275,6 +309,10 @@ client.on("message", async (currentTopic, payload) => {
         name: objData.data[i].name,
       })
     }
+
+
+
+
 
     // sensor sites -- for create sensor group
 
@@ -621,11 +659,11 @@ const sampleData = {
   },
   data: [
     { sensor: '00001', name: 'temp', value: 20 },
-    { sensor: '00002', name: 'lux', value: 110 },
+    { actuator: '00002', name: 'vaccum', value: "on" },
     { sensor: '00003', name: 'pressure', value: 1110 },
     { sensor: '00004', name: 'pressure', value: 1330 },
-    { sensor: '00005', name: 'lux', value: 25 },
-    { sensor: '00006', name: 'temp', value: 14 },
+    { actuator: '00005', name: 'tv', value: "on" },
+    { actuator: '00006', name: 'light', value: "off" },
     { sensor: '00007', name: 'lux', value: 29 }
   ]
 };
@@ -668,36 +706,80 @@ async function updateData() {
 
   // Print the updated data
 
-  const sensorSchema = {
+  // const sensorSchema = {
+  //   type: "object",
+  //   properties: {
+  //     atr: {
+  //       type: "object",
+  //       properties: {
+  //         device: { type: "string" },
+  //         timedate: { type: "string" },
+  //         timedate: { type: "string" }
+  //       },
+  //     },
+  //     data: {
+  //       type: "array",
+  //       items: {
+  //         type: "object",
+  //         properties: {
+  //           sensor: { type: "string" },
+  //           name: { type: "string" },
+  //           value: { type: "number" }
+  //         },
+  //       },
+  //     },
+  //   },
+  // }
+
+  const sensorActuatorSchema = {
     type: "object",
     properties: {
       atr: {
         type: "object",
         properties: {
           device: { type: "string" },
-          timedate: { type: "string" },
-          timedate: { type: "string" }
+          timedate: { type: "string", format: "data-time-format" }, // Corrected the format value to "date-time"
+          name: { type: "string" }
         },
+        required: ["device", "timedate", "name"]
       },
       data: {
         type: "array",
         items: {
           type: "object",
-          properties: {
-            sensor: { type: "string" },
-            name: { type: "string" },
-            value: { type: "number" }
-          },
-        },
-      },
+          oneOf: [
+            {
+              properties: {
+                sensor: { type: "string" },
+                name: { type: "string" },
+                value: { oneOf: [ { type: "number" }, { type: "string", enum: ["on", "off"] } ] }
+              },
+              required: ["sensor", "name", "value"]
+            },
+            {
+              properties: {
+                actuator: { type: "string" },
+                name: { type: "string" },
+                value: { oneOf: [ 
+                  { type: "boolean" }, 
+                  { type: "integer", enum: [0, 1] },
+                  { type: "string" } 
+                ] }
+              },
+              required: ["actuator", "name", "value"]
+            }
+          ]
+        }
+      }
     },
-  }
+    required: ["atr", "data"]
+}
 
-  
+
 //  console.log(sampleData);
   
   
-  const sensorValidate =await ajv.compile(sensorSchema)
+  const sensorValidate =await ajv.compile(sensorActuatorSchema)
   const sensorValid = await sensorValidate(sampleData)
 
  
@@ -708,31 +790,69 @@ async function updateData() {
 
   if (sensorValid) {
 
+
+
+
     for (let i = 0; i < sampleData.data.length; i++) {
       const addId = uuidv4() + '-' + await makeId(10)
 
-      receivedSensorData.push({
-        id:addId,
+      const dataItem = {
+        id: addId,
         site: "",
         device: sampleData.atr.device,
-        sensor: sampleData.data[i].sensor,
         name: sampleData.data[i].name,
         value: sampleData.data[i].value,
         time: sampleData.atr.timedate,
-      })
+    };
 
 
-      // Create a template for system configuration -sensorDataModel
+    // Check if it's a sensor or actuator and assign accordingly
+    if (sampleData.data[i].sensor) {
+      dataItem.sensor = sampleData.data[i].sensor;
+  } else if (sampleData.data[i].actuator) {
+      dataItem.actuator = sampleData.data[i].actuator;
+  }
 
-      sensorDataModel.push({
-        id:addId,
-        site: "",
-        device: sampleData.atr.device,
-        sensor: sampleData.data[i].sensor,
-        name: sampleData.data[i].name
-       
-      })
+  receivedSensorData.push(dataItem);
+
+
+  if(sampleData.data[i].sensor){
+    sensorDataModel.push({
+      id: addId,
+      site: "",
+      device: sampleData.atr.device,
+      sensor: sampleData.data[i].sensor,
+      name: sampleData.data[i].name
+  });
+  }else if(sampleData.data[i].actuator){
+    sensorDataModel.push({
+      id: addId,
+      site: "",
+      device: sampleData.atr.device,
+      actuator: sampleData.data[i].actuator,
+      name: sampleData.data[i].name
+  });
+  }else if(sampleData.data[i].actuator!=='' && sampleData.data[i].sensor!==''){
+    sensorDataModel.push({
+      id: addId,
+      site: "",
+      device: sampleData.atr.device,
+      sensor: sampleData.data[i].sensor,
+      actuator: sampleData.data[i].actuator,
+      name: sampleData.data[i].name
+  });
+  }
+ 
     }
+
+
+
+      // Ensure each object in receivedSensorData has both 'sensor' and 'actuator' fields
+      receivedSensorData = receivedSensorData.map(item => ({
+        ...item,
+        sensor: item.sensor || null,
+        actuator: item.actuator || null
+    }));
 
 
     // console.log('sensorDataModel ', sensorDataModel)
@@ -797,7 +917,7 @@ if(topics.length > 0){
                       {
                         service_id: service_id,
                         data: {
-                          $elemMatch: { device: s.device, sensor: s.sensor },
+                          $elemMatch: { device: s.device, sensor: s.sensor, actuator: s.actuator },
                         },
                       },
                       async (err, result) => {
@@ -808,6 +928,8 @@ if(topics.length > 0){
                         // Check Here
 
                         if (result.length === 0) {
+
+                          console.log('result ', result)
                           // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
                           // when do any changes in count of sensors inside device, it's data in database must be update
                           ;(async () => {
@@ -860,6 +982,9 @@ if(topics.length > 0){
             if (err) {
               throw new Error(err)
             }
+
+
+          // console.log('deviceResult in device ', deviceResult)
 
             // If it can find device array is not empty
             if (deviceResult.length !== 0) {
@@ -945,6 +1070,10 @@ if(topics.length > 0){
   if(receivedSensorData.length > 0){
 
 
+
+
+
+
     (async () => {
       try {
         // Connect to the database
@@ -1019,7 +1148,7 @@ if(topics.length > 0){
 }
 
 // Update the data every 40 seconds (40000 milliseconds)
-setInterval(updateData, 20000);
+setInterval(updateData, 2000);
 
 
 
