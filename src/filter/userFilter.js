@@ -39,6 +39,10 @@ var checkAuthenticated = function (req, res, next) {
 
 router.use(checkAuthenticated)
 
+
+
+
+
 // const db = "cyprus-dev"
 // const zone = "office"
 

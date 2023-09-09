@@ -128,8 +128,7 @@ io.on('connection', (socket) => {
 app.use(bodyParser.urlencoded({ limit:'50mb', extended: false }));
 // parse application/json
 app.use(bodyParser.json({limit:'50mb'}));
-
-app.use(session({
+const sessionMiddleware = session({
   secret:'udhfuw&^ET*G*WYGD#W&EHG@&(Y(SGH@*^W(UDBHy6',
   saveUninitialized:false,
   resave:false,
@@ -143,7 +142,12 @@ app.use(session({
   }),
 
 
-}));
+});
+app.use(sessionMiddleware);
+
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, next);
+});
 
 
 app.use(cookieParser('udhfuw&^ET*G*WYGD#W&EHG@&(Y(SGH@*^W(UDBHy6'));
@@ -152,6 +156,13 @@ app.use(cookieParser('udhfuw&^ET*G*WYGD#W&EHG@&(Y(SGH@*^W(UDBHy6'));
 // PASSPORT
 app.use(passport.initialize());
 app.use(passport.session());
+
+io.use((socket, next) => {
+  passport.initialize()(socket.request, {}, () => {
+    passport.session()(socket.request, {}, next);
+  });
+});
+
 
 app.use(function (req, res, next) {
 
@@ -246,6 +257,12 @@ var checkAuthenticated = function (req, res, next){
     }
 app.use(checkAuthenticated);
 
+io.use((socket, next) => {
+  if (socket.request.isAuthenticated()) {
+    return next();
+  }
+  return next(new Error('Authentication Error'));
+});
 
 
 
