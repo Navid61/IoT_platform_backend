@@ -39,6 +39,10 @@ const sensors= require('./sensors/sensors');
 const actuators = require('./actuator/actuator');
 const scenes= require('./scene/scene');
 
+// for real-time connection
+
+const socketIo = require('socket.io');
+
 //* Apache ActiveMQ Artemis */
 const subscriber = require('./broker/activemq/subscriber');
 //* Apache ActiveMQ Artemis */
@@ -95,6 +99,29 @@ db.once("open", function () {
 
 
 var app = express();
+
+//for real-time connection
+
+var server = require('http').createServer(app);
+const io = require('socket.io')(server);
+
+
+
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  // Handle a custom event, for example "chat message"
+  socket.on('chat message', (msg) => {
+    io.emit('chat message', msg); // emit to all connected clients
+  });
+
+  // Handle the disconnection of the client
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
+
+
 // app.use(express.json())
 // app.use(express.urlencoded({extended:true}));
 //parse application/x-www-form-urlencoded
@@ -241,4 +268,4 @@ app.use(checkAuthenticated);
 // });
 
 const PORT = process.env.PORT || 3080;
-app.listen(PORT, console.log(colors.bgMagenta(`Cyprus Server started on port ${PORT}`)));
+server.listen(PORT, console.log(colors.bgMagenta(`Cyprus Server started on port ${PORT}`)));

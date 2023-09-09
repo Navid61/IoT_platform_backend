@@ -664,7 +664,8 @@ const sampleData = {
     { sensor: '00004', name: 'pressure', value: 1330 },
     { actuator: '00005', name: 'tv', value: "on" },
     { actuator: '00006', name: 'light', value: "off" },
-    { sensor: '00007', name: 'lux', value: 29 }
+    { sensor: '00007', name: 'lux', value: 29 },
+    {sensor:'00008',name:'gps',value:{lon:19.040236,lat:47.497913}}
   ]
 };
 
@@ -731,57 +732,182 @@ async function updateData() {
   //   },
   // }
 
-  const sensorActuatorSchema = {
-    type: "object",
-    properties: {
-      atr: {
-        type: "object",
-        properties: {
-          device: { type: "string" },
-          timedate: { type: "string", format: "data-time-format" }, // Corrected the format value to "date-time"
-          name: { type: "string" }
-        },
-        required: ["device", "timedate", "name"]
+//   const sensorActuatorSchema = {
+//     type: "object",
+//     properties: {
+//       atr: {
+//         type: "object",
+//         properties: {
+//           device: { type: "string" },
+//           timedate: { type: "string", format: "data-time-format" }, // Corrected the format value to "date-time"
+//           name: { type: "string" }
+//         },
+//         required: ["device", "timedate", "name"]
+//       },
+//       data: {
+//         type: "array",
+//         items: {
+//           type: "object",
+//           oneOf: [
+//             {
+//               properties: {
+//                 sensor: { type: "string" },
+//                 name: { type: "string" },
+//                 value: { oneOf: [ { type: "number" }, { type: "string", enum: ["on", "off"] } ] }
+//               },
+//               required: ["sensor", "name", "value"]
+//             },
+//             {
+//               properties: {
+//                 actuator: { type: "string" },
+//                 name: { type: "string" },
+//                 value: { oneOf: [ 
+//                   { type: "boolean" }, 
+//                   { type: "integer", enum: [0, 1] },
+//                   { type: "string" } 
+//                 ] }
+//               },
+//               required: ["actuator", "name", "value"]
+//             }
+//           ]
+//         }
+//       }
+//     },
+//     required: ["atr", "data"]
+// }
+
+// const sensorActuatorSchema = {
+//   type: "object",
+//   properties: {
+//     atr: {
+//       type: "object",
+//       properties: {
+//         device: { type: "string" },
+//         timedate: { type: "string", format: "data-time-format" }, // Corrected the format value to "date-time"
+//         name: { type: "string" }
+//       },
+//       required: ["device", "timedate", "name"]
+//     },
+//     data: {
+//       type: "array",
+//       items: {
+//         type: "object",
+//         oneOf: [
+//           {
+//             properties: {
+//               sensor: { type: "string" },
+//               name: { type: "string" },
+//               value: { oneOf: [ 
+//                 { type: "number" },
+//                 { type: "object", properties: {
+//                     lon: { type: "number" },
+//                     lat: { type: "number" }
+//                   }, 
+//                 },
+//                 { type: "string", enum: ["on", "off"] }
+//               ] }
+//             },
+//             required: ["sensor", "name", "value"]
+//           },
+//           {
+//             properties: {
+//               actuator: { type: "string" },
+//               name: { type: "string" },
+//               value: { oneOf: [ 
+//                 { type: "boolean" }, 
+//                 { type: "integer", enum: [0, 1] },
+//                 { type: "string" } 
+//               ] }
+//             },
+//             required: ["actuator", "name", "value"]
+//           }
+//         ]
+//       }
+//     }
+//   },
+//   required: ["atr", "data"]
+// }
+
+
+const baseSchema = {
+  type: "object",
+  properties: {
+    atr: {
+      type: "object",
+      properties: {
+        device: { type: "string" },
+        timedate: { type: "string", format: "data-time-format" }, // Corrected the format value to "date-time"
+        name: { type: "string" }
       },
-      data: {
-        type: "array",
-        items: {
-          type: "object",
-          oneOf: [
-            {
-              properties: {
-                sensor: { type: "string" },
-                name: { type: "string" },
-                value: { oneOf: [ { type: "number" }, { type: "string", enum: ["on", "off"] } ] }
-              },
-              required: ["sensor", "name", "value"]
-            },
-            {
-              properties: {
-                actuator: { type: "string" },
-                name: { type: "string" },
-                value: { oneOf: [ 
-                  { type: "boolean" }, 
-                  { type: "integer", enum: [0, 1] },
-                  { type: "string" } 
-                ] }
-              },
-              required: ["actuator", "name", "value"]
-            }
-          ]
-        }
-      }
+      required: ["device", "timedate", "name"]
     },
-    required: ["atr", "data"]
+    data: {
+      type: "array",
+      items: {
+        type: "object",
+        oneOf: [
+          {
+            properties: {
+              sensor: { type: "string" },
+              name: { type: "string" },
+              value: { oneOf: [ { type: "number" }, { type: "string", enum: ["on", "off"] } ] }
+            },
+            required: ["sensor", "name", "value"]
+          },
+          {
+            properties: {
+              actuator: { type: "string" },
+              name: { type: "string" },
+              value: { oneOf: [ 
+                { type: "boolean" }, 
+                { type: "integer", enum: [0, 1] },
+                { type: "string" } 
+              ] }
+            },
+            required: ["actuator", "name", "value"]
+          }
+        ]
+      }
+    }
+  },
+  required: ["atr", "data"]
+};
+
+function dataHasGPS(data) {
+  return data.some(item => item.name === 'gps' && typeof item.value === 'object' && 'lon' in item.value && 'lat' in item.value);
 }
+
+function updateSchemaForGPS(data) {
+  if (dataHasGPS(data)) {
+      const gpsProperty = {
+          type: "object",
+          properties: {
+              lon: { type: "number" },
+              lat: { type: "number" }
+          },
+          required: ["lon", "lat"]
+      };
+
+      // Update the schema to validate GPS data
+      baseSchema.properties.data.items.oneOf[0].properties.value.oneOf.push(gpsProperty);
+  }
+}
+
+
+
+
+
 
 
 //  console.log(sampleData);
   
-  
-  const sensorValidate =await ajv.compile(sensorActuatorSchema)
+  updateSchemaForGPS(sampleData.data);
+  const sensorValidate =await ajv.compile(baseSchema)
   const sensorValid = await sensorValidate(sampleData)
-
+  
+  if (!sensorValid) {
+    console.log(sensorValidate.errors); // Inspect the errors if validation failed
+}
  
 
   let receivedSensorData = []

@@ -148,11 +148,11 @@ router.post("/sensors/getsensordata", checkAuthenticated, async (req, res) => {
           if(fillDevicesSites){
 
             const removedNullSensorsValue =  fillDevicesSites.filter((item)=>{
-              return item.sensor !== undefined
+              return item.sensor !== null && item.sensor !== undefined && item.sensor !== ''
              })
 
           //  console.log('fillDevices ', fillDevicesSites)
-// console.log('removedNullSensorsValue ', removedNullSensorsValue)
+console.log('removedNullSensorsValue ', removedNullSensorsValue)
 
             res.status(200).json({
               sensor:removedNullSensorsValue
