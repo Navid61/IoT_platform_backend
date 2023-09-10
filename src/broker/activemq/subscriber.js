@@ -14,10 +14,12 @@ const ajv = new Ajv()
 const Service = require("../../db/models/service")
 const Device = require("../../db/models/device")
 const sensorSite = require("../../db/models/sensorSite")
+const actuatorSite = require("../../db/models/actuatorSite")
 
 const mongodb = require("../../db/config/mongodb")
 
 const deviceDB = mongodb.deviceDB
+const actuatorSiteDB = mongodb.actuatorSiteDB
 const sensorSiteDB = mongodb.sensorSiteDB
 const serviceDB =mongodb.serviceDB
 
@@ -958,16 +960,8 @@ function updateSchemaForGPS(data) {
       actuator: sampleData.data[i].actuator,
       name: sampleData.data[i].name
   });
-  }else if(sampleData.data[i].actuator!=='' && sampleData.data[i].sensor!==''){
-    sensorDataModel.push({
-      id: addId,
-      site: "",
-      device: sampleData.atr.device,
-      sensor: sampleData.data[i].sensor,
-      actuator: sampleData.data[i].actuator,
-      name: sampleData.data[i].name
-  });
   }
+ 
  
     }
 
@@ -1022,6 +1016,8 @@ if(topics.length > 0){
         const topic = result[0].topic
 
         if (sensorDataModel) {
+
+         
           await sensorSite
             .find({ service_id: service_id }, async (err, result) => {
               if (err) {
@@ -1055,7 +1051,7 @@ if(topics.length > 0){
 
                         if (result.length === 0) {
 
-                          console.log('result ', result)
+                         
                           // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
                           // when do any changes in count of sensors inside device, it's data in database must be update
                           ;(async () => {
@@ -1077,12 +1073,19 @@ if(topics.length > 0){
                       console.log(err)
                     })
 
+
+                    // create a separate collection in sensor database of storing actuator id and values for each device in unique topic
+
+                    // TODO add actuator DB here
+
                   // if(sensorData.find((item)=>item.device!==s.device)){
                   //   await sensorSiteDB.collection('sensorsites').updateOne({service_id:service_id},{$push:{data:s}})
                   // }
                 }
               } else {
-                // for firsttime when data array in sensorSites colleciton is empty.
+
+                console.log('sensorDataModel indert to sensorSite database for first time ', sensorDataModel);
+                // for first time when data array in sensorSites colleciton is empty.
                 ;(async () => {
                   await sensorSiteDB
                     .collection("sensorsites")
