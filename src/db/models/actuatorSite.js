@@ -3,7 +3,7 @@ const Schema = mongoose.Schema
 
 const colors = require("colors")
 
-let actuatorSiteDB= "mongodb://127.0.0.1:27017/sensor"
+let actuatorSiteDB= "mongodb://127.0.0.1:27017/actuator"
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
   var conn210 = mongoose.createConnection(actuatorSiteDB)
@@ -17,7 +17,7 @@ const db210 = conn210
 db210.on("error", console.error.bind(console, "connection error: "))
 db210.once("open", function () {
   console.log(
-    colors.red(colors.bgBlue("sensorSiteDB")) +
+    colors.bold(colors.yellow("actuatorSiteDB")) +
       " Connected to MongoDB through mongoose successfully"
   )
 })

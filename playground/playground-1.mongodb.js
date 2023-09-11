@@ -3,10 +3,10 @@
 // Use Ctrl+Space inside a snippet or a string literal to trigger completions.
 
 // The current database to use.
-use('scene');
+use('sensor');
 
 // Search for documents in the current collection.
-db.getCollection('scenes')
+db.getCollection('actuatorsites')
   .find(
     {
       /*

@@ -22,6 +22,7 @@ const Account = require("../db/models/account")
  const deviceDB= mongodb.deviceDB
  const sceneDB = mongodb.sceneDB
  const sensorSiteDB= mongodb.sensorSiteDB
+ const actuatorSiteDB= mongodb.actuatorSiteDB
 //  const automationDB = mongodb.automationDB
  const sigmaBoardDB= mongodb.sigmaBoardDB
 
@@ -173,7 +174,7 @@ router.post("/service/status", checkAuthenticated, async (req, res) => {
 router.post("/service", checkAuthenticated, async (req, res) => {
   try{
   const topic = req.body.topic
-  const service_id= 'id-'+makeid(25)
+  const service_id = 'id-'+makeid(25) + '-' + Date.now()
 
 
   const owner = req.body.owner
@@ -315,6 +316,7 @@ await sceneDB.collection("scenes").findOneAndDelete({service_id:r.service_id})
 await usersDB.collection("usergroups").findOneAndDelete({service_id:r.service_id})
 await usersDB.collection("users").findOneAndDelete({service_id:r.service_id})
 await sensorSiteDB.collection('sensorsites').findOneAndDelete({service_id:r.service_id})
+await actuatorSiteDB.collection('actuatorsites').findOneAndDelete({service_id:r.service_id})
 // await agentDB.collection("usergroups").findOneAndDelete({service_id:r.service_id})
 await serviceDB.collection("services").findOneAndDelete({service_id:r.service_id})
 }

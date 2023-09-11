@@ -1,49 +1,49 @@
-const express = require("express")
+const express = require("express");
 
-var router = express.Router()
+var router = express.Router();
 
-const { v4: uuidv4 } = require("uuid")
-const colors = require("colors")
-const axios = require("axios")
-const mqtt = require("mqtt")
+const { v4: uuidv4 } = require("uuid");
+const colors = require("colors");
+const axios = require("axios");
+const mqtt = require("mqtt");
 
-const Ajv = require("ajv")
-const addFormats = require("ajv-formats")
-const ajv = new Ajv()
+const Ajv = require("ajv");
+const addFormats = require("ajv-formats");
+const ajv = new Ajv();
 
-const Service = require("../../db/models/service")
-const Device = require("../../db/models/device")
-const sensorSite = require("../../db/models/sensorSite")
-const actuatorSite = require("../../db/models/actuatorSite")
+const Service = require("../../db/models/service");
+const Device = require("../../db/models/device");
+const sensorSite = require("../../db/models/sensorSite");
+const actuatorSite = require("../../db/models/actuatorSite");
 
-const mongodb = require("../../db/config/mongodb")
+const mongodb = require("../../db/config/mongodb");
 
-const deviceDB = mongodb.deviceDB
-const actuatorSiteDB = mongodb.actuatorSiteDB
-const sensorSiteDB = mongodb.sensorSiteDB
-const serviceDB =mongodb.serviceDB
+const deviceDB = mongodb.deviceDB;
+const actuatorSiteDB = mongodb.actuatorSiteDB;
+const sensorSiteDB = mongodb.sensorSiteDB;
+const serviceDB = mongodb.serviceDB;
 
-const r = require('rethinkdb');
+const r = require("rethinkdb");
 ///////////
 
 async function makeId(length) {
-  var result = ""
+  var result = "";
   var characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-  var charactersLength = characters.length
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
   for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength))
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
-  return result
+  return result;
 }
 
 ////////
 
-const host = "49.12.212.20"
-const port = "1883"
-const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
+const host = "49.12.212.20";
+const port = "1883";
+const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
 
-const connectUrl = `mqtt://${host}:${port}`
+const connectUrl = `mqtt://${host}:${port}`;
 const client = mqtt.connect(connectUrl, {
   clean: true,
   clientId,
@@ -53,21 +53,21 @@ const client = mqtt.connect(connectUrl, {
   reconnectPeriod: 1000,
   qos: 2,
   customHandleAcks: function (topic, message, packet, done) {
-    console.log("packet", packet)
-    console.log("message", message)
-    console.log("topic", topic)
+    console.log("packet", packet);
+    console.log("message", message);
+    console.log("topic", topic);
   },
-})
+});
 
 // JSONSchema --- Data Schema
 
 ajv.addFormat("data-time-format", function (dateTimeString) {
   if (typeof dateTimeString === "object") {
-    dateTimeString = dateTimeString.toISOString().split(".")[0]
+    dateTimeString = dateTimeString.toISOString().split(".")[0];
   }
 
-  return !isNaN(Date.parse(dateTimeString))
-})
+  return !isNaN(Date.parse(dateTimeString));
+});
 
 /**
  There are four boolean combinator keywords in JSON Schema:
@@ -86,7 +86,6 @@ ajv.addFormat("data-time-format", function (dateTimeString) {
 // TODO - Get topics list form serviceDB
 // This topics iI think just used for fake data, and it not neccessay when we get currentTopic
 
-
 // r.connect({ host: 'localhost', port: 28015 }, function(err, conn) {
 //   if(err) throw err;
 //   r.db('test').tableCreate('tv_shows').run(conn, function(err, res) {
@@ -99,31 +98,22 @@ ajv.addFormat("data-time-format", function (dateTimeString) {
 //     });
 //   });
 // });
-let topics = []
+let topics = [];
 
 client.on("connect", async () => {
   // GET TOPIC
 
-
-  
-
-
- 
-
-
   await (async () => {
     return await Service.find({}, async (err, result) => {
       if (err) {
-        throw new Error("Error i get topic in subscriber")
+        throw new Error("Error i get topic in subscriber");
       }
 
-    // console.log('result for finding all topics ', result);
-  
+      // console.log('result for finding all topics ', result);
+
       if (result) {
-        return result
+        return result;
       }
-
-    
 
       // client.subscribe([topic2], () => {
       //   console.log(`Subscribe to topic ${topic2}`)
@@ -131,25 +121,24 @@ client.on("connect", async () => {
     })
       .clone()
       .catch(function (err) {
-        console.log(err)
-      })
+        console.log(err);
+      });
   })().then(async (response) => {
-
     for await (const r of response) {
-      topics.push(r.topic)
+      topics.push(r.topic);
     }
 
     topics.forEach((t) => {
-     client.subscribe([t], () => {
-        console.log(`Subscribe to ${t}`)
-      })
-    })
-  })
+      client.subscribe([t], () => {
+        console.log(`Subscribe to ${t}`);
+      });
+    });
+  });
 
   // client.subscribe([topic], () => {
   //   console.log('Subscribed to ' + colors.bgYellow(` ${topic}`))
   // })
-})
+});
 
 /** FOR ONE TOPIC */
 // client.on('message', async(topic,payload)=>{
@@ -181,14 +170,10 @@ client.on("connect", async () => {
   }
  */
 
-  // this part must be check if it gives me a unique topics, it no need use loop for service for check topics loop
-  //  instead of that I can remname toppics here to a different name like currentTopic
+// this part must be check if it gives me a unique topics, it no need use loop for service for check topics loop
+//  instead of that I can remname toppics here to a different name like currentTopic
 client.on("message", async (currentTopic, payload) => {
-   console.log(colors.bgMagenta(`${currentTopic}`),payload.toString())
-
-
- 
-
+  console.log(colors.bgMagenta(`${currentTopic}`), payload.toString());
 
   // const sensorSchema = {
   //   type: "object",
@@ -223,7 +208,7 @@ client.on("message", async (currentTopic, payload) => {
         properties: {
           device: { type: "string" },
           timedate: { type: "string", format: "data-time-format" },
-          name: { type: "string" }
+          name: { type: "string" },
         },
       },
       data: {
@@ -233,33 +218,25 @@ client.on("message", async (currentTopic, payload) => {
           properties: {
             component: {
               type: "string",
-              enum: ["sensor", "actuator"]
+              enum: ["sensor", "actuator"],
             },
             name: { type: "string" },
-            value: { type: "number" }
+            value: { type: "number" },
           },
-          required: ["component", "name", "value"]
+          required: ["component", "name", "value"],
         },
       },
     },
-    required: ["atr", "data"]
-}
+    required: ["atr", "data"],
+  };
 
+  let objData = await JSON.parse(payload.toString());
 
-
-  let objData = await JSON.parse(payload.toString())
-
-  const sensorValidate = await  ajv.compile(sensorActuatorSchema)
-  const sensorValid = await sensorValidate(objData)
-
-
-  
-
-
+  const sensorValidate = await ajv.compile(sensorActuatorSchema);
+  const sensorValid = await sensorValidate(objData);
 
   /* CHECK JSON SCHEMA */
 
-  
   /** For Tutorial
   items:{
       type:"object",
@@ -276,244 +253,214 @@ client.on("message", async (currentTopic, payload) => {
     }
 */
 
+  let receivedSensorData = [];
 
-
-  let receivedSensorData = []
-
-  let sensorDataModel = []
+  let sensorDataModel = [];
 
   if (sensorValid) {
-
-    for  (let i = 0; i < objData.data.length; i++) {
+    for (let i = 0; i < objData.data.length; i++) {
       // attention: this code create different id for same device, we must investigate this is ok or not?
-      const addId = uuidv4() + '-' + await makeId(10)
+      const addId = uuidv4() + "-" + (await makeId(10));
 
-    receivedSensorData.push({
-        id:addId,
+      receivedSensorData.push({
+        id: addId,
         site: "",
         device: objData.atr.device,
         sensor: objData.data[i].sensor,
         name: objData.data[i].name,
         value: objData.data[i].value,
         time: objData.atr.timedate,
-      })
-
+      });
 
       // Create a template for system configuration -sensorDataModel
 
-
-     
       sensorDataModel.push({
-        id:addId,
+        id: addId,
         site: "",
         device: objData.atr.device,
         sensor: objData.data[i].sensor,
         name: objData.data[i].name,
-      })
+      });
     }
-
-
-
-
 
     // sensor sites -- for create sensor group
 
     //  Search in Service Database until find a topic is related to found service
 
-
     // check all topics array
-//  I use forEach loop to check all topics in topics array
-  
+    //  I use forEach loop to check all topics in topics array
 
- 
-        await Service.find({ topic: currentTopic }, async (err, result) => {
-          if (err) {
-            throw new Error("erorr in topic")
-          }
-    
-          if (result.length > 0) {
-            const service_id = result[0].service_id
-            const topic = result[0].topic
-    
-            if (sensorDataModel) {
-              await sensorSite
-                .find({ service_id: service_id }, async (err, result) => {
-                  if (err) {
-                    throw new Error(err)
-                  }
-    
-                  //  console.log("topic", `${topics}`, "service_id", `${service_id}`)
-    
-                  // If exist data for topic in sensorSite colletion inside MongoDB
-    
-                  if (result.length > 0) {
-                    const sensorData = result[0].data
-    
-                    for await (const s of sensorDataModel) {
-                      //  console.log('sensor device ', s.device, 'sensor Id ', s.sensor)
-    
-                      await sensorSite
-                        .find(
-                          {
-                            service_id: service_id,
-                            data: {
-                              $elemMatch: { device: s.device, sensor: s.sensor },
-                            },
-                          },
-                          async (err, result) => {
-                            if (err) {
-                              throw new Error(err)
-                            }
-    
-                            // Check Here
-    
-                            if (result.length === 0) {
-                              // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
-                              // when do any changes in count of sensors inside device, it's data in database must be update
-                              ;(async () => {
-                                await sensorSiteDB
-                                  .collection("sensorsites")
-                                  .updateOne(
-                                    { service_id: service_id },
-                                    { $push: { data: s } }
-                                  )
-                              })()
-                            } else {
-                              // TODO - remove sensor data and devices after 24 without response from 
-                              // Update database and remove sensor
-                            }
-                          }
-                        )
-                        .clone()
-                        .catch(function (err) {
-                          console.log(err)
-                        })
-    
-                      // if(sensorData.find((item)=>item.device!==s.device)){
-                      //   await sensorSiteDB.collection('sensorsites').updateOne({service_id:service_id},{$push:{data:s}})
-                      // }
-                    }
-                  } else {
-                    // for firsttime when data array in sensorSites colleciton is empty.
-                    ;(async () => {
-                      await sensorSiteDB
-                        .collection("sensorsites")
-                        .insertOne({
-                          service_id: service_id,
-                          data: sensorDataModel,
-                        })
-                    })()
-                  }
-                })
-                .clone()
-                .catch(function (err) {
-                  console.log(err)
-                })
-            }
-    
-            // console.log('receivedSensorData ', receivedSensorData)
-    
-            // check device array in document of topic
-            await Device.find(
-              { service_id: service_id },
-              async (err, deviceResult) => {
-                if (err) {
-                  throw new Error(err)
-                }
-    
-                // If it can find device array is not empty
-                if (deviceResult.length !== 0) {
-                  // console.log('objData.atr.device ', objData.atr.device)
-    
-                  await Device.find(
-                    {
-                      service_id: service_id,
-                      device: { $elemMatch: { device: objData.atr.device } },
-                    },
-                    async (err, result) => {
-                      if (err) {
-                        throw new Error(err)
-                      }
-                      if (result) {
-                        if (result.length !== 0) {
-                          // if find device in device array
-                          //  console.log('service_id: ', service_id, 'result ', result[0].device)
-                        } else {
-                          // if can not find device in device array
-                          // add missing device or new device
-    
-                          ;(async () => {
-                            await deviceDB
-                              .collection("devices")
+    await Service.find({ topic: currentTopic }, async (err, result) => {
+      if (err) {
+        throw new Error("erorr in topic");
+      }
+
+      if (result.length > 0) {
+        const service_id = result[0].service_id;
+        const topic = result[0].topic;
+
+        if (sensorDataModel) {
+          await sensorSite
+            .find({ service_id: service_id }, async (err, result) => {
+              if (err) {
+                throw new Error(err);
+              }
+
+              //  console.log("topic", `${topics}`, "service_id", `${service_id}`)
+
+              // If exist data for topic in sensorSite colletion inside MongoDB
+
+              if (result.length > 0) {
+                const sensorData = result[0].data;
+
+                for await (const s of sensorDataModel) {
+                  //  console.log('sensor device ', s.device, 'sensor Id ', s.sensor)
+
+                  await sensorSite
+                    .find(
+                      {
+                        service_id: service_id,
+                        data: {
+                          $elemMatch: { device: s.device, sensor: s.sensor },
+                        },
+                      },
+                      async (err, result) => {
+                        if (err) {
+                          throw new Error(err);
+                        }
+
+                        // Check Here
+
+                        if (result.length === 0) {
+                          // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
+                          // when do any changes in count of sensors inside device, it's data in database must be update
+                          (async () => {
+                            await sensorSiteDB
+                              .collection("sensorsites")
                               .updateOne(
                                 { service_id: service_id },
-                                {
-                                  $push: {
-                                    device: {
-                                      device: objData.atr.device,
-                                      site: "",
-                                    },
-                                  },
-                                }
-                              )
-                          })()
+                                { $push: { data: s } }
+                              );
+                          })();
+                        } else {
+                          // TODO - remove sensor data and devices after 24 without response from
+                          // Update database and remove sensor
                         }
                       }
-                    }
-                  )
+                    )
                     .clone()
                     .catch(function (err) {
-                      console.log(err)
-                    })
-                } else {
-                  ;(async () => {
-                    await deviceDB
-                      .collection("devices")
-                      .insertOne({
-                        service_id: service_id,
-                        device: [{ device: objData.atr.device, site: "" }],
-                      })
-                  })()
+                      console.log(err);
+                    });
+
+                  // if(sensorData.find((item)=>item.device!==s.device)){
+                  //   await sensorSiteDB.collection('sensorsites').updateOne({service_id:service_id},{$push:{data:s}})
+                  // }
                 }
+              } else {
+                // for firsttime when data array in sensorSites colleciton is empty.
+                (async () => {
+                  await sensorSiteDB.collection("sensorsites").insertOne({
+                    service_id: service_id,
+                    data: sensorDataModel,
+                  });
+                })();
               }
-            )
-              .clone()
-              .catch(function (err) {
-                console.log(
-                  "error in get device database info in subscriber section ",
-                  err
-                )
-              })
+            })
+            .clone()
+            .catch(function (err) {
+              console.log(err);
+            });
+
+            
+        }
+
+        // console.log('receivedSensorData ', receivedSensorData)
+
+        // check device array in document of topic
+        await Device.find(
+          { service_id: service_id },
+          async (err, deviceResult) => {
+            if (err) {
+              throw new Error(err);
+            }
+
+            // If it can find device array is not empty
+            if (deviceResult.length !== 0) {
+              // console.log('objData.atr.device ', objData.atr.device)
+
+              await Device.find(
+                {
+                  service_id: service_id,
+                  device: { $elemMatch: { device: objData.atr.device } },
+                },
+                async (err, result) => {
+                  if (err) {
+                    throw new Error(err);
+                  }
+                  if (result) {
+                    if (result.length !== 0) {
+                      // if find device in device array
+                      //  console.log('service_id: ', service_id, 'result ', result[0].device)
+                    } else {
+                      // if can not find device in device array
+                      // add missing device or new device
+
+                      (async () => {
+                        await deviceDB.collection("devices").updateOne(
+                          { service_id: service_id },
+                          {
+                            $push: {
+                              device: {
+                                device: objData.atr.device,
+                                site: "",
+                              },
+                            },
+                          }
+                        );
+                      })();
+                    }
+                  }
+                }
+              )
+                .clone()
+                .catch(function (err) {
+                  console.log(err);
+                });
+            } else {
+              (async () => {
+                await deviceDB.collection("devices").insertOne({
+                  service_id: service_id,
+                  device: [{ device: objData.atr.device, site: "" }],
+                });
+              })();
+            }
           }
-        })
+        )
           .clone()
           .catch(function (err) {
-            console.log("error in get topic in subscriber section ", err)
-          })
+            console.log(
+              "error in get device database info in subscriber section ",
+              err
+            );
+          });
+      }
+    })
+      .clone()
+      .catch(function (err) {
+        console.log("error in get topic in subscriber section ", err);
+      });
 
-      
-   
+    // TODO - Store sensor data in CouchDB
+    // Remember - Empty receivedSensorData array for each time data stored in couchdb
+    // Use nano npmjs for CouchDB connection
 
-  
+    // Store fake data in CouchDB or rethinkDB
 
-
-  // TODO - Store sensor data in CouchDB
-  // Remember - Empty receivedSensorData array for each time data stored in couchdb
-  // Use nano npmjs for CouchDB connection
-
-  // Store fake data in CouchDB or rethinkDB
-
-  // console.log('recievedSensoprdata ', receivedSensorData)
-
-
-
-
+    // console.log('recievedSensoprdata ', receivedSensorData)
   } else {
-    console.error(ajv.errorsText(sensorValidate.errors))
+    console.error(ajv.errorsText(sensorValidate.errors));
   }
-
- 
-  
 
   // const testNewData= [
 
@@ -550,9 +497,7 @@ client.on("message", async (currentTopic, payload) => {
 
   // Check file schema for actucators (WITHOUT GATEWAYS)
 
- 
-      
-   const actuatorSchema = {
+  const actuatorSchema = {
     type: "object",
     properties: {
       atr: {
@@ -576,18 +521,17 @@ client.on("message", async (currentTopic, payload) => {
         },
       },
     },
-  }
+  };
 
-  const actuatorValidate =await  ajv.compile(actuatorSchema)
-  const actuatorValid = await actuatorValidate(objData)
+  const actuatorValidate = await ajv.compile(actuatorSchema);
+  const actuatorValid = await actuatorValidate(objData);
 
   if (actuatorValid) {
-    let receivedActuatorData = []
+    let receivedActuatorData = [];
   } else {
-    console.error(ajv.errorsText(actuatorValid.errors))
+    console.error(ajv.errorsText(actuatorValid.errors));
   }
 
-  
   // END OF CHECK JSON SCHEMA
 
   //  console.log('Received Message:','topics is :', topics, payload.toString())
@@ -639,36 +583,30 @@ client.on("message", async (currentTopic, payload) => {
   // // }
 
   // // }
-})
-
-
-
+});
 
 // /// ACTIVEMQ MQTT
 
 // }
 
-
 /////// FAKE PART
-
-
 
 const sampleData = {
   atr: {
-    device: '00001',
+    device: "00001",
     timedate: new Date().toISOString(),
-    name:'master'
+    name: "master",
   },
   data: [
-    { sensor: '00001', name: 'temp', value: 20 },
-    { actuator: '00002', name: 'vaccum', value: "on" },
-    { sensor: '00003', name: 'pressure', value: 1110 },
-    { sensor: '00004', name: 'pressure', value: 1330 },
-    { actuator: '00005', name: 'tv', value: "on" },
-    { actuator: '00006', name: 'light', value: "off" },
-    { sensor: '00007', name: 'lux', value: 29 },
-    {sensor:'00008',name:'gps',value:{lon:19.040236,lat:47.497913}}
-  ]
+    { sensor: "00001", name: "temp", value: 20 },
+    { actuator: "00002", name: "vaccum", value: "on" },
+    { sensor: "00003", name: "pressure", value: 1110 },
+    { sensor: "00004", name: "pressure", value: 1330 },
+    { actuator: "00005", name: "tv", value: "on" },
+    { actuator: "00006", name: "light", value: "off" },
+    { sensor: "00007", name: "lux", value: 29 },
+    { sensor: "00008", name: "gps", value: { lon: 19.040236, lat: 47.497913 } },
+  ],
 };
 
 // Function to generate a random number within a specified range
@@ -691,238 +629,124 @@ async function updateData() {
   sampleData.atr.device = `00000${nextDeviceNumber}`.slice(-5);
 
   // Randomize sensor values
-  sampleData.data.forEach(sensor => {
-    if (sensor.name === 'pressure') {
+  sampleData.data.forEach((sensor) => {
+    if (sensor.name === "pressure") {
       sensor.value = getRandomNumber(1000, 2000);
-    } else if (sensor.name === 'lux') {
+    } else if (sensor.name === "lux") {
       sensor.value = getRandomNumber(20, 100);
-    } else if (sensor.name === 'temp') {
+    } else if (sensor.name === "temp") {
       sensor.value = getRandomNumber(10, 50);
     }
   });
 
   // Randomly duplicate the device name
   if (Math.random() < 0.3) {
-    const duplicateSensor = sampleData.data.find(sensor => sensor.name === 'pressure');
-    duplicateSensor.sensor = sampleData.data.find(sensor => sensor.name === 'lux').sensor;
+    const duplicateSensor = sampleData.data.find(
+      (sensor) => sensor.name === "pressure"
+    );
+    duplicateSensor.sensor = sampleData.data.find(
+      (sensor) => sensor.name === "lux"
+    ).sensor;
   }
 
   // Print the updated data
 
-  // const sensorSchema = {
-  //   type: "object",
-  //   properties: {
-  //     atr: {
-  //       type: "object",
-  //       properties: {
-  //         device: { type: "string" },
-  //         timedate: { type: "string" },
-  //         timedate: { type: "string" }
-  //       },
-  //     },
-  //     data: {
-  //       type: "array",
-  //       items: {
-  //         type: "object",
-  //         properties: {
-  //           sensor: { type: "string" },
-  //           name: { type: "string" },
-  //           value: { type: "number" }
-  //         },
-  //       },
-  //     },
-  //   },
-  // }
-
-//   const sensorActuatorSchema = {
-//     type: "object",
-//     properties: {
-//       atr: {
-//         type: "object",
-//         properties: {
-//           device: { type: "string" },
-//           timedate: { type: "string", format: "data-time-format" }, // Corrected the format value to "date-time"
-//           name: { type: "string" }
-//         },
-//         required: ["device", "timedate", "name"]
-//       },
-//       data: {
-//         type: "array",
-//         items: {
-//           type: "object",
-//           oneOf: [
-//             {
-//               properties: {
-//                 sensor: { type: "string" },
-//                 name: { type: "string" },
-//                 value: { oneOf: [ { type: "number" }, { type: "string", enum: ["on", "off"] } ] }
-//               },
-//               required: ["sensor", "name", "value"]
-//             },
-//             {
-//               properties: {
-//                 actuator: { type: "string" },
-//                 name: { type: "string" },
-//                 value: { oneOf: [ 
-//                   { type: "boolean" }, 
-//                   { type: "integer", enum: [0, 1] },
-//                   { type: "string" } 
-//                 ] }
-//               },
-//               required: ["actuator", "name", "value"]
-//             }
-//           ]
-//         }
-//       }
-//     },
-//     required: ["atr", "data"]
-// }
-
-// const sensorActuatorSchema = {
-//   type: "object",
-//   properties: {
-//     atr: {
-//       type: "object",
-//       properties: {
-//         device: { type: "string" },
-//         timedate: { type: "string", format: "data-time-format" }, // Corrected the format value to "date-time"
-//         name: { type: "string" }
-//       },
-//       required: ["device", "timedate", "name"]
-//     },
-//     data: {
-//       type: "array",
-//       items: {
-//         type: "object",
-//         oneOf: [
-//           {
-//             properties: {
-//               sensor: { type: "string" },
-//               name: { type: "string" },
-//               value: { oneOf: [ 
-//                 { type: "number" },
-//                 { type: "object", properties: {
-//                     lon: { type: "number" },
-//                     lat: { type: "number" }
-//                   }, 
-//                 },
-//                 { type: "string", enum: ["on", "off"] }
-//               ] }
-//             },
-//             required: ["sensor", "name", "value"]
-//           },
-//           {
-//             properties: {
-//               actuator: { type: "string" },
-//               name: { type: "string" },
-//               value: { oneOf: [ 
-//                 { type: "boolean" }, 
-//                 { type: "integer", enum: [0, 1] },
-//                 { type: "string" } 
-//               ] }
-//             },
-//             required: ["actuator", "name", "value"]
-//           }
-//         ]
-//       }
-//     }
-//   },
-//   required: ["atr", "data"]
-// }
-
-
-const baseSchema = {
-  type: "object",
-  properties: {
-    atr: {
-      type: "object",
-      properties: {
-        device: { type: "string" },
-        timedate: { type: "string", format: "data-time-format" }, // Corrected the format value to "date-time"
-        name: { type: "string" }
-      },
-      required: ["device", "timedate", "name"]
-    },
-    data: {
-      type: "array",
-      items: {
+  const baseSchema = {
+    type: "object",
+    properties: {
+      atr: {
         type: "object",
-        oneOf: [
-          {
-            properties: {
-              sensor: { type: "string" },
-              name: { type: "string" },
-              value: { oneOf: [ { type: "number" }, { type: "string", enum: ["on", "off"] } ] }
-            },
-            required: ["sensor", "name", "value"]
-          },
-          {
-            properties: {
-              actuator: { type: "string" },
-              name: { type: "string" },
-              value: { oneOf: [ 
-                { type: "boolean" }, 
-                { type: "integer", enum: [0, 1] },
-                { type: "string" } 
-              ] }
-            },
-            required: ["actuator", "name", "value"]
-          }
-        ]
-      }
-    }
-  },
-  required: ["atr", "data"]
-};
-
-function dataHasGPS(data) {
-  return data.some(item => item.name === 'gps' && typeof item.value === 'object' && 'lon' in item.value && 'lat' in item.value);
-}
-
-function updateSchemaForGPS(data) {
-  if (dataHasGPS(data)) {
-      const gpsProperty = {
+        properties: {
+          device: { type: "string" },
+          timedate: { type: "string", format: "data-time-format" }, // Corrected the format value to "date-time"
+          name: { type: "string" },
+        },
+        required: ["device", "timedate", "name"],
+      },
+      data: {
+        type: "array",
+        items: {
           type: "object",
-          properties: {
-              lon: { type: "number" },
-              lat: { type: "number" }
-          },
-          required: ["lon", "lat"]
+          oneOf: [
+            {
+              properties: {
+                sensor: { type: "string" },
+                name: { type: "string" },
+                value: {
+                  oneOf: [
+                    { type: "number" },
+                    { type: "string", enum: ["on", "off"] },
+                  ],
+                },
+              },
+              required: ["sensor", "name", "value"],
+            },
+            {
+              properties: {
+                actuator: { type: "string" },
+                name: { type: "string" },
+                value: {
+                  oneOf: [
+                    { type: "boolean" },
+                    { type: "integer", enum: [0, 1] },
+                    { type: "string" },
+                  ],
+                },
+              },
+              required: ["actuator", "name", "value"],
+            },
+          ],
+        },
+      },
+    },
+    required: ["atr", "data"],
+  };
+
+  function dataHasGPS(data) {
+    return data.some(
+      (item) =>
+        item.name === "gps" &&
+        typeof item.value === "object" &&
+        "lon" in item.value &&
+        "lat" in item.value
+    );
+  }
+
+  function updateSchemaForGPS(data) {
+    if (dataHasGPS(data)) {
+      const gpsProperty = {
+        type: "object",
+        properties: {
+          lon: { type: "number" },
+          lat: { type: "number" },
+        },
+        required: ["lon", "lat"],
       };
 
       // Update the schema to validate GPS data
-      baseSchema.properties.data.items.oneOf[0].properties.value.oneOf.push(gpsProperty);
+      baseSchema.properties.data.items.oneOf[0].properties.value.oneOf.push(
+        gpsProperty
+      );
+    }
   }
-}
 
+  //  console.log(sampleData);
 
-
-
-
-
-
-//  console.log(sampleData);
-  
   updateSchemaForGPS(sampleData.data);
-  const sensorValidate =await ajv.compile(baseSchema)
-  const sensorValid = await sensorValidate(sampleData)
-  
+  const sensorValidate = await ajv.compile(baseSchema);
+  const sensorValid = await sensorValidate(sampleData);
+
   if (!sensorValid) {
     console.log(sensorValidate.errors); // Inspect the errors if validation failed
-}
- 
+  }
 
-  let receivedSensorData = []
+  let receivedSensorData = [];
 
-  let sensorDataModel = []
+  let sensorDataModel = [];
 
   if (sensorValid) {
-
-
-
-
     for (let i = 0; i < sampleData.data.length; i++) {
-      const addId = uuidv4() + '-' + await makeId(10)
+      const addId = uuidv4() + "-" + (await makeId(10));
 
       const dataItem = {
         id: addId,
@@ -931,361 +755,423 @@ function updateSchemaForGPS(data) {
         name: sampleData.data[i].name,
         value: sampleData.data[i].value,
         time: sampleData.atr.timedate,
-    };
+      };
 
+      // Check if it's a sensor or actuator and assign accordingly
+      if (sampleData.data[i].sensor) {
+        dataItem.sensor = sampleData.data[i].sensor;
+      } else if (sampleData.data[i].actuator) {
+        dataItem.actuator = sampleData.data[i].actuator;
+      }
 
-    // Check if it's a sensor or actuator and assign accordingly
-    if (sampleData.data[i].sensor) {
-      dataItem.sensor = sampleData.data[i].sensor;
-  } else if (sampleData.data[i].actuator) {
-      dataItem.actuator = sampleData.data[i].actuator;
-  }
+      receivedSensorData.push(dataItem);
 
-  receivedSensorData.push(dataItem);
-
-
-  if(sampleData.data[i].sensor){
-    sensorDataModel.push({
-      id: addId,
-      site: "",
-      device: sampleData.atr.device,
-      sensor: sampleData.data[i].sensor,
-      name: sampleData.data[i].name
-  });
-  }else if(sampleData.data[i].actuator){
-    sensorDataModel.push({
-      id: addId,
-      site: "",
-      device: sampleData.atr.device,
-      actuator: sampleData.data[i].actuator,
-      name: sampleData.data[i].name
-  });
-  }
- 
- 
+      if (sampleData.data[i].sensor) {
+        sensorDataModel.push({
+          id: addId,
+          site: "",
+          device: sampleData.atr.device,
+          sensor: sampleData.data[i].sensor,
+          name: sampleData.data[i].name,
+        });
+      } else if (sampleData.data[i].actuator) {
+        sensorDataModel.push({
+          id: addId,
+          site: "",
+          device: sampleData.atr.device,
+          actuator: sampleData.data[i].actuator,
+          name: sampleData.data[i].name,
+        });
+      }
     }
 
-
-
-      // Ensure each object in receivedSensorData has both 'sensor' and 'actuator' fields
-      receivedSensorData = receivedSensorData.map(item => ({
-        ...item,
-        sensor: item.sensor || null,
-        actuator: item.actuator || null
+    // Ensure each object in receivedSensorData has both 'sensor' and 'actuator' fields
+    receivedSensorData = receivedSensorData.map((item) => ({
+      ...item,
+      sensor: item.sensor || null,
+      actuator: item.actuator || null,
     }));
 
-
     // console.log('sensorDataModel ', sensorDataModel)
-
-
-   
 
     // sensor sites -- for create sensor group
 
     //  Search in Service Database until find a topic is related to found service
 
-   
+    if (topics.length > 0) {
+      // const collection = serviceDB.collection('services');
+      // const changeStream = collection.watch();
+      // changeStream.on('error', (error) => {
+      //   console.error('Error in ChangeStream:', error);
+      //   // Handle the error appropriately, perhaps by closing and reopening the ChangeStream.
+      // });
+      // changeStream.on('change', (change) => {
+      //   console.log(colors.bgCyan('Change detected:'), change);
+      //   // Additional logic here if needed
+      // });
 
+      topics.forEach(async (t) => {
+        await Service.find({ topic: t }, async (err, result) => {
+          if (err) {
+            throw new Error("erorr in topic");
+          }
+          //  console.log('result service ', result)
+          if (result.length > 0) {
+            const service_id = result[0].service_id;
+            const topic = result[0].topic;
 
-if(topics.length > 0){
-
-  // const collection = serviceDB.collection('services');
-  // const changeStream = collection.watch();
-  // changeStream.on('error', (error) => {
-  //   console.error('Error in ChangeStream:', error);
-  //   // Handle the error appropriately, perhaps by closing and reopening the ChangeStream.
-  // });
-  // changeStream.on('change', (change) => {
-  //   console.log(colors.bgCyan('Change detected:'), change);
-  //   // Additional logic here if needed
-  // });
-
-
-
-
-
-  topics.forEach(async(t)=>{
-    await Service.find({ topic: t }, async (err, result) => {
-      if (err) {
-        throw new Error("erorr in topic")
-      }
-    //  console.log('result service ', result)
-      if (result.length > 0) {
-       
-        const service_id = result[0].service_id
-        const topic = result[0].topic
-
-        if (sensorDataModel) {
-
-         
-          await sensorSite
-            .find({ service_id: service_id }, async (err, result) => {
-              if (err) {
-                throw new Error(err)
-              }
-
-              //  console.log("topic", `${topics}`, "service_id", `${service_id}`)
-
-              // If exist data for topic in sensorSite colletion inside MongoDB
-
-              if (result.length > 0) {
-                const sensorData = result[0].data
-
-                for await (const s of sensorDataModel) {
-                  //  console.log('sensor device ', s.device, 'sensor Id ', s.sensor)
-
-                  await sensorSite
-                    .find(
-                      {
-                        service_id: service_id,
-                        data: {
-                          $elemMatch: { device: s.device, sensor: s.sensor, actuator: s.actuator },
-                        },
-                      },
-                      async (err, result) => {
-                        if (err) {
-                          throw new Error(err)
-                        }
-
-                        // Check Here
-
-                        if (result.length === 0) {
-
-                         
-                          // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
-                          // when do any changes in count of sensors inside device, it's data in database must be update
-                          ;(async () => {
-                            await sensorSiteDB
-                              .collection("sensorsites")
-                              .updateOne(
-                                { service_id: service_id },
-                                { $push: { data: s } }
-                              )
-                          })()
-                        } else {
-                          // TODO - remove sensor data and devices after 24 without response from 
-                          // Update database and remove sensor
-                        }
-                      }
-                    )
-                    .clone()
-                    .catch(function (err) {
-                      console.log(err)
-                    })
-
-
-                    // create a separate collection in sensor database of storing actuator id and values for each device in unique topic
-
-                    // TODO add actuator DB here
-
-                  // if(sensorData.find((item)=>item.device!==s.device)){
-                  //   await sensorSiteDB.collection('sensorsites').updateOne({service_id:service_id},{$push:{data:s}})
-                  // }
-                }
-              } else {
-
-                console.log('sensorDataModel indert to sensorSite database for first time ', sensorDataModel);
-                // for first time when data array in sensorSites colleciton is empty.
-                ;(async () => {
-                  await sensorSiteDB
-                    .collection("sensorsites")
-                    .insertOne({
-                      service_id: service_id,
-                      data: sensorDataModel,
-                    })
-                })()
-              }
-            })
-            .clone()
-            .catch(function (err) {
-              console.log(err)
-            })
-        }
-
-        //  console.log('receivedSensorData ', receivedSensorData)
-
-        // check device array in document of topic
-        await Device.find(
-          { service_id: service_id },
-          async (err, deviceResult) => {
-            if (err) {
-              throw new Error(err)
-            }
-
-
-          // console.log('deviceResult in device ', deviceResult)
-
-            // If it can find device array is not empty
-            if (deviceResult.length !== 0) {
-              // console.log('objData.atr.device ', objData.atr.device)
-
-              await Device.find(
-                {
-                  service_id: service_id,
-                  device: { $elemMatch: { device: sampleData.atr.device } },
-                },
-                async (err, result) => {
+            if (sensorDataModel) {
+              // console.log('sensorDataModel ===> ', sensorDataModel)
+              await sensorSite
+                .find({ service_id: service_id }, async (err, result) => {
                   if (err) {
-                    throw new Error(err)
+                    throw new Error(err);
                   }
-                  if (result) {
-                    if (result.length !== 0) {
 
-                      //  console.log('device list ', result)
-                      // if find device in device array
+                  //  console.log("topic", `${topics}`, "service_id", `${service_id}`)
 
-                      // console.log('service_id: ', service_id, 'result ', result[0].device)
-                    } else {
-                      // if can not find device in device array
-                      // add missing device or new device
+                  // If exist data for topic in sensorSite colletion inside MongoDB
 
-                      ;(async () => {
-                        await deviceDB
-                          .collection("devices")
-                          .updateOne(
-                            { service_id: service_id },
+                  if (result.length > 0) {
+                    const sensorData = result[0].data;
+
+                    for await (const s of sensorDataModel) {
+                      //  console.log('sensor device ', s.device, 'sensor Id ', s.sensor)
+
+                      // separate sensors data and store them in sensorSiteDB
+                      if (s.sensor) {
+                        await sensorSite
+                          .find(
                             {
-                              $push: {
-                                device: {
-                                  device: sampleData.atr.device,
-                                  site: "",
+                              service_id: service_id,
+                              data: {
+                                $elemMatch: {
+                                  device: s.device,
+                                  sensor: s.sensor,
                                 },
                               },
+                            },
+                            async (err, result) => {
+                              if (err) {
+                                throw new Error(err);
+                              }
+
+                              // Check Here
+
+                              if (result.length === 0) {
+                                // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
+                                // when do any changes in count of sensors inside device, it's data in database must be update
+                                (async () => {
+                                  await sensorSiteDB
+                                    .collection("sensorsites")
+                                    .updateOne(
+                                      { service_id: service_id },
+                                      { $push: { data: s } }
+                                    );
+                                })();
+                              } else {
+                                // TODO - remove sensor data and devices after 24 without response from
+                                // Update database and remove sensor
+                              }
                             }
                           )
-                      })()
+                          .clone()
+                          .catch(function (err) {
+                            console.log(err);
+                          });
+                      }
+
+                      // if(sensorData.find((item)=>item.device!==s.device)){
+                      //   await sensorSiteDB.collection('sensorsites').updateOne({service_id:service_id},{$push:{data:s}})
+                      // }
+                    }
+                  } else {
+                    // console.log(
+                    //   "sensorDataModel insert to sensorSite database for first time ",
+                    //   sensorDataModel
+                    // );
+                    // for first time when data array in sensorSites colleciton is empty.
+                    // remove actuators from data model
+                    const filterActuators = sensorDataModel.filter((item) => {
+                      if (item.actuator) {
+                        return "";
+                      } else {
+                        return item;
+                      }
+                    });
+
+                    if (filterActuators.length > 0) {
+                      (async () => {
+                        await sensorSiteDB.collection("sensorsites").insertOne({
+                          service_id: service_id,
+                          data: filterActuators,
+                        });
+                      })();
                     }
                   }
-                }
-              )
+                })
                 .clone()
                 .catch(function (err) {
-                  console.log(err)
+                  console.log(err);
                 })
-            } else {
-              ;(async () => {
-                await deviceDB
-                  .collection("devices")
-                  .insertOne({
-                    service_id: service_id,
-                    device: [{ device: sampleData.atr.device, site: "" }],
-                  })
-              })()
+
+// insert actuator for each device in separate collection and data base
+
+                await actuatorSite
+                .find({ service_id: service_id }, async (err, result) => {
+                  if (err) {
+                    throw new Error(err);
+                    
+                  }
+
+                  //  console.log("topic", `${topics}`, "service_id", `${service_id}`)
+
+                  // If exist data for topic in sensorSite colletion inside MongoDB
+
+                  if (result.length > 0) {
+                    const actuatorData = result[0].data;
+
+                   
+
+                    for await (const s of sensorDataModel) {
+                      //  console.log('sensor device ', s.device, 'sensor Id ', s.sensor)
+                      if (s.actuator) {
+                       
+                        await actuatorSite
+                          .find(
+                            {
+                              service_id: service_id,
+                              data: {
+                                $elemMatch: {
+                                  device: s.device,
+                                  actuator: s.actuator,
+                                },
+                              },
+                            },
+                            async (err, result) => {
+                              if (err) {
+                                throw new Error(err);
+                              }
+
+                              // Check Here
+
+                              if (result.length === 0) {
+                                // Auto update content of data array ion sensorDatabase based on sensor(s) cahanges (add or remove) in devices
+                                // when do any changes in count of sensors inside device, it's data in database must be update
+                                (async () => {
+                                  await actuatorSiteDB
+                                    .collection("actuatorsites")
+                                    .updateOne(
+                                      { service_id: service_id },
+                                      { $push: { data: s } }
+                                    );
+                                })();
+                              } else {
+                                // TODO - remove actuator data and devices after 24 without response from
+                                // Update database and remove actuaor
+                              }
+                            }
+                          )
+                          .clone()
+                          .catch(function (err) {
+                            console.log(err);
+                          });
+                      }
+
+                      // if(actuatorData.find((item)=>item.device!==s.device)){
+                      //   await actuaorSiteDB.collection('actuaorsites').updateOne({service_id:service_id},{$push:{data:s}})
+                      // }
+                    }
+                  } else {
+                    // console.log(
+                    //   "sensorDataModel insert to actuatorSite database for first time ",
+                    //   sensorDataModel
+                    // );
+                    // for first time when data array in sensorSites colleciton is empty.
+
+                    const filterSensors = sensorDataModel.filter((item) => {
+                      if (item.sensor) {
+                        return '';
+                      } else {
+                        return item;
+                      }
+                    });
+
+                    if (filterSensors.length > 0) {
+                      (async () => {
+                        await actuatorSiteDB
+                          .collection("actuatorsites")
+                          .insertOne({
+                            service_id: service_id,
+                            data: filterSensors,
+                          });
+                      })();
+                    }
+                  }
+                })
+                .clone()
+                .catch(function (err) {
+                  console.log(err);
+                });
+                
             }
+
+            //  console.log('receivedSensorData ', receivedSensorData)
+
+            // check device array in document of topic
+            await Device.find(
+              { service_id: service_id },
+              async (err, deviceResult) => {
+                if (err) {
+                  throw new Error(err);
+                }
+
+                // console.log('deviceResult in device ', deviceResult)
+
+                // If it can find device array is not empty
+                if (deviceResult.length !== 0) {
+                  // console.log('objData.atr.device ', objData.atr.device)
+
+                  await Device.find(
+                    {
+                      service_id: service_id,
+                      device: { $elemMatch: { device: sampleData.atr.device } },
+                    },
+                    async (err, result) => {
+                      if (err) {
+                        throw new Error(err);
+                      }
+                      if (result) {
+                        if (result.length !== 0) {
+                          //  console.log('device list ', result)
+                          // if find device in device array
+                          // console.log('service_id: ', service_id, 'result ', result[0].device)
+                        } else {
+                          // if can not find device in device array
+                          // add missing device or new device
+
+                          (async () => {
+                            await deviceDB.collection("devices").updateOne(
+                              { service_id: service_id },
+                              {
+                                $push: {
+                                  device: {
+                                    device: sampleData.atr.device,
+                                    site: "",
+                                  },
+                                },
+                              }
+                            );
+                          })();
+                        }
+                      }
+                    }
+                  )
+                    .clone()
+                    .catch(function (err) {
+                      console.log(err);
+                    });
+                } else {
+                  (async () => {
+                    await deviceDB.collection("devices").insertOne({
+                      service_id: service_id,
+                      device: [{ device: sampleData.atr.device, site: "" }],
+                    });
+                  })();
+                }
+              }
+            )
+              .clone()
+              .catch(function (err) {
+                console.log(
+                  "error in get device database info in subscriber section ",
+                  err
+                );
+              });
           }
-        )
+        })
           .clone()
           .catch(function (err) {
-            console.log(
-              "error in get device database info in subscriber section ",
-              err
-            )
-          })
-      }
-    })
-      .clone()
-      .catch(function (err) {
-        console.log("error in get topic in subscriber section ", err)
-      })
-
-  })
-}
-  
-
-
-  // TODO - Store sensor data in CouchDB
-  // Remember - Empty receivedSensorData array for each time data stored in couchdb
-  // Use nano npmjs for CouchDB connection
-  if(receivedSensorData.length > 0){
-
-
-
-
-
-
-    (async () => {
-      try {
-        // Connect to the database
-        const connection = await r.connect({ host: 'localhost', port: 28015 });
-    
-        // Create a database named 'myDatabase' if it doesn't exist
-        const dbList = await r.dbList().run(connection);
-        if (dbList.indexOf('myDatabase') === -1) {
-          await r.dbCreate('myDatabase').run(connection);
-        }
-    
-        // Use the 'myDatabase' database
-        connection.use('myDatabase');
-    
-        // Create a table named 'sensorData' if it doesn't exist
-        const tableList = await r.tableList().run(connection);
-        if (tableList.indexOf('sensorData') === -1) {
-          await r.tableCreate('sensorData').run(connection);
-        }
-    
-        // Insert the sample data into the 'sensorData' table
-        const result = await r.table('sensorData').insert(receivedSensorData).run(connection);
-    
-        // console.log('Insert result:', result);
-    
-        // Close the connection
-        connection.close();
-      } catch (error) {
-        console.error('Error occurred:', error);
-      }
-    })();
-  
-
-   (async()=>{
-    await axios({
-      method:"POST",
-      url:'http://127.0.0.1:5984/cyprus-dev',
-     withCredntials:true,
-  
-      headers:{
-        'content-type':'application/json',
-        
-      },
-      auth:{
-        username:'admin',
-        password:'c0_OU7928CH'
-  
-      },
-      data:{docs:receivedSensorData}
-    }).then((response)=>{
-      // console.log('response ', response)
-  
-    }).catch(error=>{
-      console.error('error in put doc to couchDB ', error)
-    })
-
-   })
-
-
-   // For each topic create different database and table
-
- 
-    
-  
-    } else {
-      console.error(ajv.errorsText(sensorValidate.errors))
+            console.log("error in get topic in subscriber section ", err);
+          });
+      });
     }
 
-  }
- 
+    // TODO - Store sensor data in CouchDB
+    // Remember - Empty receivedSensorData array for each time data stored in couchdb
+    // Use nano npmjs for CouchDB connection
+    if (receivedSensorData.length > 0) {
+      (async () => {
+        try {
+          // Connect to the database
+          const connection = await r.connect({
+            host: "localhost",
+            port: 28015,
+          });
 
+          // Create a database named 'myDatabase' if it doesn't exist
+          const dbList = await r.dbList().run(connection);
+          if (dbList.indexOf("myDatabase") === -1) {
+            await r.dbCreate("myDatabase").run(connection);
+          }
+
+          // Use the 'myDatabase' database
+          connection.use("myDatabase");
+
+          // Create a table named 'sensorData' if it doesn't exist
+          const tableList = await r.tableList().run(connection);
+          if (tableList.indexOf("sensorData") === -1) {
+            await r.tableCreate("sensorData").run(connection);
+          }
+
+          // Insert the sample data into the 'sensorData' table
+          const result = await r
+            .table("sensorData")
+            .insert(receivedSensorData)
+            .run(connection);
+
+          // console.log('Insert result:', result);
+
+          // Close the connection
+          connection.close();
+        } catch (error) {
+          console.error("Error occurred:", error);
+        }
+      })();
+
+      async () => {
+        await axios({
+          method: "POST",
+          url: "http://127.0.0.1:5984/cyprus-dev",
+          withCredntials: true,
+
+          headers: {
+            "content-type": "application/json",
+          },
+          auth: {
+            username: "admin",
+            password: "c0_OU7928CH",
+          },
+          data: { docs: receivedSensorData },
+        })
+          .then((response) => {
+            // console.log('response ', response)
+          })
+          .catch((error) => {
+            console.error("error in put doc to couchDB ", error);
+          });
+      };
+
+      // For each topic create different database and table
+    } else {
+      console.error(ajv.errorsText(sensorValidate.errors));
+    }
+  }
 }
 
 // Update the data every 40 seconds (40000 milliseconds)
 setInterval(updateData, 2000);
 
-
-
-
 /////// FAKE PART
 
-
-
-
-
-module.exports = router
+module.exports = router;
