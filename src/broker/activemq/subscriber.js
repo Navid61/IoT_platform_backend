@@ -8,8 +8,9 @@ const axios = require("axios");
 const mqtt = require("mqtt");
 
 const Ajv = require("ajv");
+
 const addFormats = require("ajv-formats");
-const ajv = new Ajv();
+const ajv = new Ajv({ allErrors: true });
 
 const Service = require("../../db/models/service");
 const Device = require("../../db/models/device");
@@ -591,6 +592,36 @@ client.on("message", async (currentTopic, payload) => {
 
 /////// FAKE PART
 
+
+ajv.addKeyword('uniqueAcrossProperties', {
+  validate: function(schema, data) {
+    if (!Array.isArray(data)) {
+      return false;
+    }
+    
+    const seenValues = new Set();
+
+    for (const item of data) {
+      for (const property of schema) {
+        const valueToCheck = item[property];
+        if (valueToCheck && seenValues.has(valueToCheck)) {
+          return false;
+        }
+        seenValues.add(valueToCheck);
+      }
+    }
+
+    return true;
+  },
+  metaSchema: {
+    type: 'array',
+    items: {
+      type: 'string'
+    }
+  }
+});
+
+
 const sampleData = {
   atr: {
     device: "00001",
@@ -650,6 +681,9 @@ async function updateData() {
   }
 
   // Print the updated data
+// ensure that the values for both sensor and actuator properties are unique across the entire data array
+
+ 
 
   const baseSchema = {
     type: "object",
@@ -665,6 +699,7 @@ async function updateData() {
       },
       data: {
         type: "array",
+        uniqueAcrossProperties: ['sensor', 'actuator'],
         items: {
           type: "object",
           oneOf: [
@@ -732,12 +767,15 @@ async function updateData() {
 
   //  console.log(sampleData);
 
+
+
+
   updateSchemaForGPS(sampleData.data);
   const sensorValidate = await ajv.compile(baseSchema);
   const sensorValid = await sensorValidate(sampleData);
 
   if (!sensorValid) {
-    console.log(sensorValidate.errors); // Inspect the errors if validation failed
+    // console.log(sensorValidate.errors); // Inspect the errors if validation failed
   }
 
   let receivedSensorData = [];
@@ -745,6 +783,7 @@ async function updateData() {
   let sensorDataModel = [];
 
   if (sensorValid) {
+    console.log('sampleData valid is ', sampleData);
     for (let i = 0; i < sampleData.data.length; i++) {
       const addId = uuidv4() + "-" + (await makeId(10));
 
