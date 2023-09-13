@@ -631,7 +631,7 @@ const sampleData = {
   data: [
     { sensor: "00001", name: "temp", value: 20 },
     { actuator: "00002", name: "vaccum", value: "on" },
-    { sensor: "00003", name: "pressure", value: 1110 },
+    { sensor: "00003", name: "moisture", value: 25 },
     { sensor: "00004", name: "pressure", value: 1330 },
     { actuator: "00005", name: "tv", value: "on" },
     { actuator: "00006", name: "light", value: "off" },
@@ -667,6 +667,9 @@ async function updateData() {
       sensor.value = getRandomNumber(20, 100);
     } else if (sensor.name === "temp") {
       sensor.value = getRandomNumber(10, 50);
+    }
+    else if (sensor.name === "moisture") {
+      sensor.value = getRandomNumber(0, 100);
     }
   });
 
@@ -774,16 +777,16 @@ async function updateData() {
   const sensorValidate = await ajv.compile(baseSchema);
   const sensorValid = await sensorValidate(sampleData);
 
-  if (!sensorValid) {
-    // console.log(sensorValidate.errors); // Inspect the errors if validation failed
-  }
+  // if (!sensorValid) {
+  //   console.log(sensorValidate.errors); // Inspect the errors if validation failed
+  // }
 
   let receivedSensorData = [];
 
   let sensorDataModel = [];
 
   if (sensorValid) {
-    console.log('sampleData valid is ', sampleData);
+    // console.log('sampleData valid is ', sampleData);
     for (let i = 0; i < sampleData.data.length; i++) {
       const addId = uuidv4() + "-" + (await makeId(10));
 
