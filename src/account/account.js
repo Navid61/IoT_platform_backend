@@ -17,16 +17,17 @@ const checkAuthenticated = function (req, res, next) {
   
   router.use(checkAuthenticated)
 
-router.post("/account", checkAuthenticated, async (req, res) => {
+router.post("/account",  async (req, res) => {
 
     
 const userName = req.body.username
 
-
+ console.log('userName in account ', userName);
+// console.log('userName in account body ', req.body);
 // TODO - check username is email
    
 
-    if(userName.length > 0){
+    try {
 
         await Account.find({username:userName},async(err,result)=>{
             if(err){
@@ -63,8 +64,15 @@ const userName = req.body.username
           console.log(err)
         })
     
-
+        
+    } catch (error) {
+        console.error('error in user account ', error)
+        
     }
+
+     
+
+    
 
    
 
@@ -74,36 +82,42 @@ const userName = req.body.username
 
 router.get("/account", checkAuthenticated, async (req, res) => {
 
+
+  try {
+    await Account.find({username:req.user.username},async(err,result)=>{
+      if(err){
+          throw new Error(err)
+      }
+
+
+      if(result.length!==0){
+         
+          if(result[0].verification){
+
+              await Service.find({})
+
+              
+
+              res.status(200).json({
+                  user:result[0].username,
+                  role:result[0].role,
+                  auth:req.isAuthenticated(),
+                  status:200,
+                  msg:"ok"})
+          }
+         
+      }
+    
+  }).clone()
+  .catch(function (err) {
+    console.log(err)
+  })
+  } catch (error) {
+    console.error('error in account get method ', error)
+  }
   
 
-        await Account.find({username:req.user.username},async(err,result)=>{
-            if(err){
-                throw new Error(err)
-            }
-    
-    
-            if(result.length!==0){
-               
-                if(result[0].verification){
-
-                    await Service.find({})
-
-                    
-
-                    res.status(200).json({
-                        user:result[0].username,
-                        role:result[0].role,
-                        auth:req.isAuthenticated(),
-                        status:200,
-                        msg:"ok"})
-                }
-               
-            }
-          
-        }).clone()
-        .catch(function (err) {
-          console.log(err)
-        })
+       
     
 
   

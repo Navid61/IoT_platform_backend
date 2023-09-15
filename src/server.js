@@ -143,7 +143,7 @@ const sessionMiddleware = session({
 
 
 });
-app.use(sessionMiddleware);
+
 
 io.use((socket, next) => {
   sessionMiddleware(socket.request, {}, next);
@@ -152,7 +152,7 @@ io.use((socket, next) => {
 
 app.use(cookieParser('udhfuw&^ET*G*WYGD#W&EHG@&(Y(SGH@*^W(UDBHy6'));
 // Add headers before the routes are defined
-
+app.use(sessionMiddleware);
 // PASSPORT
 app.use(passport.initialize());
 app.use(passport.session());
@@ -166,9 +166,9 @@ io.use((socket, next) => {
 
 app.use(function (req, res, next) {
 
- 
+  // console.log('for debugging req requst in nodejs',req.body);
 
-  const allowedOrigins = ['http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://49.12.212.20:8082','http://49.12.212.20:8088'];
+  const allowedOrigins = ['http://49.12.212.20:3080','http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://49.12.212.20:8082','http://49.12.212.20:8088'];
   const origin = req.headers.origin;
  
   if (allowedOrigins.includes(origin)) {
@@ -198,10 +198,10 @@ app.use(function (req, res, next) {
 
 
 
+// No Cache middleware (to prevent back button after logout)
+app.use(nocache())
 
-
-
-var whitelist = ['http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://localhost:3088','http://49.12.212.20:8082','http://49.12.212.20:8088'];
+var whitelist = ['http://49.12.212.20:3080','http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://localhost:3088','http://49.12.212.20:8082','http://49.12.212.20:8088'];
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
@@ -215,7 +215,7 @@ var corsOptions = {
   preflightContinue:false,
 
 }
-app.use(nocache())
+
 app.use(cors(corsOptions))
 
 

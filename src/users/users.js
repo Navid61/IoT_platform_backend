@@ -383,54 +383,60 @@ router.post("/users/adduser", checkAuthenticated, async (req, res) => {
   const role=req.body.role
 
     // console.log('no new user create new user')
-  
-    
-  
-        await Service.find({owner:req.body.username,service_id:req.body.service_id},async(err,result)=>{
-            if(err){
-                throw new Error('error in check user exist as a owner before create new user')
-            }
-    
-   
-                if(result.length ===0){
-             
-                        await Users.find({username:req.body.username,service_id:req.body.service_id},async(err,result)=>{
-                            if(err){
-                                throw new Error('error in users find before create new user')
-                            }
-  
-                            if(result.length===0){
-  
-                                await usersDB.collection("users").insertOne({
-                                    username:req.body.username,
-                                    service_id:req.body.service_id,
-                                    role:req.body.role,
-                                    adddate:new Date().toISOString()
+  try {
+
+    await Service.find({owner:username,service_id:service_id},async(err,result)=>{
+      if(err){
+          throw new Error('error in check user exist as a owner before create new user')
+      }
+
+
+          if(result.length ===0){
+       
+                  await Users.find({username:username,service_id:service_id},async(err,result)=>{
+                      if(err){
+                          throw new Error('error in users find before create new user')
+                      }
+
+                      if(result.length===0){
+
+                          await usersDB.collection("users").insertOne({
+                              username:username,
+                              service_id:service_id,
+                              role:role,
+                              adddate:new Date().toISOString()
+                  
+                          }).then(()=>{
+                              res.status(200).json({msg:"ok"})
+                          })
                         
-                                }).then(()=>{
-                                    res.status(200).json({msg:"ok"})
-                                })
                               
-                                    
-                            
-                                
-  
-                            }else{
-                                res.status(409).json({msg:"Confilict! user created already"})
-                            }
-  
-                        }).clone().catch(function (err) {console.log(err)})
-                
-  
-                   
+                      
+                          
+
+                      }else{
+                          res.status(409).json({msg:"Confilict! user created already"})
+                      }
+
+                  }).clone().catch(function (err) {console.log(err)})
+          
+
+             
+
+          }else{
+              res.status(403).json({msg:"Forbiden user"})
+          }
+     
+  }).clone().catch(function (err) {console.log(err)})
+
+
     
-                }else{
-                    res.status(403).json({msg:"Forbiden user"})
-                }
-           
-        }).clone().catch(function (err) {console.log(err)})
+  } catch (error) {
+    console.error('error in add user', error);
+  }
     
   
+       
   
   
   
@@ -602,135 +608,49 @@ router.post("/users/getusersdata", checkAuthenticated, async (req, res) => {
     const service_id=req.body.service_id
     let userNameList = []
 
-    await (async()=>{
+  try {
 
-        await UserGroup.find({ service_id: service_id }, async (err, result) => {
+    await UserGroup.find({ service_id: service_id }, async (err, result) => {
+      if (err) {
+        throw new Error(err)
+      }
+  
+      if (result.length === 0 || result[0].group.length === 0) {
+        // WHEN THERE IS NOT ANY USER GROUOP
+        await Users.find({ service_id: service_id }, async (err, result) => {
           if (err) {
             throw new Error(err)
           }
-      
-          if (result.length === 0 || result[0].group.length === 0) {
-            // WHEN THERE IS NOT ANY USER GROUOP
-            await Users.find({ service_id: service_id }, async (err, result) => {
-              if (err) {
-                throw new Error(err)
-              }
-      
-              if (result.length !== 0) {
-              
-                for (let i = 0; i < result.length; i++) {
-                  userNameList.push({
-                    username: result[i].username,
-                    role: result[i].role,
-                  })
-                }
-      
-                await FilterRule.find(
-                  { service_id: service_id },
-                  async (err, result) => {
-                    if (err) {
-                      throw new Error(err)
-                    }
-      
-                    if (result) {
-                      if (result.length !== 0) {
-      
-                       
-                        res
-                          .status(200)
-                          .json({ username: userNameList, filters: result[0].rule })
-                      } else {
-                        res.status(200).json({username: userNameList })
-                      }
-                    }
-                  }
-                )
-                  .clone()
-                  .catch(function (err) {
-                    console.log(err)
-                  })
-              }
-            })
-              .clone()
-              .catch(function (err) {
-                console.log(err)
-              })
-          } else {
-      
+  
+          if (result.length !== 0) {
           
-            const userNameGroup = result[0].group
-           
-            let userNameInGroup = []
-            let groupName = []
-      
-            for (let i = 0; i < userNameGroup.length; i++) {
-              userNameInGroup.push(userNameGroup[i].user)
-              groupName.push(userNameGroup[i].group)
-            }
-      
-            const usersList = [...new Set(userNameInGroup)]
-            const groupNameList = [...new Set(groupName)]
-      
-            await Users.find({ service_id: service_id }, async (err, result) => {
-              if (err) {
-                throw new Error(err)
-              }
-      
-              if (result.length > 0) {
-      
-            
-      
-              
-                for (let i = 0; i < result.length; i++) {
-                  if(result[i].role!=='admin' && result[i].role!=='owner'){
-                   
-                    userNameList.push({ username: result[i].username })
-                  }
-                 
-                }
-              }
-      
-              const filteredUserNameList = userNameList.filter((item) => {
-                if (usersList.includes(item.username)) {
-                  return ""
-                } else {
-                  return item
-                }
+            for (let i = 0; i < result.length; i++) {
+              userNameList.push({
+                username: result[i].username,
+                role: result[i].role,
               })
-      
-              await FilterRule.find(
-                { service_id: service_id },
-                async (err, result) => {
-                  if (err) {
-                    throw new Error(err)
-                  }
-      
+            }
+  
+            await FilterRule.find(
+              { service_id: service_id },
+              async (err, result) => {
+                if (err) {
+                  throw new Error(err)
+                }
+  
+                if (result) {
                   if (result.length !== 0) {
-                            // console.log('result in filter rule',filteredUserNameList)
-      
+  
+                   
                     res
                       .status(200)
-                      .json({
-                        username: filteredUserNameList,
-                        group: groupNameList,
-                        usergroup: userNameGroup,
-                        filters: result[0].rule,
-                      })
+                      .json({ username: userNameList, filters: result[0].rule })
                   } else {
-                    res
-                      .status(200)
-                      .json({
-                        username: filteredUserNameList,
-                        group: groupNameList,
-                        usergroup: userNameGroup,
-                      })
+                    res.status(200).json({username: userNameList })
                   }
-                })
-                .clone()
-                .catch(function (err) {
-                  console.log(err)
-                })
-            })
+                }
+              }
+            )
               .clone()
               .catch(function (err) {
                 console.log(err)
@@ -741,8 +661,96 @@ router.post("/users/getusersdata", checkAuthenticated, async (req, res) => {
           .catch(function (err) {
             console.log(err)
           })
+      } else {
   
-      })()
+      
+        const userNameGroup = result[0].group
+       
+        let userNameInGroup = []
+        let groupName = []
+  
+        for (let i = 0; i < userNameGroup.length; i++) {
+          userNameInGroup.push(userNameGroup[i].user)
+          groupName.push(userNameGroup[i].group)
+        }
+  
+        const usersList = [...new Set(userNameInGroup)]
+        const groupNameList = [...new Set(groupName)]
+  
+        await Users.find({ service_id: service_id }, async (err, result) => {
+          if (err) {
+            throw new Error(err)
+          }
+  
+          if (result.length > 0) {
+  
+        
+  
+          
+            for (let i = 0; i < result.length; i++) {
+              if(result[i].role!=='admin' && result[i].role!=='owner'){
+               
+                userNameList.push({ username: result[i].username })
+              }
+             
+            }
+          }
+  
+          const filteredUserNameList = userNameList.filter((item) => {
+            if (usersList.includes(item.username)) {
+              return ""
+            } else {
+              return item
+            }
+          })
+  
+          await FilterRule.find(
+            { service_id: service_id },
+            async (err, result) => {
+              if (err) {
+                throw new Error(err)
+              }
+  
+              if (result.length !== 0) {
+                        // console.log('result in filter rule',filteredUserNameList)
+  
+                res
+                  .status(200)
+                  .json({
+                    username: filteredUserNameList,
+                    group: groupNameList,
+                    usergroup: userNameGroup,
+                    filters: result[0].rule,
+                  })
+              } else {
+                res
+                  .status(200)
+                  .json({
+                    username: filteredUserNameList,
+                    group: groupNameList,
+                    usergroup: userNameGroup,
+                  })
+              }
+            })
+            .clone()
+            .catch(function (err) {
+              console.log(err)
+            })
+        })
+          .clone()
+          .catch(function (err) {
+            console.log(err)
+          })
+      }
+    })
+      .clone()
+      .catch(function (err) {
+        console.log(err)
+      })
+    
+  } catch (error) {
+    console.error('error in get users data  ', error)
+  }
 
     
 
@@ -823,30 +831,38 @@ router.post("/users/list", checkAuthenticated, async (req, res) => {
 
   let usersList =[]
 
- await Users.find({service_id:_id},async(err,result)=>{
+  try {
 
-  if(err){
-      throw new Error(err)
+    await Users.find({service_id:_id},async(err,result)=>{
+
+      if(err){
+          throw new Error(err)
+      }
+    
+      if(result.length!==0){
+         for(let i=0;i<result.length;i++){
+          usersList.push({"user":result[i].username,"role":result[i].role})
+    
+         }
+         console.log('usersList ', usersList)
+          res.status(200).json({users:[...new Set(usersList)]})
+       
+      }
+    
+      // if(usersList.length!==0){
+      //     res.status(200).json({users:[...new Set(usersList)]})
+      // }
+    
+      }).clone()
+          .catch(function (err) {
+            console.log(err)
+          })
+    
+  } catch (error) {
+    console.error(' error in user list ', error);
   }
 
-  if(result.length!==0){
-     for(let i=0;i<result.length;i++){
-      usersList.push({"user":result[i].username,"role":result[i].role})
 
-     }
-     console.log('usersList ', usersList)
-      res.status(200).json({users:[...new Set(usersList)]})
-   
-  }
-
-  // if(usersList.length!==0){
-  //     res.status(200).json({users:[...new Set(usersList)]})
-  // }
-
-  }).clone()
-      .catch(function (err) {
-        console.log(err)
-      })
 
 })
     
