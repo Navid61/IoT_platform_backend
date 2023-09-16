@@ -21,7 +21,7 @@ const checkAuthenticated = function (req, res, next) {
 
  router.use(checkAuthenticated)
 
-router.get("/place", checkAuthenticated, async (req, res) => {
+router.get("/place",  async (req, res) => {
 
 
 
