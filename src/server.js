@@ -191,6 +191,10 @@ app.use(function (req, res, next) {
 
   // res.setHeader("Access-Control-Max-Age", "10")
 
+   // Set Cache-Control header
+   res.setHeader('Cache-Control', 'max-age=3600');  // Cache for 1 hour
+
+
   // Pass to next layer of middleware
   next();
 });
