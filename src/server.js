@@ -1,7 +1,10 @@
 
 var express = require('express')
 const session = require('express-session');
+
 var router = express.Router();
+const socketIo = require('socket.io');
+
 const bodyParser =require("body-parser");
 const cookieParser =require("cookie-parser");
 const path = require('path')
@@ -41,7 +44,13 @@ const scenes= require('./scene/scene');
 
 // for real-time connection
 
-const socketIo = require('socket.io');
+
+const socket = require('./socket/socket');
+const http = require('http')
+
+//
+
+
 
 //* Apache ActiveMQ Artemis */
 const subscriber = require('./broker/activemq/subscriber');
@@ -100,26 +109,40 @@ db.once("open", function () {
 
 var app = express();
 
+
+let whitelist = ['http://49.12.212.20:3080','http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://localhost:3088','http://49.12.212.20:8082','http://49.12.212.20:8088'];
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+
+  credentials:true,
+  preflightContinue:false,
+
+}
+
+app.use(cors(corsOptions))
+// No Cache middleware (to prevent back button after logout)
+
 //for real-time connection
 
-var server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const server = http.createServer(app);
 
+const io = socket.init(server);
 
-
-io.on('connection', (socket) => {
-  console.log('A user connected');
-
-  // Handle a custom event, for example "chat message"
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg); // emit to all connected clients
-  });
-
-  // Handle the disconnection of the client
-  socket.on('disconnect', () => {
-    console.log('A user disconnected');
-  });
+io.on('connect_error', (error) => {
+  console.log('Connection Error', error);
 });
+
+
+
+
+
+//
 
 
 // app.use(express.json())
@@ -164,66 +187,54 @@ io.use((socket, next) => {
 });
 
 
-app.use(function (req, res, next) {
+// app.use(function (req, res, next) {
 
-  // console.log('for debugging req requst in nodejs',req.body);
+//   // console.log('for debugging req requst in nodejs',req.body);
 
-  const allowedOrigins = ['http://49.12.212.20:3080','http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://49.12.212.20:8082','http://49.12.212.20:8088'];
-  const origin = req.headers.origin;
+//   const allowedOrigins = ['http://49.12.212.20:3080','http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://49.12.212.20:8082','http://49.12.212.20:8088'];
+//   const origin = req.headers.origin;
  
-  if (allowedOrigins.includes(origin)) {
-       res.setHeader('Access-Control-Allow-Origin', origin);
-  }
+//   if (allowedOrigins.includes(origin)) {
+//        res.setHeader('Access-Control-Allow-Origin', origin);
+//   }
 
-  // Website you wish to allow to connect
-  // res.setHeader("Access-Control-Allow-Origin", "http://49.12.212.20:3088");
+//   // Website you wish to allow to connect
+//   // res.setHeader("Access-Control-Allow-Origin", "http://49.12.212.20:3088");
 
-  // Request methods you wish to allow
-  res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
+//   // Request methods you wish to allow
+//   res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
 
-  // Request headers you wish to allow
-  //  res.header("Access-Control-Allow-Headers", "Origin,X-Requested-With, Content-Type,X-Auth-Token");
-  res.header("Access-Control-Allow-Headers", "*");
+//   // Request headers you wish to allow
+//   //  res.header("Access-Control-Allow-Headers", "Origin,X-Requested-With, Content-Type,X-Auth-Token");
+//   res.header("Access-Control-Allow-Headers", "*");
 
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader("Access-Control-Allow-Credentials", true);
+//   // Set to true if you need the website to include cookies in the requests sent
+//   // to the API (e.g. in case you use sessions)
+//   res.setHeader("Access-Control-Allow-Credentials", true);
 
-  // res.setHeader("Access-Control-Max-Age", "10")
+//   // res.setHeader("Access-Control-Max-Age", "10")
 
-   // Set Cache-Control header
-   res.setHeader('Cache-Control', 'max-age=3600');  // Cache for 1 hour
+//    // Set Cache-Control header
+//    res.setHeader('Cache-Control', 'max-age=3600');  // Cache for 1 hour
 
 
-  // Pass to next layer of middleware
-  next();
+//   // Pass to next layer of middleware
+//   next();
+// });
+
+
+
+
+
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
 
 
-
-// No Cache middleware (to prevent back button after logout)
 app.use(nocache())
-
-var whitelist = ['http://49.12.212.20:3080','http://49.12.212.20:3000','http://49.12.212.20:3088','http://49.12.212.20:5984','http://localhost:3088','http://49.12.212.20:8082','http://49.12.212.20:8088'];
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  },
-
-  credentials:true,
-  preflightContinue:false,
-
-}
-
-app.use(cors(corsOptions))
-
-
-
 app.use('/broker',receive);
 app.use('/',userAccount,users,dashbaord,userFilter,newService,newClient,account,place,device,sites,usergroup,sensors,actuators,scenes,stream);
 
@@ -272,21 +283,9 @@ io.use((socket, next) => {
 
 
 
-// Handle GET requests to /api route
-// app.post("/", (req, res,) => {
-//   res.json({ message: "Hello from server!" });
-//   // console.log('req form front ',req)
- 
-
-// });
-
-// app.get("/", (req, res) => {
-//   res.json({ message: "Hello from server!"});
-  
-//   console.log("request arrived for URL", req.url);
 
 
-// });
+
 
 const PORT = process.env.PORT || 3080;
 server.listen(PORT, console.log(colors.bgMagenta(`Cyprus Server started on port ${PORT}`)));

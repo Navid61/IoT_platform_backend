@@ -1,6 +1,6 @@
 const express = require("express");
 var router = express.Router();
-
+const socket = require('../socket/socket')
 const mongodb = require("../db/config/mongodb");
 const deviceDB = mongodb.deviceDB;
 
@@ -15,17 +15,56 @@ const checkAuthenticated = function (req, res, next) {
   }
 };
 
-router.use(checkAuthenticated);
 
-router.post("/device/id", async (req, res) => {
-  const service_id = req.body._id;
-  const userName = req.user.username;
+router.use(checkAuthenticated)
 
-  // console.log('service_id in device ', service_id)
+
+router.post("/device/sid", async (req, res) => {
+
+let realTimeServiceId;
+   
+let io = socket.getIO(); // Access the socket.io instance
+
+  const deviceNamespace = io.of("/device/sid");
+
+  deviceNamespace.on('connection', (socket) => {
+    console.log('A user connected to /device/sid with socket id:', socket.id);
+
+   socket.on("service_id", (data) => {
+      // console.log(data); // Outputs: { dataKey: "Some data value" }
+      
+      handleRealTimeData(data);
+     
+      
+    });
+
+  
+
+ 
+
+    socket.on("disconnect", () => {
+      console.log("Client disconnected");
+      
+    });
+  });
+
+
+  function handleRealTimeData(data) {
+    console.log('service_id in device ',data.dataKey)
+   
+  }
+
+  
+
+//  console.log('req ', req.body)
+
+ 
 
   try {
-    const serviceId = req.body._id;
+    const serviceId = req.body.service_id;
     const userName = req.user.username;
+
+
 
     const serviceResult = await Service.find({
       owner: userName,
@@ -44,67 +83,31 @@ router.post("/device/id", async (req, res) => {
       );
 
       if (deviceResult.length !== 0) {
-        return res.status(200).json({
+
+     
+
+         // Respond back to the client
+         deviceNamespace.emit("/realtime/devices", {
+          devices: deviceResult[0].device,
+          site: deviceResult[0].site,
+        })
+      
+        res.status(200).json({
           devices: deviceResult[0].device,
           site: deviceResult[0].site,
         });
       } else {
-        return res.status(404).json({ message: "No device found" });
+        res.status(404).json({ message: "No device found" });
       }
     } else {
-      return res.status(404).json({ message: "No service found" });
+       res.status(404).json({ message: "No service found" });
     }
   } catch (error) {
     console.error("Error in device method", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+   res.status(500).json({ message: "Internal Server Error" });
   }
 
-  //   try {
-  //     await Service.find(
-  //       { owner: userName,service_id:service_id},
-  //       async (err, result) => {
 
-  //         if (err) {
-  //           throw new Error("Error in get data for setup system")
-  //         }
-
-  //         if (result.length !== 0) {
-
-  //           await Device.find({service_id:service_id}, async (err, result) => {
-  //             if (err) {
-  //               throw new Error(err)
-  //             }
-
-  //             if (result.length !== 0) {
-
-  // console.log('result ', result[0].device)
-
-  //                 res
-  //                   .status(200)
-  //                   .json({
-
-  //                     devices: result[0].device,
-  //                     site: result[0].site
-  //                   })
-
-  //             }
-  //           })
-  //             .clone()
-  //             .catch(function (err) {
-  //               console.log(err)
-  //             })
-
-  //         }
-  //       }
-  //     )
-  //       .clone()
-  //       .catch(function (err) {
-  //         console.log(err)
-  //       })
-
-  //   } catch (error) {
-  //     console.error('error in device method ', error)
-  //   }
 });
 
 module.exports = router;
