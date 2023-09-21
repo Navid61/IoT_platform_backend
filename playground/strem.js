@@ -1,7 +1,7 @@
 router.post("/stream/getdata", checkAuthenticated, async (req, res) => {
     try {
        const service_id = req.body.id;
-       console.log('service_id in stream part ', service_id);
+      //  console.log('service_id in stream part ', service_id);
    
        const devices = await Device.findOne({ service_id: service_id }, { _id: 0 });
    

@@ -47,7 +47,7 @@ router.use(checkAuthenticated)
 router.get("/stream/:id", checkAuthenticated, async (req, res) => {
   const service_id=req.params.id
 
-console.log('service_id in stream part ', service_id);
+// console.log('service_id in stream part ', service_id);
   await Scene.find({service_id:service_id},{_id:0}, async(err,result)=>{
     if(err){
         throw new Error(err)

@@ -127,7 +127,8 @@ var corsOptions = {
 
 app.use(cors(corsOptions))
 // No Cache middleware (to prevent back button after logout)
-
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 //for real-time connection
 
 const server = http.createServer(app);
@@ -145,12 +146,11 @@ io.on('connect_error', (error) => {
 //
 
 
-// app.use(express.json())
-// app.use(express.urlencoded({extended:true}));
+
 //parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ limit:'50mb', extended: false }));
+// app.use(bodyParser.urlencoded({ limit:'50mb', extended: false }));
 // parse application/json
-app.use(bodyParser.json({limit:'50mb'}));
+// app.use(bodyParser.json({limit:'50mb'}));
 const sessionMiddleware = session({
   secret:'udhfuw&^ET*G*WYGD#W&EHG@&(Y(SGH@*^W(UDBHy6',
   saveUninitialized:false,

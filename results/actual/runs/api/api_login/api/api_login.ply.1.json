@@ -1,0 +1,49 @@
+[
+  {
+    "name": "Login",
+    "test": "Login",
+    "type": "request",
+    "end": "2023-09-21T13:45:36.250Z",
+    "result": {
+      "status": "Submitted",
+      "message": "Request 'Login' SUBMITTED"
+    },
+    "request": {
+      "name": "Login",
+      "type": "request",
+      "url": "http://49.12.212.20:3080/login",
+      "method": "POST",
+      "headers": {
+        "content-type": "application/json",
+        "accept": "application/json",
+        "Access-Control-Allow-Origin": "*"
+      },
+      "body": "{\n  \"username\":\"kasra@gmail.com\",\n  \"password\":\"k1234567\"\n}",
+      "submitted": "2023-09-21T13:45:36.141Z"
+    },
+    "response": {
+      "runId": "e8783c3688ca",
+      "status": {
+        "code": 200,
+        "message": "OK"
+      },
+      "headers": {
+        "access-control-allow-credentials": "true",
+        "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "connection": "close",
+        "content-length": "47",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Thu, 21 Sep 2023 13:45:36 GMT",
+        "etag": "W/\"2f-C70DeaFAwTMNMbldP8gDBD7cYPU\"",
+        "expires": "0",
+        "pragma": "no-cache",
+        "set-cookie": "connect.sid=s%3AFt0OrsfaQ-P3P3rPDFQpzmKa1N9CiaZq.FbOQoUqDED6cjEgmamT7FXLuURBkBaOwHOxMW7hHtzY; Path=/; HttpOnly",
+        "surrogate-control": "no-store",
+        "vary": "Origin",
+        "x-powered-by": "Express"
+      },
+      "body": "{\n  \"status\": 200,\n  \"message\": \"Login was successful\"\n}",
+      "time": 91
+    }
+  }
+]
