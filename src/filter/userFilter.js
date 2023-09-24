@@ -26,6 +26,7 @@ const FilterRule = require("../db/models/filter")
 const Account = require("../db/models/account")
 
 const sensorSite = require("../db/models/sensorSite")
+const actuatorSite = require("../db/models/actuatorSite")
 
 
 
@@ -123,7 +124,22 @@ router.get("/filter/:id", checkAuthenticated, async (req, res) => {
   let fillDevicesSites =[]
 
 
+await actuatorSite.find({service_id:service_id},async(err,result)=>{
 
+  if(err){
+    throw new Error(err)
+  }
+
+  if(result.length >0){
+
+    console.log('reault in actuator in get method ', result[0].data)
+  }
+
+
+}).clone()
+.catch(function (err) {
+  console.log(err)
+})
   
   
 await (async()=>{
@@ -173,16 +189,6 @@ await (async()=>{
                     id:sensorData[i].id,
                     site:site.site,
                     device:sensorData[i].device,
-                    actuator:sensorData[i].actuator,
-                    name:sensorData[i].name
-                  })
-                }else if(sensorData[i].actuator && sensorData[i].sensor){
-
-                  fillDevicesSites.push({
-                    id:sensorData[i].id,
-                    site:site.site,
-                    device:sensorData[i].device,
-                    sensor:sensorData[i].sensor,
                     actuator:sensorData[i].actuator,
                     name:sensorData[i].name
                   })
@@ -509,7 +515,7 @@ await (async()=>{
 
 // Add filter post method!
 
-router.post("/filter/service", checkAuthenticated, async (req, res) => {
+router.post("/filter/service",  async (req, res) => {
 
 
   let userNameList = []
@@ -533,7 +539,7 @@ router.post("/filter/service", checkAuthenticated, async (req, res) => {
 
     if(result.length >0){
 
-  
+  console.log('result for sensors in service id in post method ', result[0].data)
 
      return await Device.find({service_id:service_id}, async(err,deviceResult)=>{
         if(err){
@@ -953,7 +959,7 @@ router.post("/filter/modifyusergroup", checkAuthenticated, async (req, res) => {
       })
   } else if (req.body.cmd === "remove") {
     for (let j = 0; j < modifyList.length; j++) {
-      console.log("modifyList ", modifyList[j])
+      // console.log("modifyList ", modifyList[j])
       await usersDB
         .collection("usergroups")
         .updateOne(
@@ -1039,7 +1045,7 @@ router.post("/filter/newfilter", checkAuthenticated, async (req, res) => {
   const service_id = req.body.service_id
   const rule = req.body.rule
 
-console.log('new rule ', rule)
+// console.log('new rule ', rule)
 
   await FilterRule.find({ service_id: service_id }, async (err, result) => {
     if (err) {

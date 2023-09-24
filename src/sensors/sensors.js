@@ -152,7 +152,7 @@ router.post("/sensors/getsensordata", checkAuthenticated, async (req, res) => {
              })
 
           //  console.log('fillDevices ', fillDevicesSites)
-console.log('removedNullSensorsValue ', removedNullSensorsValue)
+// console.log('removedNullSensorsValue ', removedNullSensorsValue)
 
             res.status(200).json({
               sensor:removedNullSensorsValue
