@@ -129,7 +129,7 @@ router.post("/stream/getsensorslist", checkAuthenticated, async (req, res) => {
       }
   
       if(result.length > 0){
-        // console.log('result ', result[0].data)
+        //  console.log('result ', result[0].data)
         const sensorsData = result[0].data
         if(sensorsData.length > 0){
           sensorsInDevice = sensorsData.filter((item)=>{
@@ -141,7 +141,7 @@ router.post("/stream/getsensorslist", checkAuthenticated, async (req, res) => {
           });
         }
      
-        console.log('sensors in device ', sensorsInDevice)
+        // console.log('sensors in device ', sensorsInDevice)
         if(sensorsInDevice && sensorsInDevice!==null && sensorsInDevice!==undefined){
           res.status(200).json({sensor:sensorsInDevice})
         }
@@ -194,7 +194,7 @@ router.post("/stream/getactuatorslist", checkAuthenticated, async (req, res) => 
           });
         }
      
-        console.log('actuators in device ', actuatorsInDevice)
+        // console.log('actuators in device ', actuatorsInDevice)
         if(actuatorsInDevice && actuatorsInDevice!==null && actuatorsInDevice!==undefined){
           res.status(200).json({actuator:actuatorsInDevice})
         }

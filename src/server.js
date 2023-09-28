@@ -78,12 +78,14 @@ const kafkaConsumer = consumer.consumer
 
 // Mongoose 
 var sigmaBoardDB='mongodb://127.0.0.1:27017/sigmaboard';
+var totalDB='mongodb://127.0.0.1:28018/totaldata';
 
 // var filterBoardDB='mongodb://127.0.0.1:27017/filterboard';
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
     mongoose.set("strictQuery", false);
     mongoose.connect(sigmaBoardDB)
+    // mongoose.createConnection(totalDB)
     // mongoose.createConnection(filterBoardDB)
    
 } catch (error) {
