@@ -27,6 +27,7 @@ const serviceDB = mongodb.serviceDB;
 
 
 const r = require("rethinkdb");
+const { error } = require("ajv/dist/vocabularies/applicator/dependencies");
 
 
 ///////////
@@ -606,13 +607,13 @@ client.on("connect", async () => {
 //trasform data -- DO NOT Remove in final version
 function transformData(data) {
   const { atr, data: entries } = data;
-  const { device, timedate } = atr;
+  const { device, timedate, site } = atr;
   
   const result = [];
 
   entries.forEach(entry => {
     let newEntry = {};
-    newEntry.site = ""; // Assuming you want to keep it empty or you can populate it based on your needs
+    newEntry.site = site 
     newEntry.device = device;
     newEntry.timedate = timedate;
     
@@ -630,6 +631,7 @@ function transformData(data) {
 
   return result;
 }
+
 
 
 
@@ -1258,8 +1260,8 @@ async function updateData() {
 
 // step 1 -- chage data format for saving in mongodb
 
-const transformedData = transformData(sampleData);
-// console.log(transformedData);
+
+
  // if data was valid it will start add to mongodb
 topics.forEach( (t) => {
   Service.find({ topic: t }, async (err, result) => {
@@ -1270,63 +1272,121 @@ topics.forEach( (t) => {
     if (result.length > 0) {
       const service_id = result[0].service_id;
       const topic = result[0].topic;
+
+
+      // get add site to each items in transformedData
+
+      await Device.find({service_id:service_id},async(err, result)=>{
+        if (err) {
+          throw new Error("erorr in totalData");
+        }
+
+        if(result.length>0){
+          let deviceSitesInfo = result[0].device
+         
+if(deviceSitesInfo.every(item=>item.site!==''&& item.site!==undefined)){
+const deviceToSearch = sampleData.atr.device;
+
+const foundMapping = deviceSitesInfo.find(mapping => mapping.device === deviceToSearch);
+
+
+if (foundMapping) {
+  sampleData.atr.site = foundMapping.site;
+}
+
+const transformedData = transformData(sampleData);
+// console.log(transformedData);
+
+//
+
+await totalData.find({service_id:service_id,topic:topic},async(err,result)=>{
+  if (err) {
+    throw new Error("erorr in totalData");
+  }
+  // console.log('result ', result[0].data);
+ 
+  if(result.length===0  && transformedData.length > 0){
+
+   //only for fist time create document and insert first data
+      const newData = new totalData({
+        service_id: service_id,
+        topic: topic,
+        data:transformedData
+        
+    });
+
+    newData.save().then(() => {
+      console.log('Data inserted successfully');
+  })
+  .catch(err => {
+      console.error('Error inserting data:', err);
+  });
+
+ 
+ 
+    
+    
+  
+
+
+  }else if(result.length>0 && result[0].data.length > 0 && transformedData.length > 0){
+    const existData= result[0].data
+    const existDeviceName =existData.map((item=>{
+      if(item.device){
+        return item.device
+      }
+    }))
+
+    const deviceInsertedList = [...new Set(existDeviceName)]
+   
+console.log('deviceInsertedList ', deviceInsertedList);
+
+
+    // totalData.find({
+    //   service_id:service_id,
+    //   topic:topic,
+
+    // },async(err,result)=>{
+    //   if (err) {
+    //     throw new Error("erorr in totalData");
+    //   }
+
+    //   if(result.length > 0){
+    //     console.log('result data field in totaData model ', result[0])
+    //   }
+    // })
+
+  }
+}).clone()
+.catch(function (err) {
+console.log("error in get topic in subscriber section ", err);
+});
+
+
+//
+
+
+}
+
+//log this error
+// else {
+//   console.error('error: one or more than one device(s) has not site',topic,service_id)
+// }
+
+        }
+      }).clone()
+      .catch(function (err) {
+        console.log("error in get topic in subscriber section ", err);
+      });
+
+
      
       // check data array in totalDB is empty or not
       // if it was empty add data (sampleData) if not please check if it was exist update them if they were new add them
 
      
 
-      await totalData.find({service_id:service_id,topic:topic},async(err,result)=>{
-        if (err) {
-          throw new Error("erorr in totalData");
-        }
-        // console.log('result ', result[0].data);
-       
-        if(result.length===0  && transformedData.length > 0){
-
-         //only for fist time create document and insert first data
-            const newData = new totalData({
-              service_id: service_id,
-              topic: topic,
-              data:transformedData
-              
-          });
-
-          newData.save().then(() => {
-            console.log('Data inserted successfully');
-        })
-        .catch(err => {
-            console.error('Error inserting data:', err);
-        });
-
-       
-       
-          
-          
-        
-      
-
-        }else if(result.length>0 && result[0].data.length > 0){
-          // totalData.find({
-          //   service_id:service_id,
-          //   topic:topic,
-
-          // },async(err,result)=>{
-          //   if (err) {
-          //     throw new Error("erorr in totalData");
-          //   }
-
-          //   if(result.length > 0){
-          //     console.log('result data field in totaData model ', result[0])
-          //   }
-          // })
-
-        }
-      }).clone()
-  .catch(function (err) {
-    console.log("error in get topic in subscriber section ", err);
-  });
-
+ 
 
 
     }
