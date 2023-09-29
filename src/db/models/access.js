@@ -3,6 +3,30 @@ const Schema = mongoose.Schema;
 const { v4: uuidv4 } = require('uuid');
 const colors = require('colors');
 
+var sigmaBoardDB='mongodb://127.0.0.1:27017/sigmaboard';
+
+try {
+  var conn99 = mongoose.createConnection(sigmaBoardDB)
+} catch (error) {
+  // handleError(error);
+  console.error("mongoose error", error)
+}
+
+const db99 = conn99
+
+db99.on("error", console.error.bind(console, "connection error: "))
+db99.once("open", function () {
+  console.log(
+    colors.cyan(colors.bold("sigmaBoardDB")) +
+      " Connected to MongoDB through mongoose successfully"
+  )
+})
+
+db99.on('disconnected', function() {
+  console.log("Disconnected from DB!" ,'serviceDB');
+  // You might decide to try and reconnect here
+});
+
 
 
 const UserAccessSchema = new Schema({
@@ -78,6 +102,6 @@ status:{
 
 
 
-const UserAccess = mongoose.model('UserAccess', UserAccessSchema);
+const UserAccess = db99.model('UserAccess', UserAccessSchema);
 
 module.exports= UserAccess;

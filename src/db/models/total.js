@@ -3,30 +3,39 @@ const Schema = mongoose.Schema;
 
 const colors = require("colors");
 
-let totalDB = "mongodb://127.0.0.1:28018/total";
-// var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
-try {
-  var conn70a = mongoose.createConnection(totalDB);
-} catch (error) {
-  // handleError(error);
-  console.error("mongoose error", error);
-}
+// Database URL
+const totalDB = "mongodb://127.0.0.1:28018/total";
 
-const db70a = conn70a;
+// Connect to MongoDB through Mongoose
+mongoose.connect(totalDB);
 
-db70a.on("error", console.error.bind(console, "connection error: "));
-db70a.once("open", function () {
-  console.log(
-    colors.red(colors.bold("totalDB")) +
-      " Connected to MongoDB through mongoose successfully"
-  );
+// Handle connection events
+mongoose.connection.on("error", error => {
+    console.error("mongoose error", error);
 });
 
+mongoose.connection.once("open", function () {
+    console.log(colors.red(colors.bold("totalDB")) + " Connected successfully");
+});
+
+// Define your schema
 const totalDataSchema = new Schema({
-
-
+    service_id: {
+        type: String,
+        required: true,
+        trim: true,
+        maxLength: 360
+    },
+    topic: {
+        type: String,
+        maxLength: 255,
+        trim: true,
+        unique: true,
+        required: true,
+    },
+    data:[]
 });
 
-const totalData = db70a.model("totalData", totalDataSchema);
-
+// Create and export the model
+const totalData = mongoose.model("totalData", totalDataSchema);
 module.exports = totalData;

@@ -77,31 +77,31 @@ const kafkaConsumer = consumer.consumer
 
 
 // Mongoose 
-var sigmaBoardDB='mongodb://127.0.0.1:27017/sigmaboard';
-var totalDB='mongodb://127.0.0.1:28018/totaldata';
+// var sigmaBoardDB='mongodb://127.0.0.1:27017/sigmaboard';
+
 
 // var filterBoardDB='mongodb://127.0.0.1:27017/filterboard';
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
-try {
-    mongoose.set("strictQuery", false);
-    mongoose.connect(sigmaBoardDB)
-    // mongoose.createConnection(totalDB)
-    // mongoose.createConnection(filterBoardDB)
+// try {
+//     mongoose.set("strictQuery", false);
+//     mongoose.connect(sigmaBoardDB)
+    
+//     // mongoose.createConnection(filterBoardDB)
    
-} catch (error) {
-  // handleError(error);
-  console.error('mongoose error', error)
-}
+// } catch (error) {
+//   // handleError(error);
+//   console.error('mongoose error', error)
+// }
 
-const db = mongoose.connection;
+// const db = mongoose.connection;
 // const db2 = mongoose.connection;
 
 
 
-db.on("error", console.error.bind(console, "connection error: "));
-db.once("open", function () {
-  console.log(colors.green(colors.bold("sigmaBoardDB")) + " Connected to MongoDB through mongoose successfully");
-});
+// db.on("error", console.error.bind(console, "connection error: "));
+// db.once("open", function () {
+//   console.log(colors.green(colors.bold("sigmaBoardDB")) + " Connected to MongoDB through mongoose successfully");
+// });
 
 // db2.on("error", console.error.bind(console, "connection error: "));
 // db2.once("open", function () {

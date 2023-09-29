@@ -2,10 +2,33 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const Schema = mongoose.Schema;
+const colors = require("colors")
 
-const mongodb = require("../../db/config/mongodb")
-const sigmaBoardDB = mongodb.sigmaBoardDB
+// const sigmaBoardDB = mongodb.sigmaBoardDB
 
+var sigmaBoardDB='mongodb://127.0.0.1:27017/sigmaboard';
+
+try {
+  var conn99 = mongoose.createConnection(sigmaBoardDB)
+} catch (error) {
+  // handleError(error);
+  console.error("mongoose error", error)
+}
+
+const db99 = conn99
+
+db99.on("error", console.error.bind(console, "connection error: "))
+db99.once("open", function () {
+  console.log(
+    colors.cyan(colors.bold("sigmaBoardDB")) +
+      " Connected to MongoDB through mongoose successfully"
+  )
+})
+
+db99.on('disconnected', function() {
+  console.log("Disconnected from DB!" ,'serviceDB');
+  // You might decide to try and reconnect here
+});
 
 
 
@@ -99,7 +122,7 @@ UserAccountSchema.pre(
 
 
 
-const Account =  mongoose.model('Account', UserAccountSchema);
+const Account =  db99.model('Account', UserAccountSchema);
 // Top-level error is a ValidationError, **not** a ValidatorError
 
 
