@@ -119,7 +119,7 @@ router.post("/stream/getsensorslist", checkAuthenticated, async (req, res) => {
 
   let sensorsInDevice =[]
 
-  console.log('service_id in getsensorslist ', service_id)
+  // console.log('service_id in getsensorslist ', service_id)
 
   try {
 
@@ -172,7 +172,7 @@ router.post("/stream/getactuatorslist", checkAuthenticated, async (req, res) => 
 
   let actuatorsInDevice =[]
 
-  console.log('service_id in getactuatorslist ', service_id)
+  // console.log('service_id in getactuatorslist ', service_id)
 
   try {
 

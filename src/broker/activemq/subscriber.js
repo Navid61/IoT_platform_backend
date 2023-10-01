@@ -1192,66 +1192,30 @@ async function updateData() {
 
 
       
-      // (async () => {
-      //   try {
-      //     // Connect to the database
-      //     const connection = await r.connect({
-      //       host: "localhost",
-      //       port: 28015,
+   
+
+      // async () => {
+      //   await axios({
+      //     method: "POST",
+      //     url: "http://127.0.0.1:5984/cyprus-dev",
+      //     withCredntials: true,
+
+      //     headers: {
+      //       "content-type": "application/json",
+      //     },
+      //     auth: {
+      //       username: "admin",
+      //       password: "c0_OU7928CH",
+      //     },
+      //     data: { docs: receivedSensorData },
+      //   })
+      //     .then((response) => {
+      //       // console.log('response ', response)
+      //     })
+      //     .catch((error) => {
+      //       console.error("error in put doc to couchDB ", error);
       //     });
-
-      //     // Create a database named 'myDatabase' if it doesn't exist
-      //     const dbList = await r.dbList().run(connection);
-      //     if (dbList.indexOf("myDatabase") === -1) {
-      //       await r.dbCreate("myDatabase").run(connection);
-      //     }
-
-      //     // Use the 'myDatabase' database
-      //     connection.use("myDatabase");
-
-      //     // Create a table named 'sensorData' if it doesn't exist
-      //     const tableList = await r.tableList().run(connection);
-      //     if (tableList.indexOf("sensorData") === -1) {
-      //       await r.tableCreate("sensorData").run(connection);
-      //     }
-
-      //     // Insert the sample data into the 'sensorData' table
-      //     const result = await r
-      //       .table("sensorData")
-      //       .insert(receivedSensorData)
-      //       .run(connection);
-
-      //     // console.log('Insert result:', result);
-
-      //     // Close the connection
-      //     connection.close();
-      //   } catch (error) {
-      //     console.error("Error occurred:", error);
-      //   }
-      // })();
-
-      async () => {
-        await axios({
-          method: "POST",
-          url: "http://127.0.0.1:5984/cyprus-dev",
-          withCredntials: true,
-
-          headers: {
-            "content-type": "application/json",
-          },
-          auth: {
-            username: "admin",
-            password: "c0_OU7928CH",
-          },
-          data: { docs: receivedSensorData },
-        })
-          .then((response) => {
-            // console.log('response ', response)
-          })
-          .catch((error) => {
-            console.error("error in put doc to couchDB ", error);
-          });
-      };
+      // };
 
       // For each topic create different database and table
     } 
@@ -1339,7 +1303,7 @@ await totalData.find({service_id:service_id,topic:topic},async(err,result)=>{
 
     const deviceInsertedList = [...new Set(existDeviceName)]
    
-console.log('deviceInsertedList ', deviceInsertedList);
+// console.log('deviceInsertedList ', deviceInsertedList);
 
 
     // totalData.find({
@@ -1396,6 +1360,111 @@ console.log("error in get topic in subscriber section ", err);
   });
 })
 // Enf test mode
+
+// insert data to rethinkdb:
+const databasesName=topics;
+
+
+
+const tablesPerDatabase = {};
+
+async function establishConnection() {
+  connection = await r.connect({ host: 'localhost', port: 28015 });
+}
+
+// create dynamic database
+async function createDatabase(dbName) {
+  try {
+      const databases = await r.dbList().run(connection);
+      if (!databases.includes(dbName)) {
+          await r.dbCreate(dbName).run(connection);
+          // console.log(`Database ${dbName} created.`);
+      } else {
+          // console.log(`Database ${dbName} already exists.`);
+      }
+  } catch (error) {
+      console.error(`Failed to create database ${dbName}:`, error);
+  }
+}
+
+// create dynamic table
+async function createTable(dbName, tableName) {
+  try {
+      const tables = await r.db(dbName).tableList().run(connection);
+      if (!tables.includes(tableName)) {
+          await r.db(dbName).tableCreate(tableName).run(connection);
+          // console.log(`Table ${tableName} created in ${dbName}.`);
+      } else {
+          // console.log(`Table ${tableName} already exists in ${dbName}.`);
+      }
+  } catch (error) {
+      console.error(`Failed to create table ${tableName} in ${dbName}:`, error);
+  }
+}
+
+
+// topic name selected for database name and service id chosen for table
+/**
+ * 
+ * const databases = ['db1', 'db2', 'db3']; // List of databases to create
+   const tablesPerDatabase = {
+    'db1': ['table1', 'table2'],
+    'db2': ['table3'],
+    'db3': ['table4', 'table5']
+}; // List of tables to create for each database
+ */
+
+
+//
+
+async function processTopic(topic) {
+  try {
+      const result = await Service.find({ topic: topic }).clone()
+      .catch(function (err) {
+        console.log("error in get topic in subscriber section ", err);
+      });; // Assuming you're using Mongoose or a similar ORM
+      if (result && result.length > 0) {
+          const service_id = result[0].service_id;
+
+          if (tablesPerDatabase[topic]) {
+            tablesPerDatabase[topic].push(service_id);
+          } else {
+            tablesPerDatabase[topic] = [service_id];
+          }
+      }
+  } catch (err) {
+      console.error("Error in get topic in subscriber section:", err);
+  }
+}
+
+
+async function rethinkdbConntion() {
+
+  await establishConnection();
+
+  for (let topic of topics) {
+    await processTopic(topic);
+}
+
+
+// console.log(tablesPerDatabase); // Output the final list
+  for (let dbName of databasesName) {
+    
+      await createDatabase(dbName);
+      
+      if (tablesPerDatabase[dbName]) {
+        for (let tableName of tablesPerDatabase[dbName]) {
+            await createTable(dbName, tableName);
+        }
+    }
+  }
+  
+  connection.close();
+}
+
+rethinkdbConntion();
+
+
  
   }else {
     console.error(ajv.errorsText(sensorValidate.errors));
