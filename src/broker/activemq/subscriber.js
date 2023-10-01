@@ -1224,6 +1224,16 @@ async function updateData() {
 
 // step 1 -- chage data format for saving in mongodb
 
+async function getTransformedData(transFormedData, t, s){
+  if(transFormedData && transFormedData.length > 0){
+    return {
+      data:transFormedData,
+      db:t,
+      table:s
+    }
+  }
+
+}
 
 
  // if data was valid it will start add to mongodb
@@ -1258,7 +1268,8 @@ if (foundMapping) {
   sampleData.atr.site = foundMapping.site;
 }
 
-const transformedData = transformData(sampleData);
+const transformedData =  transformData(sampleData);
+
 // console.log(transformedData);
 
 //
@@ -1372,6 +1383,12 @@ async function establishConnection() {
   connection = await r.connect({ host: 'localhost', port: 28015 });
 }
 
+
+
+
+// Before any database operation:
+
+
 // create dynamic database
 async function createDatabase(dbName) {
   try {
@@ -1422,7 +1439,7 @@ async function processTopic(topic) {
       const result = await Service.find({ topic: topic }).clone()
       .catch(function (err) {
         console.log("error in get topic in subscriber section ", err);
-      });; // Assuming you're using Mongoose or a similar ORM
+      }); // Assuming you're using Mongoose or a similar ORM
       if (result && result.length > 0) {
           const service_id = result[0].service_id;
 
@@ -1438,31 +1455,68 @@ async function processTopic(topic) {
 }
 
 
-async function rethinkdbConntion() {
+async function insertData(dbName, tableName, data) {
+  try {
+      let table = r.db(dbName).table(tableName);
+      let result = await table.insert(data).run(connection);
+      return result;
+  } catch (err) {
+      console.error(`Error inserting data into ${dbName}.${tableName}:`, err);
+      throw err;
+  }
+}
 
+
+
+async function handleDeviceData(dbName, tableName) {
+  try {
+      const results = await Device.find({service_id: tableName}).clone()
+      .catch(function (err) {
+        console.log("error in get topic in subscriber section ", err);
+      });
+      if (results.length > 0) {
+          const deviceSitesInfo = results[0].device;
+          if (deviceSitesInfo.every(item => item.site !== '' && item.site !== undefined)) {
+              const deviceToSearch = sampleData.atr.device;
+              const foundMapping = deviceSitesInfo.find(mapping => mapping.device === deviceToSearch);
+
+              if (foundMapping) {
+                  sampleData.atr.site = foundMapping.site;
+              }
+
+              const transformedData = transformData(sampleData);
+              if (transformedData && transformedData.length > 0) {
+                  await insertData(dbName, tableName, transformedData);
+              }
+          }
+      }
+  } catch (error) {
+      console.log("Error in handleDeviceData:", error);
+  }
+}
+
+async function rethinkdbConnection() {
   await establishConnection();
 
   for (let topic of topics) {
-    await processTopic(topic);
-}
-
-
-// console.log(tablesPerDatabase); // Output the final list
-  for (let dbName of databasesName) {
-    
-      await createDatabase(dbName);
-      
-      if (tablesPerDatabase[dbName]) {
-        for (let tableName of tablesPerDatabase[dbName]) {
-            await createTable(dbName, tableName);
-        }
-    }
+      await processTopic(topic);
   }
-  
+
+  for (let dbName of databasesName) {
+      await createDatabase(dbName);
+
+      if (tablesPerDatabase[dbName]) {
+          for (let tableName of tablesPerDatabase[dbName]) {
+              await createTable(dbName, tableName);
+              await handleDeviceData(dbName, tableName);
+          }
+      }
+  }
+
   connection.close();
 }
 
-rethinkdbConntion();
+rethinkdbConnection();
 
 
  
