@@ -1373,11 +1373,7 @@ console.log("error in get topic in subscriber section ", err);
 // Enf test mode
 
 // insert data to rethinkdb:
-let databasesName=topics;
 
-
-
-let tablesPerDatabase = {};
 
 const connectionOptions = { 
   host: 'localhost', 
@@ -1417,7 +1413,11 @@ function handleConnectionError(error) {
   setTimeout(connectToRethinkDB, 5000); // 5 seconds delay
 }
 
+let databasesName=topics;
 
+
+
+let tablesPerDatabase = {};
 
 
 // Before any database operation:
