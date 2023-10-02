@@ -1373,14 +1373,48 @@ console.log("error in get topic in subscriber section ", err);
 // Enf test mode
 
 // insert data to rethinkdb:
-const databasesName=topics;
+let databasesName=topics;
 
 
 
-const tablesPerDatabase = {};
+let tablesPerDatabase = {};
 
-async function establishConnection() {
-  connection = await r.connect({ host: 'localhost', port: 28015 });
+const connectionOptions = { 
+  host: 'localhost', 
+  port: 28015 
+};
+let connection;
+
+async function connectToRethinkDB() {
+  try {
+      connection = await r.connect(connectionOptions);
+
+      // console.log("Connected to RethinkDB");
+
+      // Listen for error events on the connection
+      connection.on('error', handleConnectionError);
+
+  } catch (error) {
+      console.error("Failed to connect to RethinkDB:", error);
+
+      // Attempt to reconnect after a delay
+      setTimeout(connectToRethinkDB, 5000); // 5 seconds delay
+  }
+}
+
+function handleConnectionError(error) {
+  console.error("Connection error:", error);
+
+  // Remove the error listener since we're going to try reconnecting
+  connection.removeListener('error', handleConnectionError);
+
+  // Close the current connection (if it's still open, might be redundant)
+  if (connection && connection.close) {
+      connection.close();
+  }
+
+  // Attempt to reconnect after a delay
+  setTimeout(connectToRethinkDB, 5000); // 5 seconds delay
 }
 
 
@@ -1393,11 +1427,12 @@ async function establishConnection() {
 async function createDatabase(dbName) {
   try {
       const databases = await r.dbList().run(connection);
-      if (!databases.includes(dbName)) {
-          await r.dbCreate(dbName).run(connection);
-          // console.log(`Database ${dbName} created.`);
+      if (databases.includes(dbName)) {
+         // console.log(`Database ${dbName} already exists.`);
+         
       } else {
-          // console.log(`Database ${dbName} already exists.`);
+        await r.dbCreate(dbName).run(connection);
+           // console.log(`Database ${dbName} created.`);
       }
   } catch (error) {
       console.error(`Failed to create database ${dbName}:`, error);
@@ -1408,11 +1443,14 @@ async function createDatabase(dbName) {
 async function createTable(dbName, tableName) {
   try {
       const tables = await r.db(dbName).tableList().run(connection);
-      if (!tables.includes(tableName)) {
-          await r.db(dbName).tableCreate(tableName).run(connection);
-          // console.log(`Table ${tableName} created in ${dbName}.`);
+      if (tables.includes(tableName)) {
+          
+
+           // console.log(`Table ${tableName} already exists in ${dbName}.`);
       } else {
-          // console.log(`Table ${tableName} already exists in ${dbName}.`);
+                  // console.log(`Table ${tableName} created in ${dbName}.`);
+        await r.db(dbName).tableCreate(tableName).run(connection);
+         
       }
   } catch (error) {
       console.error(`Failed to create table ${tableName} in ${dbName}:`, error);
@@ -1496,7 +1534,7 @@ async function handleDeviceData(dbName, tableName) {
 }
 
 async function rethinkdbConnection() {
-  await establishConnection();
+  await connectToRethinkDB();
 
   for (let topic of topics) {
       await processTopic(topic);
@@ -1526,7 +1564,7 @@ rethinkdbConnection();
 }
 
 // Update the data every 40 seconds (40000 milliseconds)
-setInterval(updateData, 2000);
+setInterval(updateData, 10000);
 
 /////// FAKE PART
 

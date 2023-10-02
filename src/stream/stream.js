@@ -44,7 +44,7 @@ const checkAuthenticated = function (req, res, next) {
 router.use(checkAuthenticated)
 
 
-router.get("/stream/:id", checkAuthenticated, async (req, res) => {
+router.get("/stream/:id",  async (req, res) => {
   const service_id=req.params.id
 
 // console.log('service_id in stream part ', service_id);
@@ -71,7 +71,7 @@ router.get("/stream/:id", checkAuthenticated, async (req, res) => {
 
 
 
-router.post("/stream/getdevicesite", checkAuthenticated, async (req, res) => {
+router.post("/stream/getdevicesite",  async (req, res) => {
   const service_id=req.body.id
 
 // console.log('service_id in stream part ', service_id);
@@ -112,7 +112,7 @@ await Device.find({service_id:service_id},{_id:0}, async(err,result)=>{
 })
 
 
-router.post("/stream/getsensorslist", checkAuthenticated, async (req, res) => {
+router.post("/stream/getsensorslist", async (req, res) => {
 
   const service_id=req.body.id
   const deviceName = req.body.device
@@ -165,7 +165,7 @@ router.post("/stream/getsensorslist", checkAuthenticated, async (req, res) => {
 
 
 
-router.post("/stream/getactuatorslist", checkAuthenticated, async (req, res) => {
+router.post("/stream/getactuatorslist",  async (req, res) => {
 
   const service_id=req.body.id
   const deviceName = req.body.device
@@ -210,6 +210,14 @@ router.post("/stream/getactuatorslist", checkAuthenticated, async (req, res) => 
 
   
 
+
+})
+
+router.post("/stream/newrule",async (req, res)=>{
+
+  const service_id=req.body.id
+
+  console.log('service_id new condition ', service_id);
 
 })
 
