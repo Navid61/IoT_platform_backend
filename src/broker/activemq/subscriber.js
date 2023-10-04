@@ -1385,7 +1385,7 @@ async function connectToRethinkDB() {
   try {
       connection = await r.connect(connectionOptions);
 
-      // console.log("Connected to RethinkDB");
+      console.log("Connected to RethinkDB");
 
       // Listen for error events on the connection
       connection.on('error', handleConnectionError);
@@ -1405,12 +1405,13 @@ function handleConnectionError(error) {
   connection.removeListener('error', handleConnectionError);
 
   // Close the current connection (if it's still open, might be redundant)
-  if (connection && connection.close) {
-      connection.close();
-  }
+  if (connection && typeof connection.close === 'function') {
+    connection.close();
+}
+
 
   // Attempt to reconnect after a delay
-  setTimeout(connectToRethinkDB, 5000); // 5 seconds delay
+  setTimeout(connectToRethinkDB, 7000); // 7 seconds delay
 }
 
 let databasesName=topics;
