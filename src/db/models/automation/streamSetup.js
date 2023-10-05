@@ -46,7 +46,7 @@ const StreamSetupSchema = new Schema({
     required: true,
   },
 
-  delay:{
+  interval:{
     type:Number,
   },
 
