@@ -1375,83 +1375,73 @@ console.log("error in get topic in subscriber section ", err);
 // insert data to rethinkdb:
 
 
-const connectionOptions = { 
-  host: 'localhost', 
-  port: 28015 
+let tablesPerDatabase = {};
+let databasesName = topics;
+
+const connectionOptions = {
+  host: 'localhost',
+  port: 28015
 };
+
+
 let connection;
+let isConnected = false;
+
 
 async function connectToRethinkDB() {
   try {
       connection = await r.connect(connectionOptions);
+      // console.log(colors.red.underline("Connected to RethinkDB"))
+   
+      isConnected = true;
 
-      console.log("Connected to RethinkDB");
-
-      // Listen for error events on the connection
       connection.on('error', handleConnectionError);
 
   } catch (error) {
       console.error("Failed to connect to RethinkDB:", error);
-
-      // Attempt to reconnect after a delay
-      setTimeout(connectToRethinkDB, 5000); // 5 seconds delay
+      isConnected = false;
+      setTimeout(connectToRethinkDB, 5000);
   }
 }
 
 function handleConnectionError(error) {
   console.error("Connection error:", error);
-
-  // Remove the error listener since we're going to try reconnecting
+  isConnected = false;
   connection.removeListener('error', handleConnectionError);
 
-  // Close the current connection (if it's still open, might be redundant)
   if (connection && typeof connection.close === 'function') {
-    connection.close();
+      connection.close();
+  }
+
+  setTimeout(connectToRethinkDB, 7000);
 }
 
-
-  // Attempt to reconnect after a delay
-  setTimeout(connectToRethinkDB, 7000); // 7 seconds delay
+function ensureConnection() {
+  if (!isConnected) {
+      throw new Error("RethinkDB connection is not established.");
+  }
 }
 
-let databasesName=topics;
-
-
-
-let tablesPerDatabase = {};
-
-
-// Before any database operation:
-
-
-// create dynamic database
 async function createDatabase(dbName) {
+  ensureConnection();
+
   try {
       const databases = await r.dbList().run(connection);
-      if (databases.includes(dbName)) {
-         // console.log(`Database ${dbName} already exists.`);
-         
-      } else {
-        await r.dbCreate(dbName).run(connection);
-           // console.log(`Database ${dbName} created.`);
+      if (!databases.includes(dbName)) {
+          await r.dbCreate(dbName).run(connection);
       }
   } catch (error) {
       console.error(`Failed to create database ${dbName}:`, error);
   }
 }
 
-// create dynamic table
 async function createTable(dbName, tableName) {
+  ensureConnection();
+
   try {
       const tables = await r.db(dbName).tableList().run(connection);
-      if (tables.includes(tableName)) {
-          
-
-           // console.log(`Table ${tableName} already exists in ${dbName}.`);
-      } else {
-                  // console.log(`Table ${tableName} created in ${dbName}.`);
-        await r.db(dbName).tableCreate(tableName).run(connection);
-         
+      if (!tables.includes(tableName)) {
+          await r.db(dbName).tableCreate(tableName).run(connection);
       }
   } catch (error) {
       console.error(`Failed to create table ${tableName} in ${dbName}:`, error);
@@ -1508,13 +1498,17 @@ async function insertData(dbName, tableName, data) {
 
 
 async function handleDeviceData(dbName, tableName) {
+  // console.log('tableName 1 ', tableName);
+ 
   try {
       const results = await Device.find({service_id: tableName}).clone()
       .catch(function (err) {
         console.log("error in get topic in subscriber section ", err);
       });
       if (results.length > 0) {
+        console.log('result ', results[0]);
           const deviceSitesInfo = results[0].device;
+          // in this condition only services all site are defined already will choose
           if (deviceSitesInfo.every(item => item.site !== '' && item.site !== undefined)) {
               const deviceToSearch = sampleData.atr.device;
               const foundMapping = deviceSitesInfo.find(mapping => mapping.device === deviceToSearch);
@@ -1525,6 +1519,7 @@ async function handleDeviceData(dbName, tableName) {
 
               const transformedData = transformData(sampleData);
               if (transformedData && transformedData.length > 0) {
+                // console.log('tableName 2 ', tableName);
                   await insertData(dbName, tableName, transformedData);
               }
           }
@@ -1534,28 +1529,32 @@ async function handleDeviceData(dbName, tableName) {
   }
 }
 
-async function rethinkdbConnection() {
-  await connectToRethinkDB();
+(async function init() {
+  try {
+      await connectToRethinkDB();
 
-  for (let topic of topics) {
-      await processTopic(topic);
-  }
+      for (let topic of topics) {
+          await processTopic(topic);
+      }
 
-  for (let dbName of databasesName) {
-      await createDatabase(dbName);
+      for (let dbName of databasesName) {
+          await createDatabase(dbName);
 
-      if (tablesPerDatabase[dbName]) {
-          for (let tableName of tablesPerDatabase[dbName]) {
-              await createTable(dbName, tableName);
-              await handleDeviceData(dbName, tableName);
+          if (tablesPerDatabase[dbName]) {
+              for (let tableName of tablesPerDatabase[dbName]) {
+                  await createTable(dbName, tableName);
+                  await handleDeviceData(dbName, tableName);
+              }
           }
       }
+  } catch (error) {
+      console.error("An error occurred during the initialization:", error);
+  } finally {
+      if (connection && typeof connection.close === 'function') {
+          connection.close();
+      }
   }
-
-  connection.close();
-}
-
-rethinkdbConnection();
+})();
 
 
  

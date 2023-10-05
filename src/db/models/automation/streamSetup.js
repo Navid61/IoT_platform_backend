@@ -6,41 +6,39 @@ const colors = require("colors");
 let streamDB = "mongodb://127.0.0.1:27017/stream";
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
 try {
-  var conn56a = mongoose.createConnection(streamDB);
+  var conn56b = mongoose.createConnection(streamDB);
 } catch (error) {
   // handleError(error);
   console.error("mongoose error", error);
 }
 
-const db56a = conn56a;
+const db56b = conn56b;
 
-db56a.on("error", console.error.bind(console, "connection error: "));
-db56a.once("open", function () {
+db56b.on("error", console.error.bind(console, "connection error: "));
+db56b.once("open", function () {
   console.log(
-    colors.cyan(colors.bold("AutomationDB")) +
+    colors.yellow(colors.bold("AutomationDB")) +
       " Connected to MongoDB through mongoose successfully"
   );
 });
 
-const StreamSchema = new Schema({
+const StreamSetupSchema = new Schema({
 
   service_id: {
     type: String,
     trim: true,
     default: "99999",
     required: true,
-    maxLength: 360,
+    maxLength: 255,
   },
 
-  stream_id:{
+ stream_id:{
     type: String,
     trim: true,
     required: true,
     maxLength: 250,
 
  },
-
- 
   name:{
     type: String,
     maxLength: 200,
@@ -48,7 +46,20 @@ const StreamSchema = new Schema({
     required: true,
   },
 
-  conditions:[],
+  delay:{
+    type:Number,
+  },
+
+  
+  start:{
+    type:Date
+  },
+  end:{
+    type:Date
+  },
+  days:[],
+
+
 
     
   status: {
@@ -58,6 +69,6 @@ const StreamSchema = new Schema({
   },
 });
 
-const Stream = db56a.model("Stream", StreamSchema);
+const StreamSetup = db56b.model("StreamSetup", StreamSetupSchema);
 
-module.exports = Stream;
+module.exports = StreamSetup;
