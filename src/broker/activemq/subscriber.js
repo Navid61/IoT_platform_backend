@@ -65,6 +65,54 @@ const client = mqtt.connect(connectUrl, {
   },
 });
 
+
+// Connect to rethinkdb
+
+const connectionOptions = {
+  host: 'localhost',
+  port: 28015
+};
+
+
+let connection;
+let isConnected = false;
+
+
+async function connectToRethinkDB() {
+  try {
+      connection = await r.connect(connectionOptions);
+      // console.log(colors.red.underline("Connected to RethinkDB"))
+   
+      isConnected = true;
+
+      connection.on('error', handleConnectionError);
+
+  } catch (error) {
+      console.error("Failed to connect to RethinkDB:", error);
+      isConnected = false;
+      setTimeout(connectToRethinkDB, 5000);
+  }
+}
+
+function handleConnectionError(error) {
+  console.error("Connection error:", error);
+  isConnected = false;
+  connection.removeListener('error', handleConnectionError);
+
+  if (connection && typeof connection.close === 'function') {
+      connection.close();
+  }
+
+  setTimeout(connectToRethinkDB, 7000);
+}
+
+function ensureConnection() {
+  if (!isConnected) {
+      throw new Error("RethinkDB connection is not established.");
+  }
+}
+
+
 // JSONSchema --- Data Schema
 
 ajv.addFormat("data-time-format", function (dateTimeString) {
@@ -92,18 +140,7 @@ ajv.addFormat("data-time-format", function (dateTimeString) {
 // TODO - Get topics list form serviceDB
 // This topics iI think just used for fake data, and it not neccessay when we get currentTopic
 
-// r.connect({ host: 'localhost', port: 28015 }, function(err, conn) {
-//   if(err) throw err;
-//   r.db('test').tableCreate('tv_shows').run(conn, function(err, res) {
-//     if(err) throw err;
-//     console.log(res);
-//     r.table('tv_shows').insert({ name: 'Star Trek TNG' }).run(conn, function(err, res)
-//     {
-//       if(err) throw err;
-//       console.log(res);
-//     });
-//   });
-// });
+
 let topics = [];
 
 client.on("connect", async () => {
@@ -1378,49 +1415,6 @@ console.log("error in get topic in subscriber section ", err);
 let tablesPerDatabase = {};
 let databasesName = topics;
 
-const connectionOptions = {
-  host: 'localhost',
-  port: 28015
-};
-
-
-let connection;
-let isConnected = false;
-
-
-async function connectToRethinkDB() {
-  try {
-      connection = await r.connect(connectionOptions);
-      // console.log(colors.red.underline("Connected to RethinkDB"))
-   
-      isConnected = true;
-
-      connection.on('error', handleConnectionError);
-
-  } catch (error) {
-      console.error("Failed to connect to RethinkDB:", error);
-      isConnected = false;
-      setTimeout(connectToRethinkDB, 5000);
-  }
-}
-
-function handleConnectionError(error) {
-  console.error("Connection error:", error);
-  isConnected = false;
-  connection.removeListener('error', handleConnectionError);
-
-  if (connection && typeof connection.close === 'function') {
-      connection.close();
-  }
-
-  setTimeout(connectToRethinkDB, 7000);
-}
-
-function ensureConnection() {
-  if (!isConnected) {
-      throw new Error("RethinkDB connection is not established.");
-  }
-}
 
 async function createDatabase(dbName) {
   ensureConnection();
@@ -1506,7 +1500,7 @@ async function handleDeviceData(dbName, tableName) {
         console.log("error in get topic in subscriber section ", err);
       });
       if (results.length > 0) {
-        console.log('result ', results[0]);
+        
           const deviceSitesInfo = results[0].device;
           // in this condition only services all site are defined already will choose
           if (deviceSitesInfo.every(item => item.site !== '' && item.site !== undefined)) {
@@ -1568,4 +1562,9 @@ setInterval(updateData, 10000);
 
 /////// FAKE PART
 
-module.exports = router;
+module.exports ={
+  router,
+  connection,
+  ensureConnection,
+  connectToRethinkDB
+};
