@@ -236,21 +236,64 @@ router.post("/stream/newcondition",async (req, res)=>{
 
   const service_id=req.body.id
 
-  console.log('service_id new condition ', service_id);
+
+
+  const scene = req.body.scene;
+  const stream = req.body.stream;
 
   const conditionsTable = req.body.conditions
   
 
-  console.log('conditionTable ', conditionsTable);
+  
+
+
 
   await Stream.find({service_id:service_id}, async(err,result)=>{
     if(err){
         throw new Error(err)
     }
 
-    if(result){
-      console.log('result ', result);
-    }
+    if(result.length===0){
+      const newAutomation = new Stream({
+        service_id:service_id,
+      streamName:stream,
+      sceneName:scene,
+      conditions:conditionsTable,
+        status: true,
+      })
+
+  await newAutomation.save().then(()=>{
+
+    res.status(200).json({result:newAutomation
+      ,msg:'new automation rule created successfully'})
+
+  })
+     
+    }else if( result && result.length > 0){
+
+      if(result.find(item=>item.streamName===stream)){
+        console.log('duplicate');
+        res.status(409).json({name:stream,msg:"This name exist already"})
+      }else {
+
+        const newAutomation = new Stream({
+          service_id:service_id,
+        streamName:stream,
+        sceneName:scene,
+        conditions:conditionsTable,
+          status: true,
+        })
+  
+    await newAutomation.save().then(()=>{
+  
+      res.status(200).json({result:newAutomation
+        ,msg:'new automation rule created successfully'})
+  
+    })
+
+      }
+
+        }
   }).clone().catch(function (err) {console.log(err)})
 // table name is service_id
 /**
@@ -261,7 +304,10 @@ With .coerceTo('array'): The result of your query is explicitly an array, allowi
  */
 
 
-
+/**
+ * 
+ * 
+ 
 const operandMapping = {
     'eq': '===',
     'lte': '<=',
@@ -318,7 +364,7 @@ async function evaluateConditions(inputArray) {
     console.log(overallResult);  // true if any group of conditions is met, false otherwise.
 })();
  
-
+*/
 /**
  * 
  * [

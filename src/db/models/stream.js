@@ -32,21 +32,22 @@ const StreamSchema = new Schema({
     maxLength: 360,
   },
 
-  stream_id:{
-    type: String,
-    trim: true,
-    required: true,
-    maxLength: 250,
 
- },
 
- 
-  name:{
+  streamName:{
     type: String,
     maxLength: 200,
     trim: true,
     required: true,
   },
+
+  sceneName:{
+    type: String,
+    maxLength: 200,
+    trim: true,
+    required: true,
+  },
+  
 
   conditions:[],
 
