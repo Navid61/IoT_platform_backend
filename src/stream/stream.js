@@ -246,8 +246,7 @@ router.post("/stream/newcondition",async (req, res)=>{
 
   
 
-
-
+try {
   await Stream.find({service_id:service_id}, async(err,result)=>{
     if(err){
         throw new Error(err)
@@ -271,13 +270,9 @@ router.post("/stream/newcondition",async (req, res)=>{
      
     }else if( result && result.length > 0){
 
-      if(result.find(item=>item.streamName===stream)){
-        console.log('duplicate');
-        res.status(409).json({name:stream,msg:"This name exist already"})
-      }else {
-
+      if(!result.some(item=>item.streamName===stream && stream.length>0 && scene.length >0 && conditionsTable.length > 0)){
         const newAutomation = new Stream({
-          service_id:service_id,
+        service_id:service_id,
         streamName:stream,
         sceneName:scene,
         conditions:conditionsTable,
@@ -290,11 +285,21 @@ router.post("/stream/newcondition",async (req, res)=>{
         ,msg:'new automation rule created successfully'})
   
     })
+        
+      }else {
+
+        console.log('duplicate');
+        res.status(409).json({name:stream,msg:"This name exist already"})
 
       }
 
         }
   }).clone().catch(function (err) {console.log(err)})
+} catch (error) {
+  console.error('error in create new rule ', error);
+}
+
+
 // table name is service_id
 /**
  * 
