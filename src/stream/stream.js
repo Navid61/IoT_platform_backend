@@ -49,25 +49,87 @@ router.use(checkAuthenticated)
 router.get("/stream/:id",  async (req, res) => {
   const service_id=req.params.id
 
-// console.log('service_id in stream part ', service_id);
-  await Scene.find({service_id:service_id},{_id:0}, async(err,result)=>{
-    if(err){
+  let stremsNameList =[]
+  try {
+
+    await Stream.find({service_id:service_id} ,async(err,stream)=>{
+      if(err){
         throw new Error(err)
-    }
-
-    if(result.length!==0){
-
-      // console.log('result ', result)
-
+      }
   
-           res.status(200).json({scenes:result})
- 
+      if(stream &&  stream.length > 0){
 
+       console.log('stream ', stream);
+
+      
+
+        for (let item of stream){
+
+          console.log('mame ', item)
+
+          stremsNameList.push({stream:item.streamName,scene:item.sceneName,conditions:item.conditions})
+
+        }
+
+        if(stremsNameList && stremsNameList.length > 0){
+
+          // console.log('stremsNameList ', stremsNameList)
+          await Scene.find({service_id:service_id},{_id:0}, async(err,scene)=>{
+            if(err){
+                throw new Error(err)
+            }
         
-       
-    }
- }).clone().catch(function (err) {console.log(err)})
+            if(scene.length!==0){
+        
+              //  console.log('scene ', scene)
+        
+          
+                   res.status(200).json({streams:stremsNameList,
+                    scenes:scene})
+         
+        
+                
+               
+            }
+         }).clone().catch(function (err) {console.log(err)})
+        
+        }
+     
 
+       
+        
+      }else {
+
+
+        // if it did not find any automation only get list of scences and then return them for creating new conditoins
+
+        await Scene.find({service_id:service_id},{_id:0}, async(err,scene)=>{
+          if(err){
+              throw new Error(err)
+          }
+      
+          if(scene.length!==0){
+        
+                 res.status(200).json({scenes:scene})
+             
+          }else {
+            res.status(204).json({msg:"There is no any scence, please go to scence page and create at least one scene"})
+          }
+       }).clone().catch(function (err) {console.log(err)})
+      
+
+      }
+  
+    }).clone().catch(function (err) {console.log(err)});
+    
+  } catch (error) {
+
+    console.error('error ', error);
+    
+  }
+
+// console.log('service_id in stream part ', service_id);
+ 
 
 })
 
@@ -514,6 +576,8 @@ However, keep in mind that this is a logical interpretation. The real outcome wi
 
 
 })
+
+
 
 
 module.exports = router;
