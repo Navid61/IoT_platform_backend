@@ -63,11 +63,12 @@ router.get("/stream/:id",  async (req, res) => {
 
       
 
-        for (let item of stream){
+        for (const [index,item] of stream.entries()){
 
-          console.log('mame ', item)
+        
+          
 
-          stremsNameList.push({stream:item.streamName,scene:item.sceneName,conditions:item.conditions})
+          stremsNameList.push({id:index,stream:item.streamName,scene:item.sceneName,conditions:item.conditions})
 
         }
 
