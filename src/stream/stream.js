@@ -59,7 +59,7 @@ router.get("/stream/:id",  async (req, res) => {
   
       if(stream &&  stream.length > 0){
 
-       console.log('stream ', stream);
+      //  console.log('stream ', stream);
 
       
 
@@ -314,6 +314,9 @@ try {
     if(err){
         throw new Error(err)
     }
+
+
+    console.log('result in new condition ',result );
 
     if(result.length===0){
       const newAutomation = new Stream({
