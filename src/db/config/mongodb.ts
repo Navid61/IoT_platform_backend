@@ -1,3 +1,7 @@
+
+// @ts-nocheck
+
+
 const express =require("express");
 var router = express.Router();
 const {MongoClient} =require("mongodb");
@@ -8,9 +12,9 @@ const colors = require("colors");
  const url2='mongodb://127.0.0.1:28018';
 // const url = 'mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019';
 // const url2 = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/?authSource=admin";
-const client = new MongoClient(url);
+const client1 = new MongoClient(url);
 
-const entireData = new MongoClient(url2);
+const client2 = new MongoClient(url2);
 
 
 // // Database Name
@@ -33,25 +37,34 @@ const dbName70='totaldata';
 // // Use connect method to connect to the server
 
 async function main(){
-    await client.connect();
-    await entireData.connect();
+    await client1.connect();
+    await client2.connect();
    
+
 }
-main()
- const sigmaBoardDB = client.db(dbName);
- const filterBoardDB = client.db(dbName2);
- const serviceDB = client.db(dbName3);
- const agentDB = client.db(dbName4);
- const clientDB = client.db(dbName5);
- const usersDB = client.db(dbName6);
- const deviceDB= client.db(dbName7);
- const sceneDB = client.db(dbName8);
- const streamDB = client.db(dbName9);
- const sensorSiteDB = client.db(dbName10);
- const actuatorSiteDB =client.db(dbName11);
+try {
+    main()
+    console.log("Connected to all databases successfully.");
+} catch (error) {
+
+    console.error('error ', error)
+    
+}
+
+ const sigmaBoardDB = client1.db(dbName);
+ const filterBoardDB = client1.db(dbName2);
+ const serviceDB = client1.db(dbName3);
+ const agentDB = client1.db(dbName4);
+ const clientDB = client1.db(dbName5);
+ const usersDB = client1.db(dbName6);
+ const deviceDB= client1.db(dbName7);
+ const sceneDB = client1.db(dbName8);
+ const streamDB = client1.db(dbName9);
+ const sensorSiteDB = client1.db(dbName10);
+ const actuatorSiteDB =client1.db(dbName11);
 
  // all sensor and actuator data store in other database if user defined device site
- const totalDB = entireData.db(dbName70);
+ const totalDB = client2.db(dbName70);
 
 
 module.exports={

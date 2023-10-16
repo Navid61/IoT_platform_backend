@@ -3,7 +3,7 @@ const router = express.Router()
 const colors = require("colors")
 const axios = require("axios")
 
-const mongodb = require("../db/config/mongodb")
+const mongodb = require('../db/config/mongodb');
 
 
 
@@ -14,17 +14,17 @@ const Account = require("../db/models/account")
 
 
 
- const filterBoardDB = mongodb.filterBoardDB
- const serviceDB = mongodb.serviceDB
-//  const agentDB = mongodb.agentDB
-//  const clientDB = mongodb.clientDB
- const usersDB = mongodb.usersDB
- const deviceDB= mongodb.deviceDB
- const sceneDB = mongodb.sceneDB
- const sensorSiteDB= mongodb.sensorSiteDB
- const actuatorSiteDB= mongodb.actuatorSiteDB
-//  const automationDB = mongodb.automationDB
- const sigmaBoardDB= mongodb.sigmaBoardDB
+ const filterBoardDB =mongodb.filterBoardDB
+ const serviceDB =mongodb.serviceDB
+//  const agentDB =mongodb.agentDB
+//  const clientDB =mongodb.clientDB
+ const usersDB =mongodb.usersDB
+ const deviceDB=mongodb.deviceDB
+ const sceneDB =mongodb.sceneDB
+ const sensorSiteDB=mongodb.sensorSiteDB
+ const actuatorSiteDB=mongodb.actuatorSiteDB
+
+ const sigmaBoardDB=mongodb.sigmaBoardDB
 
 
 
@@ -191,9 +191,25 @@ router.post("/service", checkAuthenticated, async (req, res) => {
  
     if(result.length!==0){
      if(result[0].role!=='owner'){
-     await sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{role:"owner"}})
+      try {
+  // Initialize database connections
+
+  await sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{role:"owner"}})
+        
+      } catch (error) {
+        console.error("Error fetching stream data:", error);
+      
+      }
+    
       if(result[0].verification!==true){
-        await sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{verification:true}})
+        try {
+           // Initialize database connections
+
+          await sigmaBoardDB.collection("accounts").findOneAndUpdate({username:req.body.owner},{$set:{verification:true}})
+        } catch (error) {
+          console.error("Error fetching stream data:", error);
+        }
+      
       }
 
       // BELOW CODE RUN FOR FIRST TIME

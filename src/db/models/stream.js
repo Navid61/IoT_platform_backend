@@ -1,12 +1,13 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-
-const colors = require("colors");
+const mongoose = require("mongoose")
+const Schema = mongoose.Schema
+const { v4: uuidv4 } = require("uuid")
+const colors = require("colors")
 
 let streamDB = "mongodb://127.0.0.1:27017/stream";
 // var mongoDB = "mongodb://mongoadmin:M_9qLvH4p1@127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-256"
+let conn56a;
 try {
-  var conn56a = mongoose.createConnection(streamDB);
+   conn56a = mongoose.createConnection(streamDB);
 } catch (error) {
   // handleError(error);
   console.error("mongoose error", error);
@@ -17,7 +18,7 @@ const db56a = conn56a;
 db56a.on("error", console.error.bind(console, "connection error: "));
 db56a.once("open", function () {
   console.log(
-    colors.cyan(colors.bold("AutomationDB")) +
+    colors.cyan(colors.bold("streamDB")) +
       " Connected to MongoDB through mongoose successfully"
   );
 });

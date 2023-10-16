@@ -17,8 +17,8 @@ const db56b = conn56b;
 db56b.on("error", console.error.bind(console, "connection error: "));
 db56b.once("open", function () {
   console.log(
-    colors.yellow(colors.bold("AutomationDB")) +
-      " Connected to MongoDB through mongoose successfully"
+    colors.yellow(colors.bold("streamDB")) +
+      " StreamSetup Connected to MongoDB through mongoose successfully"
   );
 });
 

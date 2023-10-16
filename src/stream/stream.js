@@ -12,6 +12,10 @@ const SensorsGroup = require('../db/models/sensors')
 
 const ActuatorsGroup = require('../db/models/actuator')
 
+const sensorSite = require("../db/models/sensorSite");
+
+const actuatorSite = require("../db/models/actuatorSite");
+
 const FilterRule = require('../db/models/filter')
 
 const Scene = require('../db/models/scene');
@@ -19,20 +23,30 @@ const Scene = require('../db/models/scene');
 const Device = require("../db/models/device")
 
 
+// const mongodb = require("../db/config/mongodb");
+
 const mongodb = require("../db/config/mongodb");
+const streamDB =  mongodb.streamDB;
+
+
+
 const UserGroup = require("../db/models/usergroup");
 
 const Stream = require("../db/models/stream");
 
-const filterBoardDB = mongodb.filterBoardDB
-
-const sceneDB = mongodb.sceneDB
-
-const sensorSite = require("../db/models/sensorSite");
-const actuatorSite = require("../db/models/actuatorSite");
+// If you choose to initialize on-demand
 
 
-const deviceDB = mongodb.deviceDB
+
+
+
+
+
+
+
+
+
+
 
 
 const checkAuthenticated = function (req, res, next) {
@@ -44,6 +58,8 @@ const checkAuthenticated = function (req, res, next) {
   }
   
 router.use(checkAuthenticated)
+
+
 
 
 router.get("/stream/:id",  async (req, res) => {
@@ -577,6 +593,65 @@ In essence, the function will return `true` only if all the conditions with "AND
 
 However, keep in mind that this is a logical interpretation. The real outcome will depend on the data in the RethinkDB at the time of query execution. If you need a sample output, you'd have to provide the sample data present in the database corresponding to these conditions.
  */
+
+
+})
+
+
+
+
+router.post("/stream/updatecondition",async (req, res)=>{
+
+
+
+  const service_id=req.body.id
+
+
+  const stream = req.body.stream;
+  const scene = req.body.scene;
+
+
+  const conditionsTable = req.body.conditions
+  try {
+    await Stream.find({service_id:service_id,stream:stream}, async(err,result)=>{
+      if(err){
+          throw new Error(err)
+      }
+  
+  
+      console.log('result in new condition ',result );
+  
+      if(result && result.length>0){
+        
+
+        try {
+          const status = await Stream.updateOne(
+            { service_id: service_id, scene: scene },
+            { $set: { conditions: conditionsTable } }
+          );
+        
+          if (status.matchedCount === 0) {
+            console.log("No documents matched the provided criteria.");
+          } else if (status.modifiedCount === 0) {
+            console.log("No changes were made to the matched document.");
+          } else {
+            res.status(200).send('Successfully updated conditions');
+            console.log("Document was successfully updated.");
+          }
+        } catch (error) {
+          console.error("Error updating the document:", error);
+        }
+
+       
+       
+      
+       
+      }
+    }).clone().catch(function (err) {console.log(err)})
+  } catch (error) {
+    console.error('error in create new rule ', error);
+    res.status(500).send('Internal Server Error');
+  }
 
 
 })

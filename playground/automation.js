@@ -67,6 +67,6 @@ const AutomationSchema = new Schema({
   },
 });
 
-const Stream = db56a.model("Stream", AutomationSchema);
+const Automation = db56a.model("Automation", AutomationSchema);
 
-module.exports = Stream;
+module.exports = Automation;
