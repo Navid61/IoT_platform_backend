@@ -33,6 +33,56 @@ const StreamSchema = new Schema({
     maxLength: 360,
   },
 
+  startDay: {
+    type: Date,
+    default: Date.now,
+    required: true,
+    validate: {
+      validator: function (v) {
+        return v instanceof Date;
+      },
+      message: "Start day must be a valid date",
+    },
+    get: function (v) {
+      return v.toISOString();
+    },
+  },
+
+  expireDate: {
+    type: Date,
+    validate: {
+      validator: function (v) {
+        return v instanceof Date;
+      },
+      message: "Expire date must be a valid date",
+    },
+    get: function (v) {
+      return v.toISOString();
+    },
+  },
+
+  dayOfWeek: {
+    type: [String],
+    validate: {
+      validator: function (v) {
+        return Array.isArray(v) && v.every(day => typeof day === 'string' && day === day.toLowerCase());
+      },
+      message: "Days of the week must be an array with all elements lowercase strings",
+    },
+  },
+
+  timeInterval: {
+    type: Number,
+    required:true,
+    default:1000,
+    validate: {
+      validator: function (v) {
+        return Number.isInteger(v) && v>0 && v <= 1000000;
+      },
+      message: "myNumber must be an integer less than or equal to 1000000",
+    },
+  },
+
 
 
   streamName:{

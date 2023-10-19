@@ -614,7 +614,7 @@ router.post("/stream/updatecondition",async (req, res)=>{
   const conditionsTable = req.body.conditions
  
   try {
-    await Stream.find({service_id:service_id,stream:stream}, async(err,result)=>{
+    await Stream.find({service_id:service_id,streamName:stream}, async(err,result)=>{
       if(err){
           throw new Error(err)
       }
@@ -627,7 +627,7 @@ router.post("/stream/updatecondition",async (req, res)=>{
 
         try {
           const status = await Stream.updateOne(
-            { service_id: service_id, stream: stream },
+            { service_id: service_id, streamName: stream },
             { $set: { conditions: conditionsTable,sceneName:scene } }
           );
         
