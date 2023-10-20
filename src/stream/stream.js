@@ -333,10 +333,10 @@ try {
 
 
     console.log('result in new condition ',result );
-
-    if(result.length===0){
+//This is for first time when there is not created any document for this service
+    if(result.length===0|| !result.some(item=>item.streamName===stream && stream.length>0 && scene.length >0 && conditionsTable.length > 0)){
       const newAutomation = new Stream({
-        service_id:service_id,
+      service_id:service_id,
       streamName:stream,
       sceneName:scene,
       conditions:conditionsTable,
@@ -350,32 +350,12 @@ try {
 
   })
      
-    }else if( result && result.length > 0){
+    }else {
 
-      if(!result.some(item=>item.streamName===stream && stream.length>0 && scene.length >0 && conditionsTable.length > 0)){
-        const newAutomation = new Stream({
-        service_id:service_id,
-        streamName:stream,
-        sceneName:scene,
-        conditions:conditionsTable,
-          status: true,
-        })
-  
-    await newAutomation.save().then(()=>{
-  
-      res.status(200).json({result:newAutomation
-        ,msg:'new automation rule created successfully'})
-  
-    })
-        
-      }else {
+      console.log('duplicate');
+      res.status(409).json({name:stream,msg:"This name exist already"})
 
-        console.log('duplicate');
-        res.status(409).json({name:stream,msg:"This name exist already"})
-
-      }
-
-        }
+    }
   }).clone().catch(function (err) {console.log(err)})
 } catch (error) {
   console.error('error in create new rule ', error);
