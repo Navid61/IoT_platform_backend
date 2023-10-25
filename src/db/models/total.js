@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const colors = require("colors");
 
 // Database URL
-const totalDB = "mongodb://127.0.0.1:28018/total";
+const totalDB = "mongodb://127.0.0.1:29019/total";
 
 // Connect to MongoDB through Mongoose
 mongoose.connect(totalDB);
