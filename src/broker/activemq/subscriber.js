@@ -70,7 +70,8 @@ const client = mqtt.connect(connectUrl, {
 
 const connectionOptions = {
   host: '127.0.0.1',
-  port: 28015
+  port: 28015,
+  timeout: 30
 };
 
 

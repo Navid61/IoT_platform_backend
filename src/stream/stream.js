@@ -371,9 +371,7 @@ With .coerceTo('array'): The result of your query is explicitly an array, allowi
  */
 
 
-/**
- * 
- * 
+
  
 const operandMapping = {
     'eq': '===',
@@ -431,7 +429,7 @@ async function evaluateConditions(inputArray) {
     console.log(overallResult);  // true if any group of conditions is met, false otherwise.
 })();
  
-*/
+
 /**
  * 
  * [
