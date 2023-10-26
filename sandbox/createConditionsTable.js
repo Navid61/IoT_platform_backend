@@ -244,6 +244,171 @@ const conditionsTable =[
     }
   
   ]
+// 
+/** try 8 
+
+const conditionsTable =[
+  {
+    "id": 1,
+    "site": "hall",
+    "device": "00003",
+    "part": "sensor",
+    "name": "temp",
+    "operand": "gt",
+    "value": "12",
+    "logical": "NONE",
+    "sensor": "00001"
+  },
+  {
+    "id": 2,
+    "site": "room1",
+    "device": "00004",
+    "part": "sensor",
+    "name": "temp",
+    "operand": "lt",
+    "value": "123",
+    "logical": "OR",
+    "sensor": "00001"
+  },
+  {
+    "id": 3,
+    "site": "room2",
+    "device": "00009",
+    "part": "sensor",
+    "name": "temp",
+    "operand": "lt",
+    "value": "23",
+    "logical": "OR",
+    "sensor": "00001"
+  },
+  {
+    "id": 4,
+    "site": "garge",
+    "device": "00010",
+    "part": "actuator",
+    "name": "light",
+    "operand": "eq",
+    "value": "on",
+    "logical": "AND",
+    "actuator": "00006"
+  }
+]
+*/
+
+/** try 9 ✅
+
+const conditionsTable =[
+  {
+      "id": 1,
+      "site": "kitchen",
+      "device": "00002",
+      "part": "sensor",
+      "name": "temp",
+      "operand": "gte",
+      "value": "12",
+      "logical": "AND",
+      "sensor": "00001"
+  },
+  {
+      "id": 2,
+      "site": "kitchen",
+      "device": "00002",
+      "part": "sensor",
+      "name": "temp",
+      "operand": "lte",
+      "value": "23",
+      "logical": "AND",
+      "sensor": "00001"
+  },
+  {
+      "id": 3,
+      "site": "kitchen",
+      "device": "00002",
+      "part": "sensor",
+      "name": "temp",
+      "operand": "gte",
+      "value": "20",
+      "logical": "OR",
+      "sensor": "00001"
+  },
+  {
+      "id": 4,
+      "site": "kitchen",
+      "device": "00002",
+      "part": "sensor",
+      "name": "temp",
+      "operand": "lte",
+      "value": "34",
+      "logical": "AND",
+      "sensor": "00001"
+  },
+  {
+      "id": 5,
+      "site": "hall",
+      "device": "00007",
+      "part": "actuator",
+      "name": "light",
+      "operand": "eq",
+      "value": "off",
+      "logical": "AND",
+      "actuator": "00006"
+  },
+  {
+      "id": 6,
+      "site": "room1",
+      "device": "00004",
+      "part": "sensor",
+      "name": "temp",
+      "operand": "gte",
+      "value": "11",
+      "logical": "AND",
+      "sensor": "00001"
+  },
+  {
+      "id": 7,
+      "site": "room2",
+      "device": "00005",
+      "part": "sensor",
+      "name": "gps",
+      "operand": "eq",
+      "value": "2344",
+      "logical": "OR",
+      "sensor": "00008"
+  },
+  {
+      "id": 8,
+      "site": "room3",
+      "device": "00006",
+      "part": "actuator",
+      "name": "light",
+      "operand": "eq",
+      "value": "on",
+      "logical": "OR",
+      "actuator": "00006"
+  },
+  {
+      "id": 9,
+      "site": "room3",
+      "device": "00008",
+      "part": "actuator",
+      "name": "vaccum",
+      "operand": "eq",
+      "value": "off",
+      "logical": "AND",
+      "actuator": "00002"
+  },
+  {
+      "id": 10,
+      "site": "garge",
+      "device": "00010",
+      "part": "actuator",
+      "name": "vaccum",
+      "operand": "eq",
+      "value": "on",
+      "logical": "",
+      "actuator": "00002"
+  }
+]
 */
 ///
 
