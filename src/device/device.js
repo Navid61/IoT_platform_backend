@@ -9,6 +9,9 @@ const Service = require("../db/models/service");
 
 const setup_data = require("../data/setup_data.json");
 
+const eventEmitter = new events.EventEmitter();
+let lastRealTimeData = null; 
+
 const checkAuthenticated = function (req, res, next) {
   if (req.isAuthenticated()) {
     return next();
@@ -16,47 +19,46 @@ const checkAuthenticated = function (req, res, next) {
 };
 
 
-router.use(checkAuthenticated)
-
-
-router.post("/device/sid", async (req, res) => {
-
-let realTimeServiceId;
-   
 let io = socket.getIO(); // Access the socket.io instance
 
   const deviceNamespace = io.of("/device/sid");
 
   deviceNamespace.on('connection', (socket) => {
     // console.log('A user connected to /device/sid with socket id:', socket.id);
-
-   socket.on("service_id", (data) => {
-      // console.log(data); // Outputs: { dataKey: "Some data value" }
-      
-      handleRealTimeData(data);
-     
-      
-    });
-
-  
-
- 
-
-    socket.on("disconnect", () => {
-      // console.log("Client disconnected");
-      
-    });
+    socket.on("service_id", handleRealTimeData);
+    socket.on("disconnect", () => {});
   });
 
 
   function handleRealTimeData(data) {
-    // console.log('service_id in device ',data.dataKey)
+     // Handle the real-time data here and emit it
+     lastRealTimeData = data;  // store the data
+     eventEmitter.emit('newRealTimeData', data);
    
   }
 
   
 
-//  console.log('req ', req.body)
+
+router.use(checkAuthenticated)
+
+
+router.post("/device/sid", async (req, res) => {
+
+  eventEmitter.once('newRealTimeData', (data) => {
+    // Here, you can use the data received in real-time
+    // This function will be executed once when newRealTimeData is emitted
+    console.log(data); // use it as you wish
+});
+
+// If you also want to use the last received real-time data even if it's not new:
+if (lastRealTimeData) {
+    console.log(lastRealTimeData);  // use it as you wish
+}
+   
+
+
+
 
  
 
