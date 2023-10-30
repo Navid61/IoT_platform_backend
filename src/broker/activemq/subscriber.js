@@ -257,6 +257,7 @@ const sampleData = {
     device: "00001",
     timedate: new Date().toISOString(),
     name: "master",
+   
   },
   data: [
     { sensor: "00001", name: "temp", value: 20 },
@@ -1068,8 +1069,8 @@ async function handleDeviceData(dbName, tableName) {
 
               const transformedData = transformData(sampleData);
               if (transformedData && transformedData.length > 0) {
-                // console.log('tableName 2 ', tableName);
-                  await insertData(dbName, tableName, transformedData);
+               
+               await insertData(dbName, tableName, transformedData);
                 // TODO A candidate place for checking the conditions table and sending commands to devices
               }
           }

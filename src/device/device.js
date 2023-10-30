@@ -28,7 +28,7 @@ let io = socket.getIO(); // Access the socket.io instance
   const deviceNamespace = io.of("/device/sid");
 
   deviceNamespace.on('connection', (socket) => {
-    console.log('A user connected to /device/sid with socket id:', socket.id);
+    // console.log('A user connected to /device/sid with socket id:', socket.id);
 
    socket.on("service_id", (data) => {
       // console.log(data); // Outputs: { dataKey: "Some data value" }
@@ -43,14 +43,14 @@ let io = socket.getIO(); // Access the socket.io instance
  
 
     socket.on("disconnect", () => {
-      console.log("Client disconnected");
+      // console.log("Client disconnected");
       
     });
   });
 
 
   function handleRealTimeData(data) {
-    console.log('service_id in device ',data.dataKey)
+    // console.log('service_id in device ',data.dataKey)
    
   }
 

@@ -42,3 +42,11 @@ This function is asynchronous because it involves database operations which are 
 
 5. After iterating over all sets of conditions in `conditionsTable`, the function returns the `results` array.
 
+### First Step
+
+with `createConditionTaable.js` we prepare conditions for  convertion by `checkQueryGenerator.js`
+
+### Second Step
+
+put as module and use that palce in  `subscription` file and use exactly after insertData to dabase (rethinkdb)
+
