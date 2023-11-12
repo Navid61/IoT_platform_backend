@@ -67,6 +67,13 @@ const client = mqtt.connect(connectUrl, {
 });
 
 
+// Start OF Socket.IO
+
+
+
+
+
+
 // Connect to rethinkdb
 
 const connectionOptions = {
@@ -698,7 +705,7 @@ async function updateData() {
                 // If it can find device array is not empty
                 if (deviceResult.length !== 0) {
                   // console.log('objData.atr.device ', objData.atr.device)
-
+                  
                   await Device.find(
                     {
                       service_id: service_id,
@@ -709,15 +716,14 @@ async function updateData() {
                         throw new Error(err);
                       }
                       if (result) {
-                        if (result.length !== 0) {
-                          //  console.log('device list ', result)
-                          // if find device in device array
-                          // console.log('service_id: ', service_id, 'result ', result[0].device)
-                        } else {
-                          // if can not find device in device array
+
+                        
+                        if (result.length === 0) {
+                          
+                         /// if can not find device in device array
                           // add missing device or new device
 
-                          (async () => {
+                       
                             await deviceDB.collection("devices").updateOne(
                               { service_id: service_id },
                               {
@@ -729,8 +735,7 @@ async function updateData() {
                                 },
                               }
                             );
-                          })();
-                        }
+                        } 
                       }
                     }
                   )
@@ -739,12 +744,17 @@ async function updateData() {
                       console.log(err);
                     });
                 } else {
-                  (async () => {
+
+                  // This is only for first time
+              
                     await deviceDB.collection("devices").insertOne({
                       service_id: service_id,
-                      device: [{ device: sampleData.atr.device, site: "" }],
+                      device: [{device: sampleData.atr.device, site: "" }],
                     });
-                  })();
+
+                    // update socket io and refreshData, if do any changes here
+                    // deviceNamespace.emit("refreshData");
+                 
                 }
               }
             )
@@ -837,8 +847,8 @@ topics.forEach( (t) => {
 
         if(result.length>0){
           let deviceSitesInfo = result[0].device
-         
-if(deviceSitesInfo.every(item=>item.site!==''&& item.site!==undefined)){
+        
+if(deviceSitesInfo && deviceSitesInfo.length > 0 && deviceSitesInfo.every(item=>item.site!==''&& item.site!==undefined)){
 const deviceToSearch = sampleData.atr.device;
 
 const foundMapping = deviceSitesInfo.find(mapping => mapping.device === deviceToSearch);

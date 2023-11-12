@@ -34,14 +34,16 @@ const DeviceSchema = new Schema({
    
   },
 
-  device:{
-    type:Array,
-    required:true
+  device: {
+    type:Array
   }
 
 
 
 });
+
+
+
 
 
 

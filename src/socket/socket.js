@@ -21,13 +21,18 @@ module.exports = {
     });
 
       // Set up the namespace
-    
+       
     return io;
   },
-  getIO: () => {
+  getIO: (namespace = '') => {
     if (!io) {
       throw new Error('Socket.io not initialized!');
     }
+    
+    if (namespace) {
+      return io.of(namespace);
+    }
+    
     return io;
-  }
+  },
 };
