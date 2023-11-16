@@ -52,7 +52,7 @@ router.post("/sites/create", checkAuthenticated, async (req, res) => {
   
         //  console.log('existDeviceList ', existDeviceList);
   
-        //  console.log('values ', values)
+        console.log('values ', values)
        
         
         if (existDeviceList && existDeviceList.length > 0) {
@@ -80,6 +80,8 @@ router.post("/sites/create", checkAuthenticated, async (req, res) => {
                 elm.site = values[existObjIndex]?.site;
                 elm.longitude = deviceCoordinate[existCoordinate]?.longitude,
                 elm.latitude = deviceCoordinate[existCoordinate]?.latitude
+              }else if(existCoordinate === -1 && existObjIndex !== -1 && elm.device === values[existObjIndex]?.device){
+                elm.site = values[existObjIndex]?.site;
               }
     
               return elm;
@@ -138,56 +140,7 @@ if(updateDeviceSite){
     console.log(err)
   })
 
- /** Temporary Disabled 
-     await Service.find(
-        { owner: req.user.username, service_id: service_id },
-        async (err, result) => {
-          if (err) {
-            throw new Error("err in get owner name in device")
-          }
-  
-          if (result.length !== 0) {
-            await Device.find({ service_id: service_id }, async (err, result) => {
-              if (err) {
-                throw new Error(err)
-              }
-  
-              if (result.length === 0) {
-                ;(async () => {
-                  return await deviceDB
-                    .collection("devices")
-                    .insertOne({ service_id: service_id, device: values })
-                })().then((response) => {
-                  if (response) {
-                    res.status(201).json({ status: 201, msg: "ok" })
-                  }
-                })
-              }else {
-               (async()=>{
-                await deviceDB
-                    .collection("devices")
-                    .updateOne({ service_id: service_id}, {$set:{device:values}})
 
-               })().then(()=>{
-                res.status(201).json({ status: 201, msg: "ok" })
-               })
-              }
-            
-            })
-              .clone()
-              .catch(function (err) {
-                console.log(err)
-              })
-          } else {
-            res.status(401).json({ msg: "Error Service Not found" })
-          }
-        }
-      )
-        .clone()
-        .catch(function (err) {
-          console.log(err)
-        })
-  */
    
   })
   
@@ -197,6 +150,8 @@ router.post("/sites/update", checkAuthenticated, async (req, res) => {
     const service_id = req.body.service_id
     const values = req.body.values
 
+    // const deviceCoordinate = req.body.pos ?? [];
+    // let updateDeviceSite;
    
   console.log('values in update' , values);
       await Service.find(
@@ -206,35 +161,34 @@ router.post("/sites/update", checkAuthenticated, async (req, res) => {
             throw new Error("err in get owner name in device")
           }
   
-          if (result.length !== 0) {
+          if (result && result.length >0) {
             await Device.find({ service_id: service_id }, async (err, result) => {
               if (err) {
                 throw new Error(err)
               }
   
-              if (result.length !== 0) {
-                if (result[0].device.length !== 0) {
-                  console.log("result in devices ", result)
-  
-                  try {
 
-                    await deviceDB
-                    .collection("devices")
-                    .updateOne({ service_id: service_id}, {$set:{device:values}})  
-                    .then(()=>{
-                      res.status(204).json({ status: 204, msg: "updated" })
-                     })
-                    // await deviceDB
-                    //   .collection("devices")
-                    //   .findOneAndUpdate(
-                    //     { service_id: service_id },
-                    //     { $set: { device: values } }
-                    //   )
-                    // res.status(204).json({ status: 204, msg: "updated" })
-                  } catch (e) {
-                    res.status(400).json({ status: 400, msg: e })
-                  }
-                }
+              const existDeviceList = result[0].device
+              if (existDeviceList && existDeviceList.length>0) {
+                console.log('existDeviceList ', existDeviceList);
+                // try {
+
+                //   await deviceDB
+                //   .collection("devices")
+                //   .updateOne({ service_id: service_id}, {$set:{device:values}})  
+                //   .then(()=>{
+                //     res.status(204).json({ status: 204, msg: "updated" })
+                //    })
+                //   // await deviceDB
+                //   //   .collection("devices")
+                //   //   .findOneAndUpdate(
+                //   //     { service_id: service_id },
+                //   //     { $set: { device: values } }
+                //   //   )
+                //   // res.status(204).json({ status: 204, msg: "updated" })
+                // } catch (e) {
+                //   res.status(400).json({ status: 400, msg: e })
+                // }
               }
             })
               .clone()
